@@ -45,6 +45,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .amber-gradient-text {
   background: linear-gradient(135deg, #F7C56A 0%, #EA9B28 50%, #D98A17 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
