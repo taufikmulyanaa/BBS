@@ -1,37 +1,45 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, AlertTriangle, Filter } from 'lucide-react';
+import { MessageSquare, Plus, AlertTriangle, Coffee } from 'lucide-react';
 import { supabase, ForumPost } from '@/lib/supabase';
 import ForumPostCard from '@/components/ForumPostCard';
-import CreatePostModal from '@/components/CreatePostModal';
+import CreateForumPostModal from '@/components/CreateForumPostModal';
 
 export default function ForumPage() {
   const [posts, setPosts] = useState<ForumPost[]>([]);
-  const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_kondisi'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_jalan' | 'rekomendasi_warkop'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchPosts = async () => {
+    try {
+      const { data } = await supabase
+        .from('forum_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (data) setPosts(data);
+    } catch (err) {
+      console.error('Error fetching forum posts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false });
-        if (data) setPosts(data);
-      } catch (err) {
-        console.error('Error fetching forum posts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user);
+    });
+
     fetchPosts();
   }, []);
 
-  const handleCreatePost = (newPost: ForumPost) => {
-    setPosts((prev) => [newPost, ...prev]);
-  };
-
   const filteredPosts = posts.filter((post) => {
     if (activeTab === 'all') return true;
+    if (activeTab === 'laporan_jalan') {
+      return post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi';
+    }
     return post.tipe === activeTab;
   });
 
@@ -40,21 +48,21 @@ export default function ForumPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-3">
-          <div className="inline-flex items-center space-x-1.5 text-xs text-[#EA9B28] font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
             <MessageSquare className="w-4 h-4" />
             <span>Forum Diskusi Rute</span>
           </div>
-          <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#F5F5F5]">
+          <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-white">
             Ruang Diskusi & Laporan Jalan
           </h1>
-          <p className="text-sm text-[#B9BEC3]">
+          <p className="text-sm text-gray-400">
             Tanya jawab seputar jalur gowes, rekomendasi warung kopi, dan update perbaikan jalan real-time.
           </p>
         </div>
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-[#EA9B28] hover:bg-[#D98A17] text-[#141415] font-extrabold text-sm px-5 py-3 rounded-xl transition-all shadow-lg shadow-[#EA9B28]/20 flex items-center justify-center space-x-2 shrink-0"
+          className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2 shrink-0"
         >
           <Plus className="w-5 h-5 stroke-[2.5]" />
           <span>Tulis Post Forum</span>
@@ -62,52 +70,83 @@ export default function ForumPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#42403B] space-x-6 text-sm font-bold">
+      <div className="flex border-b border-[#333333] space-x-6 text-sm font-bold overflow-x-auto">
         <button
           onClick={() => setActiveTab('all')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'all'
-              ? 'border-[#EA9B28] text-[#EA9B28]'
-              : 'border-transparent text-[#8E8B87] hover:text-[#F5F5F5]'
+              ? 'border-amber-400 text-amber-400'
+              : 'border-transparent text-gray-400 hover:text-white'
           }`}
         >
           Semua Topik
         </button>
         <button
-          onClick={() => setActiveTab('diskusi')}
-          className={`pb-3 border-b-2 transition-colors ${
-            activeTab === 'diskusi'
-              ? 'border-[#EA9B28] text-[#EA9B28]'
-              : 'border-transparent text-[#8E8B87] hover:text-[#F5F5F5]'
+          onClick={() => setActiveTab('laporan_jalan')}
+          className={`pb-3 border-b-2 flex items-center space-x-1.5 transition-colors whitespace-nowrap ${
+            activeTab === 'laporan_jalan'
+              ? 'border-red-500 text-red-400'
+              : 'border-transparent text-gray-400 hover:text-white'
           }`}
         >
-          Diskusi Rute
+          <AlertTriangle className="w-4 h-4 text-red-500" />
+          <span>Laporan Kondisi Jalan</span>
         </button>
         <button
-          onClick={() => setActiveTab('laporan_kondisi')}
-          className={`pb-3 border-b-2 flex items-center space-x-1.5 transition-colors ${
-            activeTab === 'laporan_kondisi'
-              ? 'border-[#D9534F] text-[#ff9996]'
-              : 'border-transparent text-[#8E8B87] hover:text-[#F5F5F5]'
+          onClick={() => setActiveTab('diskusi')}
+          className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'diskusi'
+              ? 'border-amber-400 text-amber-400'
+              : 'border-transparent text-gray-400 hover:text-white'
           }`}
         >
-          <AlertTriangle className="w-4 h-4 text-[#D9534F]" />
-          <span>Laporan Kondisi Jalan</span>
+          Diskusi Rute & Gear
+        </button>
+        <button
+          onClick={() => setActiveTab('rekomendasi_warkop')}
+          className={`pb-3 border-b-2 flex items-center space-x-1.5 transition-colors whitespace-nowrap ${
+            activeTab === 'rekomendasi_warkop'
+              ? 'border-amber-400 text-amber-400'
+              : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          <Coffee className="w-4 h-4 text-amber-400" />
+          <span>Info Warkop Gowes</span>
         </button>
       </div>
 
       {/* Posts List */}
-      <div className="space-y-4">
-        {filteredPosts.map((post) => (
-          <ForumPostCard key={post.id} post={post} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center py-12 text-gray-400 text-sm">Memuat diskusi forum...</div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="text-center py-16 bg-[#262626] border border-[#333333] rounded-2xl space-y-3">
+          <MessageSquare className="w-10 h-10 text-amber-500 mx-auto opacity-80" />
+          <h3 className="text-white font-bold text-base">Belum Ada Postingan Topik Ini</h3>
+          <p className="text-xs text-gray-400 max-w-sm mx-auto">
+            Mulai diskusi atau bagikan laporan kondisi jalanan untuk anggota gowes lainnya!
+          </p>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="mt-2 inline-flex items-center space-x-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs px-4 py-2 rounded-lg"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tulis Post Forum</span>
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredPosts.map((post) => (
+            <ForumPostCard key={post.id} post={post} currentUser={currentUser} />
+          ))}
+        </div>
+      )}
 
       {/* Create Modal */}
-      <CreatePostModal
+      <CreateForumPostModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreatePost}
+        onSuccess={fetchPosts}
+        currentUser={currentUser}
       />
     </div>
   );

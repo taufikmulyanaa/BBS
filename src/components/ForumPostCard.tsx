@@ -1,27 +1,129 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ForumPost } from '@/lib/supabase';
-import { Heart, MessageSquare, AlertTriangle, Share2, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ForumPost, supabase } from '@/lib/supabase';
+import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle } from 'lucide-react';
 
 type Props = {
   post: ForumPost;
   onLike?: (postId: string) => void;
+  currentUser?: any;
 };
 
-export default function ForumPostCard({ post, onLike }: Props) {
-  const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.like_count);
+type CommentItem = {
+  id: string;
+  author_name: string;
+  author_avatar?: string;
+  isi: string;
+  created_at: string;
+};
 
-  const handleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikesCount((prev) => Math.max(0, prev - 1));
-    } else {
-      setLiked(true);
-      setLikesCount((prev) => prev + 1);
+export default function ForumPostCard({ post, onLike, currentUser }: Props) {
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.like_count || 0);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [commentsCount, setCommentsCount] = useState(post.comment_count || 0);
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      // Check if current user liked this post
+      supabase
+        .from('forum_likes')
+        .select('*')
+        .match({ post_id: post.id, user_id: currentUser.id })
+        .then(({ data }) => {
+          if (data && data.length > 0) setLiked(true);
+        });
     }
-    if (onLike) onLike(post.id);
+  }, [currentUser, post.id]);
+
+  const handleLike = async () => {
+    if (!currentUser) {
+      alert('Silakan masuk terlebih dahulu untuk menyukai postingan.');
+      return;
+    }
+
+    try {
+      if (liked) {
+        await supabase
+          .from('forum_likes')
+          .delete()
+          .match({ post_id: post.id, user_id: currentUser.id });
+
+        setLiked(false);
+        setLikesCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await supabase
+          .from('forum_likes')
+          .insert([{ post_id: post.id, user_id: currentUser.id }]);
+
+        setLiked(true);
+        setLikesCount((prev) => prev + 1);
+      }
+
+      if (onLike) onLike(post.id);
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const loadComments = async () => {
+    const { data } = await supabase
+      .from('forum_comments')
+      .select('*')
+      .eq('post_id', post.id)
+      .order('created_at', { ascending: true });
+
+    if (data) setComments(data);
+  };
+
+  const handleToggleComments = () => {
+    if (!showComments) {
+      loadComments();
+    }
+    setShowComments(!showComments);
+  };
+
+  const handleSendComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    if (!currentUser) {
+      alert('Silakan masuk terlebih dahulu untuk menulis komentar.');
+      return;
+    }
+
+    setSubmittingComment(true);
+
+    try {
+      const authorName =
+        currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Anggota Gowes';
+      const authorAvatar = currentUser.user_metadata?.avatar_url || '';
+
+      const { data, error } = await supabase.from('forum_comments').insert([
+        {
+          post_id: post.id,
+          author_id: currentUser.id,
+          author_name: authorName,
+          author_avatar: authorAvatar,
+          isi: newComment.trim(),
+        },
+      ]).select();
+
+      if (error) throw error;
+
+      if (data && data[0]) {
+        setComments((prev) => [...prev, data[0]]);
+        setCommentsCount((prev) => prev + 1);
+      }
+      setNewComment('');
+    } catch (err) {
+      console.error('Error sending comment:', err);
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   const getTimeAgo = (isoString: string) => {
@@ -43,67 +145,76 @@ export default function ForumPostCard({ post, onLike }: Props) {
       {/* Author Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-[#EA9B28] text-[#141415] font-bold overflow-hidden flex items-center justify-center border border-[#EA9B28]/40">
+          <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center border border-amber-500/40">
             {post.author_avatar ? (
               <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
             ) : (
-              <span>{post.author_name?.charAt(0) || 'P'}</span>
+              <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
             )}
           </div>
           <div>
-            <h4 className="font-heading font-bold text-sm text-[#F5F5F5]">{post.author_name || 'Bapak Sepeda'}</h4>
-            <span suppressHydrationWarning className="text-[11px] text-[#8E8B87]">{getTimeAgo(post.created_at)}</span>
+            <h4 className="font-heading font-bold text-sm text-white">{post.author_name || 'Bapak Sepeda'}</h4>
+            <span suppressHydrationWarning className="text-[11px] text-gray-400">
+              {getTimeAgo(post.created_at)}
+            </span>
           </div>
         </div>
 
         {/* Post Type Badge */}
-        {post.tipe === 'laporan_kondisi' ? (
-          <span className="bg-[#D9534F]/15 border border-[#D9534F]/30 text-[#ff9996] text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
+        {post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi' ? (
+          <span className="bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
             <AlertTriangle className="w-3 h-3" />
             <span>Laporan Jalan</span>
           </span>
+        ) : post.tipe === 'rekomendasi_warkop' ? (
+          <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+            ☕ Rekomendasi Warkop
+          </span>
         ) : (
-          <span className="bg-[#EA9B28]/15 border border-[#EA9B28]/30 text-[#F7C56A] text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+          <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
             Diskusi Rute
           </span>
         )}
       </div>
 
-      {/* Linked Route info if present */}
-      {post.route_name && (
-        <div className="inline-flex items-center space-x-1.5 text-xs text-[#EA9B28] bg-[#141415] border border-[#42403B] px-2.5 py-1 rounded-md">
+      {/* Linked Location/Route info if present */}
+      {post.lokasi_patokan && (
+        <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 bg-[#1A1A1A] border border-[#333333] px-2.5 py-1 rounded-md">
           <MapPin className="w-3.5 h-3.5" />
-          <span>Terkait Rute: {post.route_name}</span>
+          <span>Lokasi: {post.lokasi_patokan}</span>
         </div>
       )}
 
       {/* Content */}
       <div className="space-y-1.5">
-        <h3 className="font-heading font-extrabold text-base text-[#F5F5F5] leading-snug">
+        <h3 className="font-heading font-extrabold text-base text-white leading-snug">
           {post.judul}
         </h3>
-        <p className="text-xs text-[#B9BEC3] leading-relaxed whitespace-pre-line">
+        <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
           {post.isi}
         </p>
       </div>
 
       {/* Footer Actions */}
-      <div className="pt-3 border-t border-[#42403B] flex items-center justify-between text-xs text-[#8E8B87]">
+      <div className="pt-3 border-t border-[#333333] flex items-center justify-between text-xs text-gray-400">
         <div className="flex items-center space-x-4">
           <button
             onClick={handleLike}
             className={`flex items-center space-x-1.5 transition-colors ${
-              liked ? 'text-[#D9534F]' : 'hover:text-[#F5F5F5]'
+              liked ? 'text-red-500' : 'hover:text-white'
             }`}
           >
             <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
             <span className="font-bold">{likesCount}</span>
           </button>
 
-          <div className="flex items-center space-x-1.5 hover:text-[#F5F5F5]">
-            <MessageSquare className="w-4 h-4 text-[#EA9B28]" />
-            <span>{post.comment_count} Komentar</span>
-          </div>
+          <button
+            onClick={handleToggleComments}
+            className="flex items-center space-x-1.5 hover:text-white transition-colors"
+          >
+            <MessageSquare className="w-4 h-4 text-amber-400" />
+            <span>{commentsCount} Komentar</span>
+          </button>
         </div>
 
         <button
@@ -112,12 +223,59 @@ export default function ForumPostCard({ post, onLike }: Props) {
               navigator.share({ title: post.judul, text: post.isi, url: window.location.href });
             }
           }}
-          className="p-1.5 rounded-lg hover:bg-[#141415] hover:text-[#F5F5F5] transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[#1A1A1A] hover:text-white transition-colors"
           title="Bagikan"
         >
           <Share2 className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Comments Drawer */}
+      {showComments && (
+        <div className="pt-3 border-t border-[#333333] space-y-3 animate-fade-in">
+          <h4 className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
+            <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
+            <span>Komentar Komunitas ({comments.length})</span>
+          </h4>
+
+          {comments.length === 0 ? (
+            <p className="text-xs text-gray-500 italic">Belum ada komentar. Jadilah yang pertama berkomentar!</p>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+              {comments.map((comment) => (
+                <div key={comment.id} className="p-2.5 bg-[#1A1A1A] rounded-xl border border-[#333333] text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-400">{comment.author_name}</span>
+                    <span suppressHydrationWarning className="text-[10px] text-gray-500">
+                      {getTimeAgo(comment.created_at)}
+                    </span>
+                  </div>
+                  <p className="text-gray-300 leading-snug">{comment.isi}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add Comment Form */}
+          <form onSubmit={handleSendComment} className="flex items-center space-x-2 pt-1">
+            <input
+              type="text"
+              placeholder={currentUser ? 'Tulis komentar...' : 'Masuk untuk berkomentar'}
+              disabled={!currentUser || submittingComment}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={!currentUser || submittingComment || !newComment.trim()}
+              className="bg-amber-500 hover:bg-amber-400 text-black p-2 rounded-lg font-bold transition disabled:opacity-50"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

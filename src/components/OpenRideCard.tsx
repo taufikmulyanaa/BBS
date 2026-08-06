@@ -1,29 +1,55 @@
-'use client';
-
 import React, { useState } from 'react';
-import { OpenRide } from '@/lib/supabase';
+import { OpenRide, supabase } from '@/lib/supabase';
 import { Calendar, Clock, MapPin, Users, CheckCircle2, UserPlus, Info } from 'lucide-react';
 
 type Props = {
   ride: OpenRide;
   onJoin?: (rideId: string) => void;
   isJoined?: boolean;
+  currentUser?: any;
 };
 
-export default function OpenRideCard({ ride, onJoin, isJoined = false }: Props) {
+export default function OpenRideCard({ ride, onJoin, isJoined = false, currentUser }: Props) {
   const [joined, setJoined] = useState(isJoined);
   const [participantsCount, setParticipantsCount] = useState(ride.participant_count || 5);
+  const [loading, setLoading] = useState(false);
 
-  const handleJoinClick = () => {
-    if (joined) {
-      setJoined(false);
-      setParticipantsCount((prev) => Math.max(0, prev - 1));
-    } else {
-      if (participantsCount >= ride.kuota_maks) return;
-      setJoined(true);
-      setParticipantsCount((prev) => prev + 1);
+  const handleJoinClick = async () => {
+    if (!currentUser) {
+      alert('Silakan masuk terlebih dahulu untuk bergabung ke Open Ride.');
+      return;
     }
-    if (onJoin) onJoin(ride.id);
+
+    setLoading(true);
+
+    try {
+      if (joined) {
+        // Leave ride
+        await supabase
+          .from('ride_participants')
+          .delete()
+          .match({ ride_id: ride.id, user_id: currentUser.id });
+
+        setJoined(false);
+        setParticipantsCount((prev) => Math.max(0, prev - 1));
+      } else {
+        if (participantsCount >= ride.kuota_maks) return;
+
+        // Join ride
+        await supabase
+          .from('ride_participants')
+          .insert([{ ride_id: ride.id, user_id: currentUser.id, status: 'terkonfirmasi' }]);
+
+        setJoined(true);
+        setParticipantsCount((prev) => prev + 1);
+      }
+
+      if (onJoin) onJoin(ride.id);
+    } catch (err) {
+      console.error('Error toggling join status:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFull = participantsCount >= ride.kuota_maks;

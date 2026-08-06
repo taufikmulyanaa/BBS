@@ -49,10 +49,12 @@ export type OpenRide = {
 export type ForumPost = {
   id: string;
   route_id?: string;
-  user_id: string;
-  tipe: 'diskusi' | 'laporan_kondisi';
+  user_id?: string;
+  author_id?: string;
+  tipe: 'diskusi' | 'laporan_kondisi' | 'laporan_jalan' | 'rekomendasi_warkop';
   judul: string;
   isi: string;
+  lokasi_patokan?: string;
   like_count: number;
   comment_count: number;
   created_at: string;
