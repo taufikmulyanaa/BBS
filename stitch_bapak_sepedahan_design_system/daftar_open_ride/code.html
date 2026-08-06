@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guyub Gowes - Open Ride</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#06bb63",
+                      "on-secondary-fixed": "#00210c",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "on-surface-variant": "#dbc2ad",
+                      "on-secondary-fixed-variant": "#005228",
+                      "inverse-on-surface": "#392e25",
+                      "primary-fixed": "#ffdcbd",
+                      "cycling-orange": "#FF9900",
+                      "surface-variant": "#3d3329",
+                      "on-tertiary-container": "#004965",
+                      "hard-red": "#E74C3C",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#00431f",
+                      "primary-container": "#ff9900",
+                      "on-background": "#f1dfd1",
+                      "on-error-container": "#ffdad6",
+                      "surface": "#1a120a",
+                      "secondary": "#4ae183",
+                      "primary": "#ffc082",
+                      "secondary-fixed": "#6bfe9c",
+                      "asphalt-gray": "#2A2A2A",
+                      "surface-bright": "#42372d",
+                      "tertiary-fixed": "#c4e7ff",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed-variant": "#693c00",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#3d3329",
+                      "surface-tint": "#ffb86f",
+                      "on-tertiary-fixed": "#001e2c",
+                      "secondary-fixed-dim": "#4ae183",
+                      "on-secondary": "#003919",
+                      "surface-container-low": "#231a11",
+                      "tertiary-container": "#04beff",
+                      "outline": "#a38d7a",
+                      "medium-yellow": "#F1C40F",
+                      "outline-variant": "#554434",
+                      "tertiary-fixed-dim": "#7cd0ff",
+                      "on-surface": "#f1dfd1",
+                      "on-primary-container": "#653a00",
+                      "surface-dim": "#1a120a",
+                      "tertiary": "#8ed5ff",
+                      "on-primary": "#4a2800",
+                      "on-tertiary": "#00344a",
+                      "background": "#1a120a",
+                      "on-primary-fixed": "#2c1600",
+                      "action-yellow": "#FFD700",
+                      "surface-container-high": "#32281f",
+                      "primary-fixed-dim": "#ffb86f",
+                      "inverse-surface": "#f1dfd1",
+                      "surface-container": "#271e15",
+                      "easy-green": "#2ECC71",
+                      "night-ride": "#121212",
+                      "inverse-primary": "#8a5100",
+                      "surface-container-lowest": "#140d06"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "4px",
+                      "gutter": "16px",
+                      "stack-md": "12px",
+                      "container-margin": "20px",
+                      "base": "8px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "title-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "stats-number": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "title-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "stats-number": [
+                              "14px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Hide scrollbar for horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-night-ride text-on-surface font-body-sm min-h-screen flex flex-col pt-16 pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-night-ride/80 backdrop-blur-md text-cycling-orange font-title-md text-title-md docked full-width top-0 sticky z-50 bg-night-ride/80 border-b border-surface-variant flex justify-between items-center px-container-margin h-16 w-full">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full hidden md:block">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase tracking-tighter hidden md:block">BAPAK-BAPAK SEPEDAHAN</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase tracking-tighter md:hidden">Open Ride</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full hidden md:block">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full hidden md:block">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-surface-variant hidden md:block">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A small circular avatar of a cyclist wearing a helmet and sunglasses, premium dark background, soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1KAkNrROU3_9shnFV8PcQZTe7zzC87nEYhgcOQy5FvihSXxewfF0uafKuaFhojdqO90zkxJ4ktA1uDw2qmvY60w8UZ-CvmnaObTfgk-fKqFeWAXhTp7hH02ekZgl_a0IuJOHxonrPpsLBpMj_iJxz7W_NPAPp-UlVO_BZjPqGTE2Tu_eIjMo1Zf37N3fPXJCzWdZsD_U2yOagw4TrZwB06w08LkcI6vqW2BJJajXngyrpw3cqskRm"/>
+</div>
+<!-- Mobile Top Nav Actions -->
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full md:hidden">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full md:hidden">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-container-margin py-stack-lg flex flex-col gap-stack-lg">
+<!-- Web Navigation (Hidden on Mobile) -->
+<nav class="hidden md:flex gap-gutter border-b border-surface-variant pb-stack-md">
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Rute</a>
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Forum</a>
+<a class="text-cycling-orange border-b-2 border-cycling-orange font-title-md text-title-md pb-1" href="#">Open Ride</a>
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Chapter</a>
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Event</a>
+<a class="text-on-surface-variant hover:text-cycling-orange font-title-md text-title-md transition-colors" href="#">Marketplace</a>
+</nav>
+<!-- Web Hero / Intro (Hidden on Mobile) -->
+<section class="hidden md:flex flex-col gap-stack-md">
+<h1 class="font-display-lg text-display-lg text-on-surface">Temukan Teman Gowes Baru</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Bergabunglah dengan ride terbuka yang diadakan oleh komunitas. Temukan rute yang sesuai dengan kemampuanmu dan gowes bareng teman-teman baru.</p>
+</section>
+<!-- Search & Filter Bar -->
+<div class="flex flex-col md:flex-row gap-stack-md items-center w-full">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-asphalt-gray text-on-surface border-none rounded-lg pl-10 pr-4 py-3 focus:ring-1 focus:ring-cycling-orange font-body-sm text-body-sm placeholder-on-surface-variant" placeholder="Cari lokasi atau nama ride..." type="text"/>
+</div>
+<div class="flex gap-stack-sm w-full md:w-auto overflow-x-auto no-scrollbar py-2">
+<button class="bg-surface-variant text-on-surface px-4 py-2 rounded-full font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors border border-surface-container-highest">Semua</button>
+<button class="bg-asphalt-gray text-on-surface-variant px-4 py-2 rounded-full font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors border border-surface-container-highest">Tangerang</button>
+<button class="bg-asphalt-gray text-on-surface-variant px-4 py-2 rounded-full font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors border border-surface-container-highest">Bogor</button>
+<button class="bg-asphalt-gray text-on-surface-variant px-4 py-2 rounded-full font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors border border-surface-container-highest">Jakarta</button>
+</div>
+<button class="hidden md:flex items-center gap-2 bg-cycling-orange text-background px-6 py-3 rounded-full font-title-md text-title-md hover:bg-primary transition-colors ml-auto">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Buat Open Ride
+            </button>
+</div>
+<!-- Section Title -->
+<div class="flex justify-between items-center w-full mt-stack-md">
+<h2 class="font-title-md text-title-md text-on-surface">Open Ride Terdekat</h2>
+<button class="text-cycling-orange font-body-sm text-body-sm hover:underline">Lihat semua</button>
+</div>
+<!-- Open Ride List (Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="bg-asphalt-gray rounded-xl p-stack-md flex flex-col gap-stack-md border border-surface-container-highest hover:border-surface-variant transition-colors relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-low to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="flex gap-stack-md items-start z-10">
+<div class="bg-surface-variant text-on-surface rounded-lg p-2 flex flex-col items-center justify-center min-w-[60px]">
+<span class="font-title-md text-title-md font-bold leading-none">10</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-1">MEI</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-title-md text-title-md text-on-surface mb-1">Gowes Pagi BSD - Ciater</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            Sabtu, 10 Mei 2026 • 05:30
+                        </p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-sm bg-surface-container-low p-3 rounded-lg z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">route</span>
+<span class="font-stats-number text-stats-number text-on-surface">40 km</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-easy-green"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Easy</span>
+</div>
+<div class="flex items-center gap-2 col-span-2 mt-1">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">location_on</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate">Titik Kumpul: Teraskota BSD</span>
+</div>
+</div>
+<div class="flex justify-between items-center z-10 mt-auto pt-2">
+<div class="flex flex-col">
+<div class="flex -space-x-2">
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="A tiny circular profile picture of a cyclist, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBupQl7qOR0sniKePFP0XDr7T-c2cK9ZcZuJGY370J4ABuH8YDglTVNQivxZRfENyCNZvY4qTC5c7jleOO4Vhee_5YPOWWotbRiGQoVef49gzLZM1B6FLDFhOVuTJfiTrx6AmdR22TnnC8HGf9wZxnNgUlKgzuHxP4RmTxdAFO0-CpkhZ6a1wa0DPtRvhYC2FxQWySJLabCTgZ06ff72ZI7czG3glonNHO_K00PVP5AC5awztLVw-Fu"/>
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="Another tiny circular profile picture of a cyclist wearing sunglasses, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp7BC40uoDoQFCzTcGC4FLYYyJAwPjvcFzGgWZ1yXMFzTVuXO4X0xvPQ1I0Bn-zxhbsHa6aH5AgAgfsNkafKxG8wckCcm3hsAiooOzOg9EvN0F9PFGDEXxmvUKulIJSvO6Vu7pOlz-6G8MBNtO-cbfShbfCGc_IgzjqC4HuDG6rNLypFyuuA4RIbDgx9T25gP9rG-RrLFU3UXa-s3j34OxGnfSQ9nNN57Ttj0TRWhlyUp03uSvl_pX"/>
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="A tiny circular profile picture of a female cyclist, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXAS_l-Z1CAo1haLFWnzUg7pZZW-i4z541IFNqLMQN85kGnIG2ctQnsaUnRL2R5dqkUndExDf2sYlqwGt1XvpV4eJi1mhUosn9pVUcM4fR4Ckr-DLEOJdMfBXXZ7PWgu6NE5MUV_JZgEhjimSE9775ZYS9hqf-lf5X4nZMrWm0_FGjaMSE1PcSjCGJ2_VUFlnObHtJ0hUz2813veLYd-YK51RBBKSEGBWqjxpyAUQ9aFqNNtZzs4P0"/>
+<div class="w-6 h-6 rounded-full border border-asphalt-gray bg-surface-variant flex items-center justify-center font-label-caps text-[10px] text-on-surface">+3</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 text-[12px]">6 / 10 peserta</span>
+</div>
+<button class="bg-easy-green text-on-secondary-fixed px-6 py-2 rounded-full font-title-md text-[14px] hover:brightness-110 transition-all shadow-[0_0_15px_rgba(46,204,113,0.2)]">Join</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-asphalt-gray rounded-xl p-stack-md flex flex-col gap-stack-md border border-surface-container-highest hover:border-surface-variant transition-colors relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-low to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="flex gap-stack-md items-start z-10">
+<div class="bg-surface-variant text-on-surface rounded-lg p-2 flex flex-col items-center justify-center min-w-[60px]">
+<span class="font-title-md text-title-md font-bold leading-none">11</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-1">MEI</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-title-md text-title-md text-on-surface mb-1">Sunrise Ride Sentul</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            Minggu, 11 Mei 2026 • 05:45
+                        </p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-sm bg-surface-container-low p-3 rounded-lg z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">route</span>
+<span class="font-stats-number text-stats-number text-on-surface">60 km</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-medium-yellow"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Medium</span>
+</div>
+<div class="flex items-center gap-2 col-span-2 mt-1">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">location_on</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate">Titik Kumpul: Parkiran AEON Sentul</span>
+</div>
+</div>
+<div class="flex justify-between items-center z-10 mt-auto pt-2">
+<div class="flex flex-col">
+<div class="flex -space-x-2">
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="A tiny circular profile picture of a cyclist, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Y6cPAa9K-gyes4SulATc74qtfdV5ufLESIBzbuxkd1iQSEsWOW9b-NtXx3KLzsmYZBjU_-LVmYxovhLV1qV3tKDqSvrFzpCY5F8hxxShxpXbNQkYELBI3WEQFnqZdtqftgytm2-FIzPxxtvC3Vg1WSR8FbUglNfxUf-uozHnyJuGsLu9zN8pmSDiTNTZrfLNhvVqpK80QE0_ZjAEj9-9xv5CDTtPeT05KHxwDakCJrGQ_y76MXFC"/>
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="Another tiny circular profile picture of a cyclist wearing sunglasses, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuNMrI8dq9LAx26o8FB7qz8hHlMjzfqVeMRQahg9oNY2ZX9GHZF16oGYkyINyVJLaz0Z5if4y55kr6YvbOz851pZIXhuw6ebbk-swR0LtLbkC839kHghTZfxZ5vMeaVOlYggbXXZ-dKZFThhpz2KvYPckMzuL5FCeArTjnfBV2x6HCvatbj25PVuYiBqJziCxiTcBqnUEZaKAMXES_0QITFR8JePnqw8s_hfKt_wwicthyf9lOmlJn"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 text-[12px]">4 / 15 peserta</span>
+</div>
+<button class="bg-easy-green text-on-secondary-fixed px-6 py-2 rounded-full font-title-md text-[14px] hover:brightness-110 transition-all shadow-[0_0_15px_rgba(46,204,113,0.2)]">Join</button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-asphalt-gray rounded-xl p-stack-md flex flex-col gap-stack-md border border-surface-container-highest hover:border-surface-variant transition-colors relative overflow-hidden group opacity-70">
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-low to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="flex gap-stack-md items-start z-10">
+<div class="bg-surface-variant text-on-surface rounded-lg p-2 flex flex-col items-center justify-center min-w-[60px]">
+<span class="font-title-md text-title-md font-bold leading-none">12</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-1">MEI</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-title-md text-title-md text-on-surface mb-1">Long Ride Puncak 100K</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            Senin, 12 Mei 2026 • 05:15
+                        </p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-sm bg-surface-container-low p-3 rounded-lg z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">route</span>
+<span class="font-stats-number text-stats-number text-on-surface">100 km</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-hard-red"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Hard</span>
+</div>
+<div class="flex items-center gap-2 col-span-2 mt-1">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">location_on</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate">Titik Kumpul: Rest Area Gadog</span>
+</div>
+</div>
+<div class="flex justify-between items-center z-10 mt-auto pt-2">
+<div class="flex flex-col">
+<div class="flex -space-x-2">
+<img alt="User" class="w-6 h-6 rounded-full border border-asphalt-gray object-cover" data-alt="A tiny circular profile picture of a cyclist, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfeasWm_xpUjObbR_0FwKOFTd5AQYAYG9XbK3usA3CFzjD7b-QFtP8LrZJ_DxMiMz9hyLZv-ON54YJCbbGO9tZNUoxvzceMVJqFgHILHlE-ZotE3OFJjxaVHTJFf_62oIpkhdDtnX6TBf__LvN9cm1ax3fg9l53TjxvP7L9jWO7wyD8D3POC7CGsuMnzgN7-_sUHWhKC0fcCC33Jb2LpqGVFZ-gnaeVB7qfsQEcfiz0K5I-MtnYk6d"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 text-[12px]">3 / 20 peserta</span>
+</div>
+<button class="bg-surface-variant text-on-surface px-6 py-2 rounded-full font-title-md text-[14px] hover:bg-surface-container-high transition-colors">Join</button>
+</div>
+</article>
+</div>
+<!-- Mobile Floating Action Button (Only visible on mobile if appropriate, though request has it bottom right, typically we use a wide bottom button for primary actions on mobile lists like this or rely on top nav) -->
+<button class="md:hidden fixed bottom-24 right-4 bg-cycling-orange text-background w-14 h-14 rounded-full flex items-center justify-center shadow-lg z-40 hover:bg-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-asphalt-gray/90 dark:bg-asphalt-gray/90 backdrop-blur-xl font-label-caps text-label-caps fixed bottom-0 w-full z-50 rounded-t-xl border-t border-surface-variant shadow-lg fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 h-20">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span>Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="directions_bike">directions_bike</span>
+<span>Rute</span>
+</a>
+<a class="flex flex-col items-center justify-center text-cycling-orange bg-cycling-orange/10 rounded-xl py-1 px-2 w-20 transition-all scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="groups" data-weight="fill" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span>Open Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="forum">forum</span>
+<span>Forum</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span>Profil</span>
+</a>
+</nav>
+<!-- Footer (Web Only) -->
+<footer class="hidden md:block bg-night-ride text-cycling-orange font-body-sm text-body-sm w-full py-12 border-t border-surface-variant mt-auto">
+<div class="max-w-7xl mx-auto px-container-margin grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-center md:text-left">
+<div>
+<div class="text-title-md font-headline-lg text-on-surface mb-2">BAPAK-BAPAK SEPEDAHAN</div>
+<p class="text-on-surface-variant">© 2024 Guyub Gowes. Gowes Bareng, Guyub Rukun, Sehat &amp; Bahagia.</p>
+</div>
+<div class="flex flex-wrap justify-center md:justify-end gap-6">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-100 opacity-80" href="#">Tentang Kami</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-100 opacity-80" href="#">Kebijakan Privasi</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-100 opacity-80" href="#">Syarat &amp; Ketentuan</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-100 opacity-80" href="#">Hubungi Kami</a>
+</div>
+</div>
+</footer>
+</body></html>

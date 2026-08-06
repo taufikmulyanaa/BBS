@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "leaflet/dist/leaflet.css";
+@import "tailwindcss";
+
+:root {
+  --primary: #EA9B28;
+  --primary-hover: #D98A17;
+  --primary-light: #F7C56A;
+  --bg: #141415;
+  --surface: #232322;
+  --surface-alt: #2A2A2A;
+  --border: #42403B;
+  --text-primary: #F5F5F5;
+  --text-secondary: #B9BEC3;
+  --text-muted: #8E8B87;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Custom scrollbar for sleek dark look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #141415;
+}
+::-webkit-scrollbar-thumb {
+  background: #353534;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EA9B28;
+}
+
+.amber-gradient-text {
+  background: linear-gradient(135deg, #F7C56A 0%, #EA9B28 50%, #D98A17 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.amber-glow {
+  box-shadow: 0 0 25px rgba(234, 155, 40, 0.25);
+}
+
+.glass-card {
+  background: rgba(35, 35, 34, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(104, 100, 93, 0.3);
+}

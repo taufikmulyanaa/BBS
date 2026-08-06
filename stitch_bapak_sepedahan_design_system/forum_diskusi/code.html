@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Forum - Guyub Gowes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#06bb63",
+                      "on-secondary-fixed": "#00210c",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "on-surface-variant": "#dbc2ad",
+                      "on-secondary-fixed-variant": "#005228",
+                      "inverse-on-surface": "#392e25",
+                      "primary-fixed": "#ffdcbd",
+                      "cycling-orange": "#FF9900",
+                      "surface-variant": "#3d3329",
+                      "on-tertiary-container": "#004965",
+                      "hard-red": "#E74C3C",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#00431f",
+                      "primary-container": "#ff9900",
+                      "on-background": "#f1dfd1",
+                      "on-error-container": "#ffdad6",
+                      "surface": "#1a120a",
+                      "secondary": "#4ae183",
+                      "primary": "#ffc082",
+                      "secondary-fixed": "#6bfe9c",
+                      "asphalt-gray": "#2A2A2A",
+                      "surface-bright": "#42372d",
+                      "tertiary-fixed": "#c4e7ff",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed-variant": "#693c00",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#3d3329",
+                      "surface-tint": "#ffb86f",
+                      "on-tertiary-fixed": "#001e2c",
+                      "secondary-fixed-dim": "#4ae183",
+                      "on-secondary": "#003919",
+                      "surface-container-low": "#231a11",
+                      "tertiary-container": "#04beff",
+                      "outline": "#a38d7a",
+                      "medium-yellow": "#F1C40F",
+                      "outline-variant": "#554434",
+                      "tertiary-fixed-dim": "#7cd0ff",
+                      "on-surface": "#f1dfd1",
+                      "on-primary-container": "#653a00",
+                      "surface-dim": "#1a120a",
+                      "tertiary": "#8ed5ff",
+                      "on-primary": "#4a2800",
+                      "on-tertiary": "#00344a",
+                      "background": "#1a120a",
+                      "on-primary-fixed": "#2c1600",
+                      "action-yellow": "#FFD700",
+                      "surface-container-high": "#32281f",
+                      "primary-fixed-dim": "#ffb86f",
+                      "inverse-surface": "#f1dfd1",
+                      "surface-container": "#271e15",
+                      "easy-green": "#2ECC71",
+                      "night-ride": "#121212",
+                      "inverse-primary": "#8a5100",
+                      "surface-container-lowest": "#140d06"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "4px",
+                      "gutter": "16px",
+                      "stack-md": "12px",
+                      "container-margin": "20px",
+                      "base": "8px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "title-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "stats-number": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "title-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "stats-number": [
+                              "14px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #121212;
+            color: #f1dfd1;
+        }
+    </style>
+</head>
+<body class="bg-night-ride text-on-surface antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-night-ride/80 backdrop-blur-md docked full-width top-0 sticky z-50 bg-night-ride/80 border-b border-surface-variant flat no shadows md:hidden flex justify-between items-center px-container-margin h-16 w-full">
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full Active: scale-95 duration-100">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase tracking-tighter">Forum</h1>
+<div class="flex items-center space-x-2">
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full Active: scale-95 duration-100">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full Active: scale-95 duration-100">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</header>
+<!-- Web Top Nav (Hidden on Mobile) -->
+<header class="hidden md:flex justify-between items-center px-container-margin h-16 w-full bg-surface/80 dark:bg-night-ride/80 backdrop-blur-md sticky top-0 z-50 bg-night-ride/80 border-b border-surface-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-cycling-orange" data-icon="directions_bike" style="font-size: 32px;">directions_bike</span>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface uppercase tracking-tighter">BAPAK-BAPAK SEPEDAHAN</h1>
+</div>
+<nav class="flex gap-6">
+<a class="text-on-surface-variant hover:text-cycling-orange transition-colors font-title-md text-title-md" href="#">Beranda</a>
+<a class="text-on-surface-variant hover:text-cycling-orange transition-colors font-title-md text-title-md" href="#">Rute</a>
+<a class="text-on-surface-variant hover:text-cycling-orange transition-colors font-title-md text-title-md" href="#">Open Ride</a>
+<a class="text-cycling-orange font-title-md text-title-md" href="#">Forum</a>
+<a class="text-on-surface-variant hover:text-cycling-orange transition-colors font-title-md text-title-md" href="#">Profil</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface hover:bg-surface-container-high transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-asphalt-gray">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A detailed portrait of a middle-aged Indonesian male cyclist with a warm smile, wearing a professional cycling jersey, set against a dark premium studio background, high contrast, crisp lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_tvW0dZ44i_-66sc1hc_Yp_Nd66JUfvVdlH66N43pUS5YU4ttodahGZrKoaP5DF27J5kvMNvkxLlnJUJ-19zmR8TEktZUZ9fmJ4qzbFE8Vm9lHRPUwXUQE1OdaU7Q-L4-Wb3mriRKo85MhbY73qV0K4FGq8JovfNPstJbXp4YJtrVMUZx-qOEgJFKxX8Aa2bs6bjSjoDEqVCHiK2ABQP4gI9jl3SLZMvXGZr742IT9cxqyJkuModi"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto md:flex md:gap-8 pt-4 md:pt-8">
+<!-- Sidebar Navigation (Web Only) -->
+<aside class="hidden md:block w-64 flex-shrink-0 sticky top-24 h-[calc(100vh-6rem)]">
+<nav class="flex flex-col space-y-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:bg-surface-container-high rounded-xl transition-colors font-body-lg text-body-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+                    Beranda
+                </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:bg-surface-container-high rounded-xl transition-colors font-body-lg text-body-lg" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+                    Rute
+                </a>
+<a class="flex items-center gap-4 bg-primary-container/20 text-cycling-orange border-l-4 border-cycling-orange px-6 py-4 rounded-xl transition-colors font-body-lg text-body-lg font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="chat" data-weight="fill">chat</span>
+                    Forum
+                </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:bg-surface-container-high rounded-xl transition-colors font-body-lg text-body-lg" href="#">
+<span class="material-symbols-outlined" data-icon="celebration">celebration</span>
+                    Open Ride
+                </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-4 hover:bg-surface-container-high rounded-xl transition-colors font-body-lg text-body-lg" href="#">
+<span class="material-symbols-outlined" data-icon="diversity_3">diversity_3</span>
+                    Chapter
+                </a>
+</nav>
+<div class="mt-8 px-6">
+<button class="w-full bg-cycling-orange text-night-ride font-title-md text-title-md py-3 rounded-full hover:bg-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    Buat Post
+                </button>
+</div>
+</aside>
+<section class="flex-1 px-container-margin md:px-0">
+<!-- Tabs -->
+<div class="flex border-b border-asphalt-gray mb-6 sticky top-16 md:top-0 bg-night-ride z-40">
+<button class="flex-1 py-4 text-center font-title-md text-title-md text-cycling-orange border-b-2 border-cycling-orange">Untuk Anda</button>
+<button class="flex-1 py-4 text-center font-title-md text-title-md text-on-surface-variant hover:text-on-surface transition-colors">Mengikuti</button>
+<button class="flex-1 py-4 text-center font-title-md text-title-md text-on-surface-variant hover:text-on-surface transition-colors">Terbaru</button>
+</div>
+<!-- Posts List -->
+<div class="space-y-6">
+<!-- Post 1 -->
+<article class="bg-asphalt-gray rounded-xl p-4 md:p-6 shadow-lg border border-surface-variant">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Close up avatar of an Indonesian male cyclist in his 40s wearing a helmet and sunglasses, dark premium studio lighting, subtle orange rim light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuSLw2uvjp4db5IEAOHTllAS-oyyUzciu_2EY9c9t6OHugauaTizZmIm9pUkQ9-Dda_N3m6LAQhNoxM808-vXzDT9o-gXZbqWtlliUkznpPzc5dG5WCbY040zNZiI-sGwLw_xWKUWmDY5kLc4F4YTKfEWoMLcoPARz2TqUljqomoL10UkF8YBs5cJh-Q-RgI2ZuCwHtYqhJZNfh20CfKA9we0YrORLUyOIEpYqMJ86etYOu_SSs05A"/>
+<div>
+<h3 class="font-body-sm text-body-sm font-semibold text-on-surface">Dicky Hendrawan</h3>
+<p class="font-body-sm text-[12px] text-on-surface-variant">3 jam lalu</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface mb-2">Tanjakan Cibodas via Cipanas</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Ada perbaikan jalan di tanjakan KM 7-8. Hati-hati, masih berbatu.</p>
+<div class="rounded-lg overflow-hidden mb-4 border border-surface-variant relative aspect-video">
+<img alt="Post Image" class="w-full h-full object-cover" data-alt="A wide shot of a winding mountain road in Indonesia, overcast sky, rocky surface due to road construction, dense green foliage on the sides, high contrast, moody cinematic lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGglejWm6laIJdYaET9240-Y8sJut_S7FAERA0TsTmNv217OBz3C4Kl2k6nzvQrMkTL1COOJz7eQJzf-pZX-0sntQpnqmL3pY_BxOeA6uiuFuyphcJF9Hh4QW6HGWsOY9d-Zx6JwcoTJg_dj5d7wtJ3oUxLfxpes8hFjsL48KZk-CeaY1DpLc6ZYgGFn_ShQjJU2uj3_gUCQQD0sqxpv9InF6NZNtEbRes513GcrCo38EPbR_UjUuy"/>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-variant/50">
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="thumb_up">thumb_up</span>
+<span class="font-stats-number text-stats-number">24</span>
+</button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+<span class="font-stats-number text-stats-number">6</span>
+</button>
+</div>
+<button class="text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+</article>
+<!-- Post 2 -->
+<article class="bg-asphalt-gray rounded-xl p-4 md:p-6 shadow-lg border border-surface-variant">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Avatar of an energetic Indonesian male cyclist with a warm smile, casual cycling attire, high contrast studio lighting with a dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlheUb7aSegJixAztIs4AWxVW8L4UgGMsiXJwDNiu6vTdid3pVcXLD_X-EYB4MiQUVyD14sOJYzbps6p0bt9nx6gq6B2uZN3H-kQ2B7h5KHKL3Rbv3tekzRPbuWPa5mzXZneuD_JMAexikJuFV4gUSpSxxkXH_jdqztfj7cM4W9ZwGS0D5mJgPJfoyrCB_iIO12bNGUXndY89HFhjhlZPfEd3nDaXNDM-ROUXk_N9Gagoac_c-Pixf"/>
+<div>
+<h3 class="font-body-sm text-body-sm font-semibold text-on-surface">Rudi Setiawan</h3>
+<p class="font-body-sm text-[12px] text-on-surface-variant">5 jam lalu</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface mb-2">Kopi enak di rute Puncak Pass?</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Rekomendasi kopi enak di sekitar Puncak Pass arah Cianjur dong!</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase">Tanya</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase">Kopi</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-variant/50">
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="thumb_up">thumb_up</span>
+<span class="font-stats-number text-stats-number">15</span>
+</button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+<span class="font-stats-number text-stats-number">12</span>
+</button>
+</div>
+<button class="text-on-surface-variant hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+</article>
+</div>
+<!-- Mobile FAB -->
+<button class="md:hidden fixed bottom-24 right-container-margin bg-cycling-orange text-night-ride p-4 rounded-full shadow-lg hover:scale-105 transition-transform z-40">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+</section>
+<!-- Right Sidebar (Widgets - Web Only) -->
+<aside class="hidden lg:block w-72 flex-shrink-0 sticky top-24 h-[calc(100vh-6rem)]">
+<div class="bg-asphalt-gray rounded-xl p-6 shadow-lg border border-surface-variant">
+<h3 class="font-title-md text-title-md font-bold text-on-surface mb-4">Topik Populer</h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase hover:bg-surface-container-high cursor-pointer transition-colors">Rute Baru</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase hover:bg-surface-container-high cursor-pointer transition-colors">Sepeda Lipat</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase hover:bg-surface-container-high cursor-pointer transition-colors">Tips Tanjakan</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps uppercase hover:bg-surface-container-high cursor-pointer transition-colors">Review Groupset</span>
+</div>
+</div>
+</aside>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl border-t border-surface-variant bg-asphalt-gray shadow-lg bg-asphalt-gray/90 dark:bg-asphalt-gray/90 backdrop-blur-xl fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 h-20">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps mt-1">Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="directions_bike">directions_bike</span>
+<span class="font-label-caps text-label-caps mt-1">Rute</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-caps text-label-caps mt-1">Open Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-cycling-orange bg-cycling-orange/10 rounded-xl py-1 px-4 Active: scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="forum" data-weight="fill">forum</span>
+<span class="font-label-caps text-label-caps mt-1">Forum</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profil</span>
+</a>
+</nav>
+</body></html>

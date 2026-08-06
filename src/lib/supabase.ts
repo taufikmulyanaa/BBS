@@ -1,0 +1,62 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://lfwguyfgyyemdkpdobij.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxmd2d1eWZneXllbWRrcGRvYmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3MDAwMDAsImV4cCI6MjA3NTI3NjAwMDB9.placeholder_key';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export type Profile = {
+  id: string;
+  nama_lengkap: string;
+  foto_profil_url?: string;
+  role: 'admin' | 'member';
+  bio?: string;
+  created_at: string;
+};
+
+export type Route = {
+  id: string;
+  nama: string;
+  deskripsi?: string;
+  jarak_km: number;
+  elevasi_m?: number;
+  level: 'easy' | 'medium' | 'hard';
+  gpx_file_url?: string;
+  cover_image_url?: string;
+  tags: string[];
+  status_verifikasi: 'belum_diverifikasi' | 'terverifikasi';
+  rating_avg: number;
+  rating_count: number;
+  dibuat_oleh?: string;
+  created_at: string;
+};
+
+export type OpenRide = {
+  id: string;
+  judul: string;
+  titik_kumpul: string;
+  tanggal_waktu: string;
+  jarak_km: number;
+  level: 'easy' | 'medium' | 'hard';
+  kuota_maks: number;
+  catatan?: string;
+  status: 'akan_datang' | 'selesai' | 'dibatalkan';
+  dibuat_oleh?: string;
+  created_at: string;
+  participant_count?: number;
+};
+
+export type ForumPost = {
+  id: string;
+  route_id?: string;
+  user_id: string;
+  tipe: 'diskusi' | 'laporan_kondisi';
+  judul: string;
+  isi: string;
+  like_count: number;
+  comment_count: number;
+  created_at: string;
+  author_name?: string;
+  author_avatar?: string;
+  route_name?: string;
+};

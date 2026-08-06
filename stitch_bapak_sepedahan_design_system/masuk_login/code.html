@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - Guyub Gowes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#06bb63",
+                        "on-secondary-fixed": "#00210c",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-surface-variant": "#dbc2ad",
+                        "on-secondary-fixed-variant": "#005228",
+                        "inverse-on-surface": "#392e25",
+                        "primary-fixed": "#ffdcbd",
+                        "cycling-orange": "#FF9900",
+                        "surface-variant": "#3d3329",
+                        "on-tertiary-container": "#004965",
+                        "hard-red": "#E74C3C",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#00431f",
+                        "primary-container": "#ff9900",
+                        "on-background": "#f1dfd1",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#1a120a",
+                        "secondary": "#4ae183",
+                        "primary": "#ffc082",
+                        "secondary-fixed": "#6bfe9c",
+                        "asphalt-gray": "#2A2A2A",
+                        "surface-bright": "#42372d",
+                        "tertiary-fixed": "#c4e7ff",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#693c00",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#3d3329",
+                        "surface-tint": "#ffb86f",
+                        "on-tertiary-fixed": "#001e2c",
+                        "secondary-fixed-dim": "#4ae183",
+                        "on-secondary": "#003919",
+                        "surface-container-low": "#231a11",
+                        "tertiary-container": "#04beff",
+                        "outline": "#a38d7a",
+                        "medium-yellow": "#F1C40F",
+                        "outline-variant": "#554434",
+                        "tertiary-fixed-dim": "#7cd0ff",
+                        "on-surface": "#f1dfd1",
+                        "on-primary-container": "#653a00",
+                        "surface-dim": "#1a120a",
+                        "tertiary": "#8ed5ff",
+                        "on-primary": "#4a2800",
+                        "on-tertiary": "#00344a",
+                        "background": "#1a120a",
+                        "on-primary-fixed": "#2c1600",
+                        "action-yellow": "#FFD700",
+                        "surface-container-high": "#32281f",
+                        "primary-fixed-dim": "#ffb86f",
+                        "inverse-surface": "#f1dfd1",
+                        "surface-container": "#271e15",
+                        "easy-green": "#2ECC71",
+                        "night-ride": "#121212",
+                        "inverse-primary": "#8a5100",
+                        "surface-container-lowest": "#140d06"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "4px",
+                        "gutter": "16px",
+                        "stack-md": "12px",
+                        "container-margin": "20px",
+                        "base": "8px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "title-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "stats-number": ["JetBrains Mono", "monospace"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "stats-number": ["14px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-asphalt-gray/60 backdrop-blur-xl border border-surface-variant rounded-2xl;
+            }
+        }
+    </style>
+</head>
+<body class="bg-night-ride text-on-surface font-body-lg min-h-screen relative overflow-hidden flex flex-col items-center justify-center">
+<!-- Atmospheric Background Image -->
+<div class="absolute inset-0 z-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-40 mix-blend-luminosity" data-alt="A cinematic, low-key lighting photograph of a solitary road bike resting against a stone wall on a misty mountain pass at dawn. The scene is shrouded in shadows with deep blacks and subtle asphalt grays, punctuated by a faint, warm golden glow from the rising sun breaking through the fog, establishing a premium, moody dark-mode aesthetic suited for a high-end cycling community app." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA3pNKYaqfzGLWfQzU1Aglz6u5bMyMB40vgUdwhvZWmXcG0TzW7jUVBN-a5j-cXkAM40ITDiNiAQpvtgUeDH8s06jRr2mVTiysIVzDG56b0F8a_OxENbrIbH_Cl3x7nW_eSBg0rT3N1ylYbrVOlNCU6M-B5_AwiXEBmFAKUwZGvOIxymANN7YploChCMozSJwoQUJ8HPCmsa23mVbDS09H5srEbtF5co1LIGz9mzR1dLsaxFIoFALQh')">
+</div>
+<!-- Gradient Overlay to ensure contrast -->
+<div class="absolute inset-0 z-0 bg-gradient-to-t from-night-ride via-night-ride/90 to-night-ride/40"></div>
+<!-- Main Content Container -->
+<main class="relative z-10 w-full max-w-md px-container-margin py-12 flex flex-col">
+<!-- Header / Logo Area -->
+<div class="flex flex-col items-center text-center mb-stack-lg">
+<div class="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center mb-6 shadow-lg shadow-black/50 border border-surface-variant">
+<span class="material-symbols-outlined text-4xl text-cycling-orange" style="font-variation-settings: 'FILL' 1;">directions_bike</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">BAPAK-BAPAK SEPEDAHAN</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs">Gowes Bareng, Guyub Rukun, Sehat &amp; Bahagia.</p>
+</div>
+<!-- Login Form Panel -->
+<div class="glass-panel p-6 sm:p-8 w-full shadow-2xl">
+<form class="space-y-5" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div>
+<label class="block font-body-sm text-body-sm text-on-surface-variant mb-2" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70 pointer-events-none">mail</span>
+<input class="w-full bg-surface-container-low border border-surface-variant text-on-surface font-body-lg rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-cycling-orange focus:ring-1 focus:ring-cycling-orange transition-all placeholder:text-on-surface-variant/50" id="email" name="email" placeholder="Masukkan email anda" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="block font-body-sm text-body-sm text-on-surface-variant" for="password">Kata Sandi</label>
+<a class="font-body-sm text-body-sm text-cycling-orange hover:text-primary transition-colors" href="#">Lupa sandi?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70 pointer-events-none">lock</span>
+<input class="w-full bg-surface-container-low border border-surface-variant text-on-surface font-body-lg rounded-xl pl-12 pr-12 py-3 focus:outline-none focus:border-cycling-orange focus:ring-1 focus:ring-cycling-orange transition-all placeholder:text-on-surface-variant/50" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70 hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Main Action Button -->
+<button class="w-full bg-cycling-orange text-night-ride font-title-md text-title-md rounded-xl py-3.5 mt-4 hover:bg-primary transition-all duration-200 active:scale-95 shadow-[0_0_15px_rgba(255,153,0,0.3)]" type="submit">
+                    MASUK
+                </button>
+</form>
+<!-- Divider -->
+<div class="flex items-center my-6">
+<div class="flex-grow h-px bg-surface-variant"></div>
+<span class="px-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Atau</span>
+<div class="flex-grow h-px bg-surface-variant"></div>
+</div>
+<!-- Secondary Action -->
+<button class="w-full bg-surface-container hover:bg-surface-container-high border border-surface-variant text-on-surface font-body-lg rounded-xl py-3.5 flex items-center justify-center gap-3 transition-colors" type="button">
+<!-- Simple Google G Icon using Material Symbols as a stand-in, or SVG inline -->
+<svg class="w-5 h-5" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                Masuk dengan Google
+            </button>
+</div>
+<!-- Footer Link -->
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant mt-8">
+            Belum punya akun? 
+            <a class="text-cycling-orange hover:text-primary font-medium transition-colors ml-1 border-b border-transparent hover:border-primary pb-0.5" href="#">Daftar sekarang</a>
+</p>
+</main>
+</body></html>

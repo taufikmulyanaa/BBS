@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profil - Guyub Gowes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#06bb63",
+                        "on-secondary-fixed": "#00210c",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-surface-variant": "#dbc2ad",
+                        "on-secondary-fixed-variant": "#005228",
+                        "inverse-on-surface": "#392e25",
+                        "primary-fixed": "#ffdcbd",
+                        "cycling-orange": "#FF9900",
+                        "surface-variant": "#3d3329",
+                        "on-tertiary-container": "#004965",
+                        "hard-red": "#E74C3C",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#00431f",
+                        "primary-container": "#ff9900",
+                        "on-background": "#f1dfd1",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#1a120a",
+                        "secondary": "#4ae183",
+                        "primary": "#ffc082",
+                        "secondary-fixed": "#6bfe9c",
+                        "asphalt-gray": "#2A2A2A",
+                        "surface-bright": "#42372d",
+                        "tertiary-fixed": "#c4e7ff",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#693c00",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#3d3329",
+                        "surface-tint": "#ffb86f",
+                        "on-tertiary-fixed": "#001e2c",
+                        "secondary-fixed-dim": "#4ae183",
+                        "on-secondary": "#003919",
+                        "surface-container-low": "#231a11",
+                        "tertiary-container": "#04beff",
+                        "outline": "#a38d7a",
+                        "medium-yellow": "#F1C40F",
+                        "outline-variant": "#554434",
+                        "tertiary-fixed-dim": "#7cd0ff",
+                        "on-surface": "#f1dfd1",
+                        "on-primary-container": "#653a00",
+                        "surface-dim": "#1a120a",
+                        "tertiary": "#8ed5ff",
+                        "on-primary": "#4a2800",
+                        "on-tertiary": "#00344a",
+                        "background": "#1a120a",
+                        "on-primary-fixed": "#2c1600",
+                        "action-yellow": "#FFD700",
+                        "surface-container-high": "#32281f",
+                        "primary-fixed-dim": "#ffb86f",
+                        "inverse-surface": "#f1dfd1",
+                        "surface-container": "#271e15",
+                        "easy-green": "#2ECC71",
+                        "night-ride": "#121212",
+                        "inverse-primary": "#8a5100",
+                        "surface-container-lowest": "#140d06"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "4px",
+                        "gutter": "16px",
+                        "stack-md": "12px",
+                        "container-margin": "20px",
+                        "base": "8px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "stats-number": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "stats-number": ["14px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-title, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-night-ride text-on-surface min-h-screen pb-24 md:pb-0 overflow-x-hidden selection:bg-cycling-orange selection:text-night-ride">
+<!-- Top Navigation (Mobile Web context implies header) -->
+<header class="bg-surface/80 dark:bg-night-ride/80 backdrop-blur-md docked full-width top-0 sticky z-50 bg-night-ride/80 border-b border-surface-variant flat no shadows flex justify-between items-center px-container-margin h-16 w-full">
+<div class="flex items-center gap-4">
+<!-- Placeholder for Leading Icon (Menu in this case, hidden as it's a mobile profile view often with back or just brand) -->
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<h1 class="font-title-md text-title-md font-bold text-on-surface uppercase tracking-tighter">Profil</h1>
+</div>
+<div class="flex items-center gap-4 hidden md:flex">
+<nav class="flex gap-6">
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-cycling-orange transition-colors" href="#">Home</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-cycling-orange transition-colors" href="#">Rute</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-cycling-orange transition-colors" href="#">Open Ride</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-cycling-orange transition-colors" href="#">Forum</a>
+<a class="text-cycling-orange font-label-caps text-label-caps flex flex-col items-center justify-center bg-cycling-orange/10 rounded-xl py-1 px-3" href="#">Profil</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-3xl mx-auto w-full px-container-margin py-8 md:py-12 space-y-8">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative w-32 h-32 rounded-full border-4 border-asphalt-gray overflow-hidden bg-surface-container-high shrink-0 shadow-lg shadow-black/50">
+<img alt="Ogie Pratama Profile" class="w-full h-full object-cover" data-alt="A detailed headshot portrait of an Indonesian cyclist in his 30s, wearing premium modern cycling gear with orange accents, smiling warmly. Shot outdoors with bright, natural lighting against a blurred background of green foliage. The mood is energetic, friendly, and communal, fitting a dark-mode premium cycling app aesthetic with deep shadows and vibrant highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARFPywYe-X63Db95uaToQAMl6B-DjKxmMJVZSPC_nEqZSd-YGV2Evj-WoRghN5nV5M3MyCdLPjrLu8Mt-Nrl7ULcCEOQV5OWlsOSX9xsDORh3qzYa5rZVAKfzS3BIfTi_0ytX1jZ1YkPf0l4HTsFSIBCDi9lUiAUuIwnoqzoFqEGymk8oC7RaqsccxdRq6fxvAcef9e9Me2w5PtvLEX71J8JOt3058c8BvFXLaEjb01GCkFAr7SV_Q"/>
+<!-- Edit overlay -->
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-white text-3xl">edit</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface font-bold">Ogie Pratama</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                    Member since Jan 2026
+                </p>
+<div class="mt-3 inline-flex items-center gap-1.5 bg-asphalt-gray px-3 py-1 rounded-full border border-surface-variant">
+<span class="material-symbols-outlined text-cycling-orange text-[14px] fill">verified</span>
+<span class="font-label-caps text-label-caps text-cycling-orange">Premium Member</span>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="grid grid-cols-3 gap-3 md:gap-6">
+<div class="bg-asphalt-gray rounded-xl p-4 text-center border border-surface-variant shadow-lg flex flex-col items-center justify-center transition-transform hover:-translate-y-1 hover:border-cycling-orange/30 cursor-pointer">
+<span class="font-stats-number text-stats-number text-2xl md:text-3xl text-primary font-bold mb-1">12</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px] md:text-[12px]">Rute<br/>Disimpan</span>
+</div>
+<div class="bg-asphalt-gray rounded-xl p-4 text-center border border-surface-variant shadow-lg flex flex-col items-center justify-center transition-transform hover:-translate-y-1 hover:border-cycling-orange/30 cursor-pointer">
+<span class="font-stats-number text-stats-number text-2xl md:text-3xl text-secondary font-bold mb-1">8</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px] md:text-[12px]">Open Ride<br/>Diikuti</span>
+</div>
+<div class="bg-asphalt-gray rounded-xl p-4 text-center border border-surface-variant shadow-lg flex flex-col items-center justify-center transition-transform hover:-translate-y-1 hover:border-cycling-orange/30 cursor-pointer">
+<span class="font-stats-number text-stats-number text-2xl md:text-3xl text-tertiary font-bold mb-1">15</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px] md:text-[12px]">Post<br/>Forum</span>
+</div>
+</section>
+<!-- Menu List Section -->
+<section class="bg-asphalt-gray rounded-2xl overflow-hidden border border-surface-variant shadow-lg">
+<div class="flex flex-col">
+<a class="group flex items-center justify-between p-4 md:p-5 border-b border-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-cycling-orange/10 group-hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">map</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Rute Favorit Saya</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">chevron_right</span>
+</a>
+<a class="group flex items-center justify-between p-4 md:p-5 border-b border-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-cycling-orange/10 group-hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">groups</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Open Ride Saya</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">chevron_right</span>
+</a>
+<a class="group flex items-center justify-between p-4 md:p-5 border-b border-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-cycling-orange/10 group-hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">forum</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Post &amp; Komentar Saya</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">chevron_right</span>
+</a>
+<a class="group flex items-center justify-between p-4 md:p-5 border-b border-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-cycling-orange/10 group-hover:text-cycling-orange transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">settings</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Pengaturan Akun</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-cycling-orange">chevron_right</span>
+</a>
+<button class="group flex items-center justify-between p-4 md:p-5 hover:bg-surface-container-high transition-colors w-full text-left">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-error-container group-hover:text-error transition-colors">
+<span class="material-symbols-outlined text-hard-red group-hover:text-error">logout</span>
+</div>
+<span class="font-body-lg text-body-lg text-hard-red font-medium group-hover:text-error">Keluar</span>
+</div>
+</button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden bg-asphalt-gray/90 dark:bg-asphalt-gray/90 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-xl border-t border-surface-variant shadow-lg fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 h-20">
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">home</span>
+<span class="text-[10px]">Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">directions_bike</span>
+<span class="text-[10px]">Rute</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">groups</span>
+<span class="text-[10px]">Open Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">forum</span>
+<span class="text-[10px]">Forum</span>
+</a>
+<a class="flex flex-col items-center justify-center text-cycling-orange bg-cycling-orange/10 rounded-xl py-1 font-label-caps text-label-caps hover:text-primary transition-all w-16 scale-90 duration-150" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1 fill">person</span>
+<span class="text-[10px]">Profil</span>
+</a>
+</nav>
+</body></html>

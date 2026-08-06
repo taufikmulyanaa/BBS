@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guyub Gowes - Bapak-Bapak Sepedahan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#06bb63",
+                      "on-secondary-fixed": "#00210c",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "on-surface-variant": "#dbc2ad",
+                      "on-secondary-fixed-variant": "#005228",
+                      "inverse-on-surface": "#392e25",
+                      "primary-fixed": "#ffdcbd",
+                      "cycling-orange": "#FF9900",
+                      "surface-variant": "#3d3329",
+                      "on-tertiary-container": "#004965",
+                      "hard-red": "#E74C3C",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#00431f",
+                      "primary-container": "#ff9900",
+                      "on-background": "#f1dfd1",
+                      "on-error-container": "#ffdad6",
+                      "surface": "#1a120a",
+                      "secondary": "#4ae183",
+                      "primary": "#ffc082",
+                      "secondary-fixed": "#6bfe9c",
+                      "asphalt-gray": "#2A2A2A",
+                      "surface-bright": "#42372d",
+                      "tertiary-fixed": "#c4e7ff",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed-variant": "#693c00",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#3d3329",
+                      "surface-tint": "#ffb86f",
+                      "on-tertiary-fixed": "#001e2c",
+                      "secondary-fixed-dim": "#4ae183",
+                      "on-secondary": "#003919",
+                      "surface-container-low": "#231a11",
+                      "tertiary-container": "#04beff",
+                      "outline": "#a38d7a",
+                      "medium-yellow": "#F1C40F",
+                      "outline-variant": "#554434",
+                      "tertiary-fixed-dim": "#7cd0ff",
+                      "on-surface": "#f1dfd1",
+                      "on-primary-container": "#653a00",
+                      "surface-dim": "#1a120a",
+                      "tertiary": "#8ed5ff",
+                      "on-primary": "#4a2800",
+                      "on-tertiary": "#00344a",
+                      "background": "#1a120a",
+                      "on-primary-fixed": "#2c1600",
+                      "action-yellow": "#FFD700",
+                      "surface-container-high": "#32281f",
+                      "primary-fixed-dim": "#ffb86f",
+                      "inverse-surface": "#f1dfd1",
+                      "surface-container": "#271e15",
+                      "easy-green": "#2ECC71",
+                      "night-ride": "#121212",
+                      "inverse-primary": "#8a5100",
+                      "surface-container-lowest": "#140d06"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "4px",
+                      "gutter": "16px",
+                      "stack-md": "12px",
+                      "container-margin": "20px",
+                      "base": "8px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "title-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "stats-number": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "title-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "stats-number": [
+                              "14px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #121212;
+            color: #f1dfd1;
+        }
+        .hero-gradient {
+            background: linear-gradient(to bottom, rgba(18, 18, 18, 0.3) 0%, rgba(18, 18, 18, 1) 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="font-body-lg text-body-lg antialiased selection:bg-cycling-orange selection:text-night-ride">
+<!-- TopAppBar (Web/Desktop) -->
+<header class="hidden md:flex justify-between items-center px-container-margin h-16 w-full bg-surface/80 dark:bg-night-ride/80 backdrop-blur-md docked full-width top-0 sticky z-50 bg-night-ride/80 border-b border-surface-variant flat no shadows">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl hover:bg-surface-container-high transition-colors cursor-pointer p-2 rounded-full" data-icon="menu">menu</span>
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface uppercase tracking-tighter">BAPAK-BAPAK SEPEDAHAN</div>
+</div>
+<nav class="flex gap-6 items-center">
+<a class="text-cycling-orange font-title-md text-title-md hover:bg-surface-container-high transition-colors px-3 py-1 rounded-md" href="#">Beranda</a>
+<a class="text-on-surface-variant font-title-md text-title-md hover:bg-surface-container-high transition-colors px-3 py-1 rounded-md" href="#">Rute</a>
+<a class="text-on-surface-variant font-title-md text-title-md hover:bg-surface-container-high transition-colors px-3 py-1 rounded-md" href="#">Open Ride</a>
+<a class="text-on-surface-variant font-title-md text-title-md hover:bg-surface-container-high transition-colors px-3 py-1 rounded-md" href="#">Forum</a>
+<a class="text-on-surface-variant font-title-md text-title-md hover:bg-surface-container-high transition-colors px-3 py-1 rounded-md" href="#">Profil</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl hover:bg-surface-container-high transition-colors cursor-pointer p-2 rounded-full" data-icon="search">search</span>
+<span class="material-symbols-outlined text-on-surface-variant text-2xl hover:bg-surface-container-high transition-colors cursor-pointer p-2 rounded-full" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-surface-variant">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A portrait photo of a middle-aged Indonesian man wearing a cycling helmet and sunglasses, smiling warmly. Shot with a shallow depth of field against an outdoor background in golden hour light, representing a typical friendly member of a cycling community." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3VmgD9B7u1Re7qULdFIfU2xaN9VAG-GmDAJcPOl5UGa4iHTxDqOgcv80qBB9LU49SWigwdJgc2rjznNpvfNsl26J4BRcaKeKiQVV14oTr33OhSBk2wIrHBr5Ow-RW7G0iDjmxVQ8XAqOEbNUXEXVEh17-M0eZHvl-rOLIkR8elyH26pEjG8n8KI1Jswd3d7T5wxhcVtcRy-v0I_mH2eqmIp60HhWOLBpWhd1yZIbUDnA8CnwxMVPK"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main>
+<!-- Hero Section -->
+<section class="relative w-full min-h-[80vh] flex items-center justify-start overflow-hidden px-8 md:px-16 lg:px-24 pt-20 pb-32">
+<!-- Background Image with Overlay -->
+<div class="absolute inset-0 z-0">
+<div class="bg-cover bg-center w-full h-full" data-alt="A sweeping wide-angle landscape shot of a group of mature cyclists riding high-end road bikes along a scenic mountain road at sunrise. The sky is dramatic with golden and orange hues. The cyclists are in silhouette or partially lit, conveying a sense of adventure, camaraderie, and active lifestyle in a premium dark modern aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCTXfGtZH33p_dy_WDNjd7-ujluM1d_ZCRoglGcUnTtK1q4uSGH3s3KpDh-qRiW5mJXxGZ0-_CnfEwM9Co8GuKk_BnhIy3DlAmmHwohHt5HJ0E92UdGPiBxLnmN3QhzZOZoa5boigGdm-Nkule8r0umCQp62lwLkoAzzHqPMUTAcVcuwFe4U_oaYF0yKLYvn26FkVy8xEEt_3MppJQGnkeoWgpnU57qZeQwuWGn4LhYxJQoyYfgx9w2')"></div>
+<div class="absolute inset-0 hero-gradient"></div>
+</div>
+<!-- Content -->
+<div class="relative z-10 max-w-3xl space-y-6">
+<h1 class="font-display-lg text-display-lg text-on-surface text-5xl md:text-6xl font-extrabold leading-tight">
+                    Komunitas Sepeda<br/>Untuk Kita Semua
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant text-lg md:text-xl max-w-xl">
+                    Temukan rute terbaik, teman gowes baru, dan inspirasi perlengkapan sepeda. Gowes Bareng, Guyub Rukun, Sehat &amp; Bahagia.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-cycling-orange text-night-ride font-title-md text-title-md px-8 py-3 rounded-full hover:bg-primary-container/90 transition-colors font-bold shadow-lg shadow-cycling-orange/20">
+                        Jelajahi Rute
+                    </button>
+<button class="bg-transparent border border-on-surface-variant text-on-surface font-title-md text-title-md px-8 py-3 rounded-full hover:bg-surface-variant transition-colors">
+                        Buat Open Ride
+                    </button>
+</div>
+</div>
+<!-- Quick Stats Bar (Floating at bottom of hero) -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-11/12 max-w-5xl bg-asphalt-gray/90 backdrop-blur-xl border border-surface-variant rounded-2xl p-6 flex justify-between items-center shadow-2xl z-20 overflow-x-auto">
+<div class="flex items-center gap-3 px-4 min-w-max">
+<span class="material-symbols-outlined text-cycling-orange text-3xl">group</span>
+<div>
+<div class="font-stats-number text-stats-number text-xl text-on-surface">12.458</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Anggota Aktif</div>
+</div>
+</div>
+<div class="w-px h-10 bg-surface-variant hidden md:block"></div>
+<div class="flex items-center gap-3 px-4 min-w-max">
+<span class="material-symbols-outlined text-cycling-orange text-3xl">verified</span>
+<div>
+<div class="font-stats-number text-stats-number text-xl text-on-surface">1.236</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Rute Terverifikasi</div>
+</div>
+</div>
+<div class="w-px h-10 bg-surface-variant hidden md:block"></div>
+<div class="flex items-center gap-3 px-4 min-w-max">
+<span class="material-symbols-outlined text-cycling-orange text-3xl">directions_bike</span>
+<div>
+<div class="font-stats-number text-stats-number text-xl text-on-surface">842</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Open Ride</div>
+</div>
+</div>
+<div class="w-px h-10 bg-surface-variant hidden md:block"></div>
+<div class="flex items-center gap-3 px-4 min-w-max">
+<span class="material-symbols-outlined text-cycling-orange text-3xl">diversity_3</span>
+<div>
+<div class="font-stats-number text-stats-number text-xl text-on-surface">58</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Chapter</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Rute Populer Section -->
+<section class="max-w-7xl mx-auto px-container-margin py-16 md:py-24">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Rute Populer</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Rute terfavorit minggu ini dari komunitas.</p>
+</div>
+<a class="text-cycling-orange font-title-md text-title-md text-sm hover:underline flex items-center gap-1" href="#">
+                    Lihat semua <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-asphalt-gray rounded-2xl overflow-hidden border border-surface-variant card-hover group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="Monas Loop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A dynamic shot of a cyclist passing by the iconic Monas (National Monument) in Jakarta during early morning light. The scene is urban but clear, showcasing a popular city cycling route. High contrast, premium dark aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyXlCJ9-5JweOGjRZ_05jdwz6uOFAHsoq9haaEU8M5caYccx5_pZgpBQ54YyQVP3T-lyHJDdqpZ_ek9RqCDYS5I99F9Tw4qzACkA_DQCp3Cwv9Jikjmx0jSoW_MeS2guam-YVnoWRf6kgW2nUEjAzhLp-vmPTEzRe8IjvoeuOWgyyawvp3DiOkZapg2qfTZufC1vRD5hKnB8KqeNiB60r3Tyko6G0G7_zm9l-YUdsWH5wrcqLpCoP4"/>
+<div class="absolute top-4 left-4 bg-easy-green text-on-secondary-fixed font-label-caps text-label-caps px-2 py-1 rounded-md">EASY</div>
+<div class="absolute inset-0 bg-gradient-to-t from-asphalt-gray to-transparent opacity-80"></div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md text-on-surface mb-3 line-clamp-1">Monas Loop – Jakarta Pusat</h3>
+<div class="flex items-center gap-4 mb-4 text-on-surface-variant font-stats-number text-stats-number text-xs">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">route</span> 15 km</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">terrain</span> 20 m elevasi</div>
+</div>
+<div class="flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-action-yellow text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-stats-number text-stats-number text-sm text-on-surface">4.8 <span class="text-on-surface-variant">(120)</span></span>
+</div>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Kota</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Aspal</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Ramai</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-asphalt-gray rounded-2xl overflow-hidden border border-surface-variant card-hover group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="Braga Lembang" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A scenic photograph of a winding mountain road near Lembang, Bandung, surrounded by lush green tea plantations and pine trees. Several cyclists are seen climbing the road in the morning mist. Cool tones, high quality, dark aesthetic vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_pdQ4Fv8siu3OkZUohjiyQKem5wMsm5GRNRVjAnw4tkryiIPbaMIhCq0fe_ITaBqooqFqgQAY5mM18LKgLn1lHOuYVw-tC8BOWgZRb5YuqG2pRJR2tOsrMJ5yNqN-B2_c6LCUzs_dKwtQ_D8202Agl9s9eUHF1O0qazySMgr3yXc1oIeKUzwX1ufYVCoPeYICvzeRpj2Ut4Kq77rbEDrmYRCPrMBscsliEcPuPZB6bY-d4ZnmLTYv"/>
+<div class="absolute top-4 left-4 bg-medium-yellow text-on-secondary-fixed font-label-caps text-label-caps px-2 py-1 rounded-md text-black">MEDIUM</div>
+<div class="absolute inset-0 bg-gradient-to-t from-asphalt-gray to-transparent opacity-80"></div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md text-on-surface mb-3 line-clamp-1">Braga – Lembang via Punclut</h3>
+<div class="flex items-center gap-4 mb-4 text-on-surface-variant font-stats-number text-stats-number text-xs">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">route</span> 28 km</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">terrain</span> 850 m elevasi</div>
+</div>
+<div class="flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-action-yellow text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-stats-number text-stats-number text-sm text-on-surface">4.9 <span class="text-on-surface-variant">(210)</span></span>
+</div>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Tanjakan</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Pemandangan</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Kopi</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-asphalt-gray rounded-2xl overflow-hidden border border-surface-variant card-hover group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="Puncak Pass" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A dramatic view of the Puncak Pass road in West Java, featuring steep inclines and dramatic mountain valleys in the background. A small group of hardcore cyclists is tackling the climb under an overcast, moody sky. High contrast, gritty yet premium look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAVnygTxjyf5JvZ-OOHSJb6Id33PL0Vd1W0PmOnZV0jV-YbzUqSv1QgtodfMcOV_ngu6nWdQwJU3ZvXb5kmkP3ibCjI_F2yysn1fspXItlMMrCOScLv2yM4puBVTZHzFcH30RZ1PKGodFPoUva-Sb_IbevVAlq6BOUC47nNln1AfM0FVsBbQsxHRBbpJgr6Js1VtpJRlovaaN-5wbQ3byz760bWgDHKsqNnJgdQSUx6AOFzEBW76aX"/>
+<div class="absolute top-4 left-4 bg-hard-red text-white font-label-caps text-label-caps px-2 py-1 rounded-md">HARD</div>
+<div class="absolute inset-0 bg-gradient-to-t from-asphalt-gray to-transparent opacity-80"></div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md text-on-surface mb-3 line-clamp-1">Puncak Pass – Cianjur</h3>
+<div class="flex items-center gap-4 mb-4 text-on-surface-variant font-stats-number text-stats-number text-xs">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">route</span> 72 km</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">terrain</span> 1.250 m elevasi</div>
+</div>
+<div class="flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-action-yellow text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-stats-number text-stats-number text-sm text-on-surface">4.7 <span class="text-on-surface-variant">(98)</span></span>
+</div>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Tanjakan</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">Jalur Panjang</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-1 rounded-sm">View</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 bg-night-ride border-t border-surface-variant flat">
+<div class="max-w-7xl mx-auto px-container-margin grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-center md:text-left">
+<div>
+<div class="text-title-md font-headline-lg text-on-surface mb-2 uppercase tracking-tighter font-bold">BAPAK-BAPAK SEPEDAHAN</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Guyub Gowes. Gowes Bareng, Guyub Rukun, Sehat &amp; Bahagia.</p>
+</div>
+<div class="flex flex-wrap justify-center md:justify-end gap-6">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Tentang Kami</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Kebijakan Privasi</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Syarat &amp; Ketentuan</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Hubungi Kami</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) - Hidden on desktop as per JSON logic -->
+<nav class="hidden md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 h-20 bg-asphalt-gray/90 dark:bg-asphalt-gray/90 backdrop-blur-xl z-50 rounded-t-xl border-t border-surface-variant bg-asphalt-gray shadow-lg">
+<a class="flex flex-col items-center justify-center text-cycling-orange bg-cycling-orange/10 rounded-xl py-1 px-4 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps text-[10px]">Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all px-4" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="directions_bike">directions_bike</span>
+<span class="font-label-caps text-label-caps text-[10px]">Rute</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all px-4" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="groups">groups</span>
+<span class="font-label-caps text-label-caps text-[10px]">Open Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all px-4" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="forum">forum</span>
+<span class="font-label-caps text-label-caps text-[10px]">Forum</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all px-4" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps text-[10px]">Profil</span>
+</a>
+</nav>
+</body></html>
