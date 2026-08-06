@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import 'leaflet/dist/leaflet.css';
 
 type Props = {
   routeName?: string;
@@ -10,47 +11,59 @@ type Props = {
   className?: string;
 };
 
-export default function LeafletMap({ routeName = 'Rute Gowes', lat = -6.8915, lng = 107.6107, zoom = 12, className = 'w-full h-full' }: Props) {
+export default function LeafletMap({ routeName = 'Rute Gowes', lat = -7.3274, lng = 108.3549, zoom = 11, className = 'w-full h-full' }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
 
-    // Dynamically import leaflet to avoid SSR window errors
-    import('leaflet').then((L) => {
-      if (mapInstanceRef.current) return;
+    let isMounted = true;
 
-      const map = L.map(mapRef.current!).setView([lat, lng], zoom);
+    import('leaflet').then((L) => {
+      if (!isMounted || !mapRef.current) return;
+
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+
+      const map = L.map(mapRef.current).setView([lat, lng], zoom);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18,
+        maxZoom: 19,
       }).addTo(map);
+
+      // Force Leaflet to recalculate container bounds once modal opens
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 250);
 
       // Custom marker icon
       const customIcon = L.divIcon({
         className: 'custom-leaflet-marker',
-        html: `<div style="background-color: #EA9B28; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #141415; box-shadow: 0 0 10px rgba(234, 155, 40, 0.8);"></div>`,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+        html: `<div style="background-color: #F59E0B; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #111111; box-shadow: 0 0 12px rgba(245, 158, 11, 0.9);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
       });
 
-      // Sample route coordinates path around lat/lng
+      // Route coordinates path
       const routeCoordinates: [number, number][] = [
         [lat, lng],
-        [lat + 0.015, lng + 0.02],
-        [lat + 0.03, lng + 0.015],
-        [lat + 0.04, lng - 0.01],
-        [lat + 0.02, lng - 0.025],
-        [lat, lng],
+        [lat - 0.05, lng + 0.06],
+        [lat - 0.1, lng + 0.12],
+        [lat - 0.18, lng + 0.18],
+        [lat - 0.25, lng + 0.22],
       ];
 
       // Draw route polyline
       L.polyline(routeCoordinates, {
-        color: '#EA9B28',
-        weight: 5,
-        opacity: 0.85,
+        color: '#F59E0B',
+        weight: 6,
+        opacity: 0.9,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(map);
@@ -65,6 +78,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', lat = -6.8915, ln
     });
 
     return () => {
+      isMounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -73,9 +87,9 @@ export default function LeafletMap({ routeName = 'Rute Gowes', lat = -6.8915, ln
   }, [lat, lng, zoom, routeName]);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] rounded-xl overflow-hidden border border-[#42403B]">
-      <div ref={mapRef} className="w-full h-full z-0" />
-      <div className="absolute bottom-2 left-2 z-10 bg-[#141415]/90 border border-[#42403B] px-3 py-1.5 rounded-lg text-xs font-mono text-[#F7C56A]">
+    <div className="relative w-full h-full min-h-[350px] rounded-xl overflow-hidden border border-[#333333]">
+      <div ref={mapRef} className="w-full h-full min-h-[350px] z-0" />
+      <div className="absolute bottom-2 left-2 z-10 bg-[#111111]/90 border border-[#333333] px-3 py-1.5 rounded-lg text-xs font-mono text-amber-400">
         OpenStreetMap • {routeName}
       </div>
     </div>
