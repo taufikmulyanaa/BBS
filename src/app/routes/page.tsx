@@ -1,17 +1,30 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Navigation, Search, Filter } from 'lucide-react';
+import { Navigation, Search, Filter, Plus } from 'lucide-react';
 import { supabase, Route } from '@/lib/supabase';
 import RouteCard from '@/components/RouteCard';
+import CreateRouteModal from '@/components/CreateRouteModal';
 
 export default function RoutesPage() {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [savedRouteIds, setSavedRouteIds] = useState<string[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchRoutes = async () => {
+    try {
+      const { data } = await supabase.from('routes').select('*').order('created_at', { ascending: false });
+      if (data) setRoutes(data);
+    } catch (err) {
+      console.error('Error fetching routes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -27,16 +40,6 @@ export default function RoutesPage() {
       }
     });
 
-    const fetchRoutes = async () => {
-      try {
-        const { data } = await supabase.from('routes').select('*').order('created_at', { ascending: false });
-        if (data) setRoutes(data);
-      } catch (err) {
-        console.error('Error fetching routes:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRoutes();
   }, []);
 
@@ -78,18 +81,28 @@ export default function RoutesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
-          <Navigation className="w-4 h-4" />
-          <span>Katalog Rute Komunitas</span>
+      {/* Header & Create Button */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-3">
+          <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
+            <Navigation className="w-4 h-4" />
+            <span>Katalog Rute Komunitas</span>
+          </div>
+          <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-white">
+            Direktori Rute Gowes & GPX
+          </h1>
+          <p className="text-sm text-gray-400 max-w-2xl">
+            Unduh file GPX rute favorit, pelajari elevasi & tingkat kesulitan sebelum gowes bersama komunitas.
+          </p>
         </div>
-        <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-white">
-          Direktori Rute Gowes & GPX
-        </h1>
-        <p className="text-sm text-gray-400 max-w-2xl">
-          Unduh file GPX rute favorit, pelajari elevasi & tingkat kesulitan sebelum gowes bersama komunitas.
-        </p>
+
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2 shrink-0"
+        >
+          <Plus className="w-5 h-5 stroke-[2.5]" />
+          <span>Tambah Rute Baru</span>
+        </button>
       </div>
 
       {/* Filter & Search Bar */}
@@ -151,6 +164,14 @@ export default function RoutesPage() {
           <p className="text-xs text-gray-400">Coba ubah kata kunci pencarian atau reset filter level.</p>
         </div>
       )}
+
+      {/* Create Route Modal */}
+      <CreateRouteModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={fetchRoutes}
+        currentUser={currentUser}
+      />
     </div>
   );
 }

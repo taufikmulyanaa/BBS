@@ -3,13 +3,14 @@
 import React, { useEffect, useRef } from 'react';
 
 type Props = {
-  routeName: string;
+  routeName?: string;
   lat?: number;
   lng?: number;
   zoom?: number;
+  className?: string;
 };
 
-export default function LeafletMap({ routeName, lat = -6.8915, lng = 107.6107, zoom = 12 }: Props) {
+export default function LeafletMap({ routeName = 'Rute Gowes', lat = -6.8915, lng = 107.6107, zoom = 12, className = 'w-full h-full' }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 

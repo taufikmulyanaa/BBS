@@ -6,6 +6,8 @@ import { Route } from '@/lib/supabase';
 import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle } from 'lucide-react';
 import LeafletMap from './LeafletMap';
 
+import RouteMapModal from './RouteMapModal';
+
 type Props = {
   route: Route;
   onSave?: (routeId: string) => void;
@@ -28,23 +30,41 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
     }
   };
 
+  const handleDownloadGpx = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (route.gpx_file_url) {
+      window.open(route.gpx_file_url, '_blank');
+    } else {
+      const dummyGpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Bapak-Bapak Sepedahan">
+  <trk><name>${route.nama}</name><trkseg><trkpt lat="-6.8915" lon="107.6107"><ele>750</ele></trkpt></trkseg></trk>
+</gpx>`;
+      const blob = new Blob([dummyGpxContent], { type: 'application/gpx+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${route.nama.toLowerCase().replace(/\s+/g, '-')}.gpx`;
+      a.click();
+    }
+  };
+
   return (
     <>
       <div className="group bg-[#262626] hover:bg-[#2A2A2A] border border-[#333333] hover:border-amber-500/50 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-lg">
         {/* Card Header Cover */}
-        <div className="relative h-48 w-full overflow-hidden bg-[#141415]">
+        <div className="relative h-48 w-full overflow-hidden bg-[#111111]">
           <img
             src={route.cover_image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80'}
             alt={route.nama}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#232322] via-transparent to-black/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#262626] via-transparent to-black/40"></div>
 
           {/* Level Badge */}
           <div className="absolute top-3 left-3 flex items-center space-x-2">
             {getLevelBadge(route.level)}
             {route.status_verifikasi === 'terverifikasi' && (
-              <span className="bg-[#141415]/80 text-[#5DBB63] text-[11px] font-medium px-2 py-0.5 rounded-full border border-[#5DBB63]/30 flex items-center space-x-1">
+              <span className="bg-[#111111]/80 text-green-400 text-[11px] font-medium px-2 py-0.5 rounded-full border border-green-500/30 flex items-center space-x-1">
                 <CheckCircle className="w-3 h-3" />
                 <span>Terverifikasi</span>
               </span>
@@ -55,7 +75,7 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
           <button
             onClick={() => onSave && onSave(route.id)}
             className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors ${
-              isSaved ? 'bg-[#EA9B28] text-[#141415]' : 'bg-[#141415]/70 text-[#F5F5F5] hover:text-[#EA9B28]'
+              isSaved ? 'bg-amber-500 text-black' : 'bg-[#111111]/70 text-white hover:text-amber-400'
             }`}
           >
             <Bookmark className="w-4 h-4 fill-current" />
@@ -65,44 +85,44 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
         {/* Card Content */}
         <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between text-xs text-[#8E8B87] mb-1">
+            <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
               <span className="flex items-center space-x-1">
-                <Star className="w-3.5 h-3.5 text-[#EA9B28] fill-current" />
-                <span className="text-[#F5F5F5] font-bold">{route.rating_avg}</span>
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
+                <span className="text-white font-bold">{route.rating_avg}</span>
                 <span>({route.rating_count} ulasan)</span>
               </span>
             </div>
 
-            <h3 className="font-heading font-bold text-lg text-[#F5F5F5] group-hover:text-[#EA9B28] transition-colors line-clamp-1">
+            <h3 className="font-heading font-bold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-1">
               {route.nama}
             </h3>
-            <p className="text-xs text-[#B9BEC3] mt-1 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-gray-300 mt-1 line-clamp-2 leading-relaxed">
               {route.deskripsi}
             </p>
           </div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#42403B]/60 text-xs">
+          <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#333333] text-xs">
             <div className="flex items-center space-x-2">
-              <Navigation className="w-4 h-4 text-[#EA9B28]" />
+              <Navigation className="w-4 h-4 text-amber-400" />
               <div>
-                <span className="block text-[10px] text-[#8E8B87]">Jarak</span>
-                <span className="font-bold text-[#F5F5F5]">{route.jarak_km} km</span>
+                <span className="block text-[10px] text-gray-400">Jarak</span>
+                <span className="font-bold text-white">{route.jarak_km} km</span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Mountain className="w-4 h-4 text-[#EA9B28]" />
+              <Mountain className="w-4 h-4 text-amber-400" />
               <div>
-                <span className="block text-[10px] text-[#8E8B87]">Elevasi</span>
-                <span className="font-bold text-[#F5F5F5]">{route.elevasi_m || 0} m</span>
+                <span className="block text-[10px] text-gray-400">Elevasi</span>
+                <span className="font-bold text-white">{route.elevasi_m || 0} m</span>
               </div>
             </div>
           </div>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
-            {route.tags.map((tag) => (
-              <span key={tag} className="text-[10px] bg-[#141415] text-[#B9BEC3] border border-[#42403B] px-2 py-0.5 rounded">
+            {route.tags?.map((tag) => (
+              <span key={tag} className="text-[10px] bg-[#1A1A1A] text-gray-400 border border-[#333333] px-2 py-0.5 rounded">
                 #{tag}
               </span>
             ))}
@@ -112,46 +132,29 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
           <div className="pt-2 flex items-center space-x-2">
             <button
               onClick={() => setShowMapModal(true)}
-              className="flex-1 bg-[#141415] hover:bg-[#2A2A2A] text-[#F5F5F5] border border-[#42403B] text-xs font-semibold py-2 rounded-lg flex items-center justify-center space-x-1.5 transition-colors"
+              className="flex-1 bg-[#1A1A1A] hover:bg-[#333333] text-white border border-[#333333] text-xs font-semibold py-2 rounded-lg flex items-center justify-center space-x-1.5 transition-colors"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#EA9B28]" />
+              <MapPin className="w-3.5 h-3.5 text-amber-400" />
               <span>Lihat Peta</span>
             </button>
-            <a
-              href={route.gpx_file_url || '#'}
-              download
-              className="bg-[#EA9B28]/15 hover:bg-[#EA9B28]/25 text-[#EA9B28] border border-[#EA9B28]/40 text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors"
+            <button
+              onClick={handleDownloadGpx}
+              className="bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors"
               title="Unduh file GPX"
             >
               <Download className="w-3.5 h-3.5" />
               <span>GPX</span>
-            </a>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Map Preview Modal */}
-      {showMapModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-3xl bg-[#232322] border border-[#42403B] rounded-2xl overflow-hidden p-5 text-[#F5F5F5] space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-heading font-extrabold text-xl">{route.nama}</h3>
-                <p className="text-xs text-[#B9BEC3]">{route.jarak_km} km • Elevasi {route.elevasi_m}m</p>
-              </div>
-              <button
-                onClick={() => setShowMapModal(false)}
-                className="p-1 rounded-lg bg-[#141415] hover:bg-[#2A2A2A] text-[#8E8B87] hover:text-[#F5F5F5]"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="h-96 w-full">
-              <LeafletMap routeName={route.nama} />
-            </div>
-          </div>
-        </div>
-      )}
+      <RouteMapModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        route={route}
+      />
     </>
   );
 }
