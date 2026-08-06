@@ -1,7 +1,7 @@
 -- seed.sql
 -- Initial seed data for Bapak-Bapak Sepedahan (Guyub Gowes)
 
--- Insert sample routes
+-- 1. Insert sample routes
 INSERT INTO public.routes (id, nama, deskripsi, jarak_km, elevasi_m, level, tags, status_verifikasi, rating_avg, rating_count, gpx_file_url, cover_image_url)
 VALUES
 (
@@ -48,7 +48,7 @@ VALUES
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Insert sample open rides
+-- 2. Insert sample open rides
 INSERT INTO public.open_rides (id, judul, titik_kumpul, tanggal_waktu, jarak_km, level, kuota_maks, catatan, status)
 VALUES
 (
@@ -75,12 +75,39 @@ VALUES
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Insert sample forum posts
-INSERT INTO public.forum_posts (id, route_id, tipe, judul, isi, like_count, comment_count, created_at)
+-- 3. Insert sample admin user in auth.users & profiles if not exists
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, role, aud)
+VALUES (
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000000',
+  'admin@guyubgowes.com',
+  '$2a$10$abcdefghijklmnopqrstuvwxyz012345',
+  NOW(),
+  '{"provider":"email","providers":["email"]}',
+  '{"full_name":"Pak Bambang Tri"}',
+  NOW(),
+  NOW(),
+  'authenticated',
+  'authenticated'
+)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.profiles (id, nama_lengkap, role, bio)
+VALUES (
+  '00000000-0000-0000-0000-000000000001',
+  'Pak Bambang Tri',
+  'admin',
+  'Pengurus Komunitas Guyub Gowes Bapak-Bapak Sepedahan'
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- 4. Insert sample forum posts
+INSERT INTO public.forum_posts (id, route_id, user_id, tipe, judul, isi, like_count, comment_count, created_at)
 VALUES
 (
   'c3030000-0000-0000-0000-000000000001',
   'a1010000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000001',
   'laporan_kondisi',
   'Kondisi Jalan Jalur Amber Peak KM 12 Ada Perbaikan',
   'FYI bapak-bapak sekalian, jalur di KM 12 dekat jembatan kayu sedang ada perbaikan jalan. Harap hati-hati banyak pasir dan krikil halus.',
@@ -91,6 +118,7 @@ VALUES
 (
   'c3030000-0000-0000-0000-000000000002',
   'a1010000-0000-0000-0000-000000000002',
+  '00000000-0000-0000-0000-000000000001',
   'diskusi',
   'Rekomendasi Warkop Favorit Setelah Gowes KM0',
   'Warung Kopi Mbah Joyo recommended banget. Pisang goreng hangatnya mantap dan parkir sepeda aman berpagar.',
