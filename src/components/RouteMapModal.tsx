@@ -73,8 +73,8 @@ export default function RouteMapModal({ isOpen, onClose, route }: Props) {
         </div>
 
         {/* Map Body */}
-        <div className="flex-1 min-h-[350px] relative bg-[#1A1A1A]">
-          <LeafletMap routeName={route.nama} lat={-6.8915} lng={107.6107} zoom={12} className="w-full h-full min-h-[350px]" />
+        <div className="flex-1 min-h-[380px] relative bg-[#111111]">
+          <LeafletMap routeName={route.nama} className="w-full h-full min-h-[380px]" />
         </div>
 
         {/* Footer Details & GPX Download */}
