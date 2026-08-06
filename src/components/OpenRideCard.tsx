@@ -55,7 +55,7 @@ export default function OpenRideCard({ ride, onJoin, isJoined = false }: Props) 
   };
 
   return (
-    <div className="bg-[#232322] border border-[#42403B] hover:border-[#EA9B28]/50 rounded-2xl p-5 space-y-4 transition-all shadow-lg flex flex-col justify-between">
+    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-lg flex flex-col justify-between">
       <div className="space-y-3">
         {/* Date & Badge */}
         <div className="flex items-center justify-between">

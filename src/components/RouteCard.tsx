@@ -18,11 +18,11 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
   const getLevelBadge = (level: string) => {
     switch (level) {
       case 'easy':
-        return <span className="bg-[#5DBB63]/20 border border-[#5DBB63]/40 text-[#8ee594] text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Easy</span>;
+        return <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded uppercase">EASY</span>;
       case 'medium':
-        return <span className="bg-[#EA9B28]/20 border border-[#EA9B28]/40 text-[#F7C56A] text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Medium</span>;
+        return <span className="bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded uppercase">MEDIUM</span>;
       case 'hard':
-        return <span className="bg-[#D9534F]/20 border border-[#D9534F]/40 text-[#ff9996] text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Hard</span>;
+        return <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded uppercase">HARD</span>;
       default:
         return null;
     }
@@ -30,7 +30,7 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
 
   return (
     <>
-      <div className="group bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] hover:border-[#EA9B28]/50 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-lg">
+      <div className="group bg-[#262626] hover:bg-[#2A2A2A] border border-[#333333] hover:border-amber-500/50 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-lg">
         {/* Card Header Cover */}
         <div className="relative h-48 w-full overflow-hidden bg-[#141415]">
           <img

@@ -40,20 +40,20 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-[#141415]/90 backdrop-blur-md border-b border-[#42403B]">
+      <header className="sticky top-0 z-50 bg-[#1A1A1A] border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F7C56A] via-[#EA9B28] to-[#D98A17] flex items-center justify-center shadow-lg shadow-[#EA9B28]/20 group-hover:scale-105 transition-transform">
-                <Bike className="w-6 h-6 text-[#141415] stroke-[2.5]" />
+              <div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black shadow-lg group-hover:bg-amber-400 transition-colors">
+                <Bike className="w-6 h-6 stroke-[2.5]" />
               </div>
               <div>
-                <span className="font-heading font-extrabold text-xl tracking-tight text-[#F5F5F5] group-hover:text-[#EA9B28] transition-colors">
-                  GUYUB GOWES
-                </span>
-                <span className="block text-[10px] uppercase font-bold tracking-widest text-[#EA9B28]">
+                <span className="font-heading font-bold text-sm text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">
                   Bapak-Bapak Sepedahan
+                </span>
+                <span className="block text-[10px] uppercase font-bold tracking-wider text-amber-400">
+                  Gowes Bareng • Guyub Rukun • Sehat & Bahagia
                 </span>
               </div>
             </Link>
@@ -67,13 +67,13 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-[#EA9B28]/15 text-[#EA9B28] border border-[#EA9B28]/30 font-semibold'
-                        : 'text-[#B9BEC3] hover:text-[#F5F5F5] hover:bg-[#232322]'
+                        ? 'text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20'
+                        : 'text-gray-400 hover:text-white hover:bg-[#262626]'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#EA9B28]' : ''}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : ''}`} />
                     <span>{link.label}</span>
                   </Link>
                 );

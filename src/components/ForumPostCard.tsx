@@ -39,7 +39,7 @@ export default function ForumPostCard({ post, onLike }: Props) {
   };
 
   return (
-    <div className="bg-[#232322] border border-[#42403B] hover:border-[#EA9B28]/40 rounded-2xl p-5 space-y-3 transition-all shadow-md">
+    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-3 transition-all shadow-md">
       {/* Author Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">

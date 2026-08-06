@@ -62,72 +62,72 @@ export default function Home() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
                 <Link
-                  href="/open-rides"
-                  className="w-full sm:w-auto bg-[#EA9B28] hover:bg-[#D98A17] text-[#141415] font-extrabold text-base px-7 py-3.5 rounded-xl transition-all shadow-xl shadow-[#EA9B28]/25 flex items-center justify-center space-x-2"
+                  href="/routes"
+                  className="w-full sm:w-auto bg-amber-500 text-black font-extrabold text-base px-7 py-3.5 rounded-lg transition-all hover:bg-amber-400 flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
                 >
-                  <Calendar className="w-5 h-5 stroke-[2.5]" />
-                  <span>Gabung Open Ride</span>
+                  <Navigation className="w-5 h-5 stroke-[2.5]" />
+                  <span>Jelajahi Rute</span>
                 </Link>
 
                 <Link
-                  href="/routes"
-                  className="w-full sm:w-auto bg-[#232322] hover:bg-[#2A2A2A] text-[#F5F5F5] border border-[#42403B] font-bold text-base px-6 py-3.5 rounded-xl transition-colors flex items-center justify-center space-x-2"
+                  href="/open-rides"
+                  className="w-full sm:w-auto border border-white/50 text-white font-medium text-base px-6 py-3.5 rounded-lg transition-all hover:border-amber-400 hover:text-amber-400 flex items-center justify-center space-x-2"
                 >
-                  <Navigation className="w-5 h-5 text-[#EA9B28]" />
-                  <span>Jelajahi Rute GPX</span>
+                  <Calendar className="w-5 h-5 text-amber-400" />
+                  <span>Buat Open Ride</span>
                 </Link>
               </div>
 
               {/* Social Proof Stats */}
-              <div className="pt-8 border-t border-[#232322] grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0">
+              <div className="pt-8 border-t border-[#333333] grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0">
                 <div>
-                  <span className="block font-heading font-extrabold text-2xl text-[#F5F5F5]">500+</span>
-                  <span className="text-xs text-[#8E8B87]">Anggota Aktif</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400">12,458</span>
+                  <span className="text-xs text-gray-500 mt-1">Anggota Aktif</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-extrabold text-2xl text-[#F5F5F5]">50+</span>
-                  <span className="text-xs text-[#8E8B87]">Rute Terverifikasi</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400">1,236</span>
+                  <span className="text-xs text-gray-500 mt-1">Rute Terverifikasi</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-extrabold text-2xl text-[#F5F5F5]">20+</span>
-                  <span className="text-xs text-[#8E8B87]">Open Ride / Bulan</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400">842</span>
+                  <span className="text-xs text-gray-500 mt-1">Open Ride</span>
                 </div>
               </div>
             </div>
 
             {/* Right Card / Visual */}
             <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden glass-card p-6 space-y-5 border border-[#EA9B28]/30 shadow-2xl">
-                <div className="flex items-center justify-between pb-3 border-b border-[#42403B]">
+              <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden bg-[#262626] p-6 space-y-5 border border-[#333333] hover:border-amber-500/50 transition shadow-2xl">
+                <div className="flex items-center justify-between pb-3 border-b border-[#333333]">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-[#EA9B28] text-[#141415] font-extrabold flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-extrabold flex items-center justify-center">
                       <Bike className="w-6 h-6 stroke-[2.5]" />
                     </div>
                     <div>
-                      <h4 className="font-heading font-bold text-sm text-[#F5F5F5]">Open Ride Terdekat</h4>
-                      <span className="text-[11px] text-[#8E8B87]">Minggu Ini</span>
+                      <h4 className="font-heading font-bold text-sm text-white">Open Ride Terdekat</h4>
+                      <span className="text-[11px] text-gray-400">Minggu Ini</span>
                     </div>
                   </div>
-                  <span className="bg-[#5DBB63]/20 text-[#8ee594] border border-[#5DBB63]/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                  <span className="bg-green-600/20 text-green-400 border border-green-500/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
                     Sisa 4 Kuota
                   </span>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="font-heading font-extrabold text-lg text-[#F7C56A]">
+                  <h3 className="font-heading font-extrabold text-lg text-white">
                     Gowes Tipis-Tipis Amber Peak
                   </h3>
-                  <div className="space-y-1.5 text-xs text-[#B9BEC3]">
+                  <div className="space-y-1.5 text-xs text-gray-300">
                     <p className="flex items-center space-x-2">
-                      <span className="text-[#EA9B28] font-bold">Titik Kumpul:</span>
+                      <span className="text-amber-400 font-bold">Titik Kumpul:</span>
                       <span>Simpang Alun-Alun Depan Pos</span>
                     </p>
                     <p className="flex items-center space-x-2">
-                      <span className="text-[#EA9B28] font-bold">Waktu:</span>
+                      <span className="text-amber-400 font-bold">Waktu:</span>
                       <span>Minggu, 06:00 WIB</span>
                     </p>
                     <p className="flex items-center space-x-2">
-                      <span className="text-[#EA9B28] font-bold">Target Pace:</span>
+                      <span className="text-amber-400 font-bold">Target Pace:</span>
                       <span>20 - 22 km/jam (Santai)</span>
                     </p>
                   </div>
@@ -136,7 +136,7 @@ export default function Home() {
                 <div className="pt-2">
                   <Link
                     href="/open-rides"
-                    className="w-full bg-[#EA9B28] hover:bg-[#D98A17] text-[#141415] font-bold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all"
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all"
                   >
                     <span>Lihat Detail & Daftar</span>
                     <ArrowRight className="w-4 h-4" />
@@ -152,20 +152,19 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs text-[#EA9B28] font-bold uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">
               <Navigation className="w-4 h-4" />
               <span>Rute Unggulan</span>
             </div>
-            <h2 className="font-heading font-extrabold text-3xl text-[#F5F5F5]">
+            <h2 className="font-heading font-bold text-2xl md:text-3xl text-white">
               Direktori Rute Gowes Pilihan
             </h2>
           </div>
           <Link
             href="/routes"
-            className="inline-flex items-center space-x-2 text-sm font-bold text-[#EA9B28] hover:text-[#F7C56A] transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-bold text-amber-400 hover:underline transition-all"
           >
-            <span>Lihat Semua Rute</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Lihat semua →</span>
           </Link>
         </div>
 
@@ -177,24 +176,23 @@ export default function Home() {
       </section>
 
       {/* Upcoming Open Rides Section */}
-      <section className="bg-[#232322]/50 border-y border-[#42403B] py-16">
+      <section className="bg-[#1A1A1A] border-y border-[#333333] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center space-x-1.5 text-xs text-[#EA9B28] font-bold uppercase tracking-wider mb-1">
+              <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">
                 <Calendar className="w-4 h-4" />
                 <span>Gowes Bareng</span>
               </div>
-              <h2 className="font-heading font-extrabold text-3xl text-[#F5F5F5]">
-                Open Ride Akan Datang
+              <h2 className="font-heading font-bold text-2xl md:text-3xl text-white">
+                Open Ride Terdekat
               </h2>
             </div>
             <Link
               href="/open-rides"
-              className="inline-flex items-center space-x-2 text-sm font-bold text-[#EA9B28] hover:text-[#F7C56A] transition-colors"
+              className="inline-flex items-center space-x-2 text-sm font-bold text-amber-400 hover:underline transition-all"
             >
-              <span>Lihat Jadwal Lengkap</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Lihat semua →</span>
             </Link>
           </div>
 
@@ -210,20 +208,19 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs text-[#EA9B28] font-bold uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">
               <MessageSquare className="w-4 h-4" />
               <span>Diskusi & Laporan</span>
             </div>
-            <h2 className="font-heading font-extrabold text-3xl text-[#F5F5F5]">
+            <h2 className="font-heading font-bold text-2xl md:text-3xl text-white">
               Kondisi Jalan & Diskusi Ter Hangat
             </h2>
           </div>
           <Link
             href="/forum"
-            className="inline-flex items-center space-x-2 text-sm font-bold text-[#EA9B28] hover:text-[#F7C56A] transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-bold text-amber-400 hover:underline transition-all"
           >
-            <span>Masuk Forum</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Masuk Forum →</span>
           </Link>
         </div>
 
