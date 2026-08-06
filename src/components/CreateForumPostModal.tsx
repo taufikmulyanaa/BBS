@@ -32,13 +32,16 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
     setErrorMsg(null);
 
     try {
-      const fullContent = lokasiPatokan
-        ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}`
-        : isi;
+      const isWarkop = tipe === 'rekomendasi_warkop';
+      const warkopTag = '[WARKOP]';
+      
+      const fullContent = isWarkop && !isi.includes(warkopTag)
+        ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${isi}`
+        : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
-      const finalJudul = tipe === 'rekomendasi_warkop' && !judul.includes('[WARKOP]') 
-        ? `☕ [WARKOP] ${judul}` 
+      const finalJudul = isWarkop && !judul.includes(warkopTag) 
+        ? `☕ ${warkopTag} ${judul}` 
         : judul;
 
       const { error } = await supabase.from('forum_posts').insert([

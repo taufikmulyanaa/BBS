@@ -22,7 +22,8 @@ export default function ForumPage() {
       if (data) {
         const formatted = data.map((p: any) => {
           let itemTipe = p.tipe;
-          if (p.judul?.includes('[WARKOP]') || p.isi?.includes('[WARKOP]')) {
+          const text = `${p.judul || ''} ${p.isi || ''}`.toLowerCase();
+          if (text.includes('[warkop]') || text.includes('warkop') || text.includes('warung kopi')) {
             itemTipe = 'rekomendasi_warkop';
           }
           return {
