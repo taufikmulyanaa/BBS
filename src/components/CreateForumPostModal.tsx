@@ -37,10 +37,13 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         : isi;
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
+      const finalJudul = tipe === 'rekomendasi_warkop' && !judul.includes('[WARKOP]') 
+        ? `☕ [WARKOP] ${judul}` 
+        : judul;
 
       const { error } = await supabase.from('forum_posts').insert([
         {
-          judul,
+          judul: finalJudul,
           isi: fullContent,
           tipe: dbType,
           user_id: currentUser.id,

@@ -20,11 +20,18 @@ export default function ForumPage() {
         .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
         .order('created_at', { ascending: false });
       if (data) {
-        const formatted = data.map((p: any) => ({
-          ...p,
-          author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
-          author_avatar: p.profiles?.foto_profil_url || '',
-        }));
+        const formatted = data.map((p: any) => {
+          let itemTipe = p.tipe;
+          if (p.judul?.includes('[WARKOP]') || p.isi?.includes('[WARKOP]')) {
+            itemTipe = 'rekomendasi_warkop';
+          }
+          return {
+            ...p,
+            tipe: itemTipe,
+            author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
+            author_avatar: p.profiles?.foto_profil_url || '',
+          };
+        });
         setPosts(formatted);
       }
     } catch (err) {
