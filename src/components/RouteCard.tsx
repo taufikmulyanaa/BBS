@@ -74,11 +74,11 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
 
           {/* Header Action Buttons (Edit & Bookmark) */}
           <div className="absolute top-3 right-3 flex items-center space-x-2">
-            {currentUser && (
+            {currentUser && (currentUser.id === route.dibuat_oleh || !route.dibuat_oleh) && (
               <button
                 onClick={() => setShowEditModal(true)}
                 className="p-2 rounded-full bg-[#111111]/70 text-white hover:text-amber-400 backdrop-blur-md transition-colors"
-                title="Edit Rute Ini"
+                title="Edit Rute Ini (Hanya Pembuat)"
               >
                 <Edit3 className="w-4 h-4" />
               </button>
