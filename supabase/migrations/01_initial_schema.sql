@@ -309,11 +309,15 @@ CREATE POLICY "profiles_update_own" ON public.profiles FOR UPDATE USING (auth.ui
 
 CREATE POLICY "routes_select_all" ON public.routes FOR SELECT USING (true);
 CREATE POLICY "routes_insert_authenticated" ON public.routes FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "routes_update_own" ON public.routes FOR UPDATE USING (auth.uid() = dibuat_oleh OR dibuat_oleh IS NULL);
+CREATE POLICY "routes_delete_own" ON public.routes FOR DELETE USING (auth.uid() = dibuat_oleh OR dibuat_oleh IS NULL);
 
 CREATE POLICY "saved_routes_all" ON public.saved_routes FOR ALL USING (auth.uid() = user_id);
 
 CREATE POLICY "open_rides_select_all" ON public.open_rides FOR SELECT USING (true);
 CREATE POLICY "open_rides_insert_authenticated" ON public.open_rides FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "open_rides_update_own" ON public.open_rides FOR UPDATE USING (auth.uid() = dibuat_oleh);
+CREATE POLICY "open_rides_delete_own" ON public.open_rides FOR DELETE USING (auth.uid() = dibuat_oleh);
 
 CREATE POLICY "ride_participants_select_all" ON public.ride_participants FOR SELECT USING (true);
 CREATE POLICY "ride_participants_insert_own" ON public.ride_participants FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -321,9 +325,12 @@ CREATE POLICY "ride_participants_delete_own" ON public.ride_participants FOR DEL
 
 CREATE POLICY "forum_posts_select_all" ON public.forum_posts FOR SELECT USING (true);
 CREATE POLICY "forum_posts_insert_authenticated" ON public.forum_posts FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "forum_posts_update_own" ON public.forum_posts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "forum_posts_delete_own" ON public.forum_posts FOR DELETE USING (auth.uid() = user_id);
 
 CREATE POLICY "forum_likes_select_all" ON public.forum_likes FOR SELECT USING (true);
 CREATE POLICY "forum_likes_all_own" ON public.forum_likes FOR ALL USING (auth.uid() = user_id);
 
 CREATE POLICY "forum_comments_select_all" ON public.forum_comments FOR SELECT USING (true);
 CREATE POLICY "forum_comments_insert_own" ON public.forum_comments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "forum_comments_delete_own" ON public.forum_comments FOR DELETE USING (auth.uid() = user_id);
