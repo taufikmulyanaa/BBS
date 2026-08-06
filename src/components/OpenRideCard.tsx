@@ -61,7 +61,7 @@ export default function OpenRideCard({ ride, onJoin, isJoined = false }: Props) 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-[#EA9B28] font-semibold bg-[#EA9B28]/10 border border-[#EA9B28]/20 px-3 py-1 rounded-full">
             <Calendar className="w-3.5 h-3.5" />
-            <span>{formatDate(ride.tanggal_waktu)}</span>
+            <span suppressHydrationWarning>{formatDate(ride.tanggal_waktu)}</span>
           </div>
 
           <span
@@ -92,7 +92,7 @@ export default function OpenRideCard({ ride, onJoin, isJoined = false }: Props) 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1.5">
               <Clock className="w-4 h-4 text-[#8E8B87]" />
-              <span>{formatTime(ride.tanggal_waktu)}</span>
+              <span suppressHydrationWarning>{formatTime(ride.tanggal_waktu)}</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="text-[#8E8B87]">Jarak:</span>

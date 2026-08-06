@@ -52,7 +52,7 @@ export default function ForumPostCard({ post, onLike }: Props) {
           </div>
           <div>
             <h4 className="font-heading font-bold text-sm text-[#F5F5F5]">{post.author_name || 'Bapak Sepeda'}</h4>
-            <span className="text-[11px] text-[#8E8B87]">{getTimeAgo(post.created_at)}</span>
+            <span suppressHydrationWarning className="text-[11px] text-[#8E8B87]">{getTimeAgo(post.created_at)}</span>
           </div>
         </div>
 
