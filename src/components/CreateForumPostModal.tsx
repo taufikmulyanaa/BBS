@@ -32,19 +32,18 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
     setErrorMsg(null);
 
     try {
-      const authorName = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Anggota Gowes';
-      const authorAvatar = currentUser.user_metadata?.avatar_url || '';
+      const fullContent = lokasiPatokan
+        ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}`
+        : isi;
+
+      const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
 
       const { error } = await supabase.from('forum_posts').insert([
         {
           judul,
-          isi,
-          tipe,
-          lokasi_patokan: lokasiPatokan || null,
-          author_id: currentUser.id,
-          author_name: authorName,
-          author_avatar: authorAvatar,
-          status: 'publik',
+          isi: fullContent,
+          tipe: dbType,
+          user_id: currentUser.id,
         },
       ]);
 

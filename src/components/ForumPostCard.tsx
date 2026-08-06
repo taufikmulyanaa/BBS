@@ -73,11 +73,20 @@ export default function ForumPostCard({ post, onLike, currentUser }: Props) {
   const loadComments = async () => {
     const { data } = await supabase
       .from('forum_comments')
-      .select('*')
+      .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
       .eq('post_id', post.id)
       .order('created_at', { ascending: true });
 
-    if (data) setComments(data);
+    if (data) {
+      const formatted = data.map((c: any) => ({
+        id: c.id,
+        author_name: c.profiles?.nama_lengkap || 'Anggota Gowes',
+        author_avatar: c.profiles?.foto_profil_url || '',
+        isi: c.isi,
+        created_at: c.created_at,
+      }));
+      setComments(formatted);
+    }
   };
 
   const handleToggleComments = () => {
@@ -100,14 +109,11 @@ export default function ForumPostCard({ post, onLike, currentUser }: Props) {
     try {
       const authorName =
         currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Anggota Gowes';
-      const authorAvatar = currentUser.user_metadata?.avatar_url || '';
 
       const { data, error } = await supabase.from('forum_comments').insert([
         {
           post_id: post.id,
-          author_id: currentUser.id,
-          author_name: authorName,
-          author_avatar: authorAvatar,
+          user_id: currentUser.id,
           isi: newComment.trim(),
         },
       ]).select();
@@ -115,7 +121,15 @@ export default function ForumPostCard({ post, onLike, currentUser }: Props) {
       if (error) throw error;
 
       if (data && data[0]) {
-        setComments((prev) => [...prev, data[0]]);
+        setComments((prev) => [
+          ...prev,
+          {
+            id: data[0].id,
+            author_name: authorName,
+            isi: data[0].isi,
+            created_at: data[0].created_at,
+          },
+        ]);
         setCommentsCount((prev) => prev + 1);
       }
       setNewComment('');

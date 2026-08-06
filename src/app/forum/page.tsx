@@ -17,9 +17,16 @@ export default function ForumPage() {
     try {
       const { data } = await supabase
         .from('forum_posts')
-        .select('*')
+        .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
         .order('created_at', { ascending: false });
-      if (data) setPosts(data);
+      if (data) {
+        const formatted = data.map((p: any) => ({
+          ...p,
+          author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
+          author_avatar: p.profiles?.foto_profil_url || '',
+        }));
+        setPosts(formatted);
+      }
     } catch (err) {
       console.error('Error fetching forum posts:', err);
     } finally {
