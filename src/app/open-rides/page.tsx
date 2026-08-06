@@ -1,18 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, Search, Filter } from 'lucide-react';
-import { OpenRide } from '@/lib/supabase';
-import { INITIAL_OPEN_RIDES } from '@/lib/mockData';
+import { supabase, OpenRide } from '@/lib/supabase';
 import OpenRideCard from '@/components/OpenRideCard';
 import CreateRideModal from '@/components/CreateRideModal';
 
 export default function OpenRidesPage() {
-  const [rides, setRides] = useState<OpenRide[]>(INITIAL_OPEN_RIDES);
+  const [rides, setRides] = useState<OpenRide[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [joinedRideIds, setJoinedRideIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const { data } = await supabase.from('open_rides').select('*').order('tanggal_waktu', { ascending: true });
+        if (data) setRides(data);
+      } catch (err) {
+        console.error('Error fetching open rides:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRides();
+  }, []);
 
   const handleCreateRide = (newRide: OpenRide) => {
     setRides((prev) => [newRide, ...prev]);

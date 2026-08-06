@@ -2,15 +2,29 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navigation, Search, Filter, Download } from 'lucide-react';
-import { Route } from '@/lib/supabase';
-import { INITIAL_ROUTES } from '@/lib/mockData';
+import { supabase, Route } from '@/lib/supabase';
 import RouteCard from '@/components/RouteCard';
 
 export default function RoutesPage() {
-  const [routes, setRoutes] = useState<Route[]>(INITIAL_ROUTES);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [savedRouteIds, setSavedRouteIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      try {
+        const { data } = await supabase.from('routes').select('*').order('created_at', { ascending: false });
+        if (data) setRoutes(data);
+      } catch (err) {
+        console.error('Error fetching routes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoutes();
+  }, []);
 
   const handleSaveRoute = (routeId: string) => {
     setSavedRouteIds((prev) =>

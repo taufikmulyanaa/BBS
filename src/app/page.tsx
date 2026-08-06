@@ -4,36 +4,31 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Bike, Navigation, Calendar, MessageSquare, ShieldCheck, Download, Users, ArrowRight, Sparkles, CheckCircle2, Star } from 'lucide-react';
 import { supabase, Route, OpenRide, ForumPost } from '@/lib/supabase';
-import { INITIAL_ROUTES, INITIAL_OPEN_RIDES, INITIAL_FORUM_POSTS } from '@/lib/mockData';
 import RouteCard from '@/components/RouteCard';
 import OpenRideCard from '@/components/OpenRideCard';
 import ForumPostCard from '@/components/ForumPostCard';
 
 export default function Home() {
-  const [routes, setRoutes] = useState<Route[]>(INITIAL_ROUTES);
-  const [openRides, setOpenRides] = useState<OpenRide[]>(INITIAL_OPEN_RIDES);
-  const [forumPosts, setForumPosts] = useState<ForumPost[]>(INITIAL_FORUM_POSTS);
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [openRides, setOpenRides] = useState<OpenRide[]>([]);
+  const [forumPosts, setForumPosts] = useState<ForumPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try fetching from Supabase database
     const fetchData = async () => {
       try {
         const { data: dbRoutes } = await supabase.from('routes').select('*').limit(3);
-        if (dbRoutes && dbRoutes.length > 0) {
-          setRoutes(dbRoutes);
-        }
+        if (dbRoutes) setRoutes(dbRoutes);
 
-        const { data: dbRides } = await supabase.from('open_rides').select('*').eq('status', 'akan_datang').limit(3);
-        if (dbRides && dbRides.length > 0) {
-          setOpenRides(dbRides);
-        }
+        const { data: dbRides } = await supabase.from('open_rides').select('*').limit(3);
+        if (dbRides) setOpenRides(dbRides);
 
         const { data: dbPosts } = await supabase.from('forum_posts').select('*').limit(2);
-        if (dbPosts && dbPosts.length > 0) {
-          setForumPosts(dbPosts);
-        }
+        if (dbPosts) setForumPosts(dbPosts);
       } catch (err) {
-        console.log('Using local fallback data');
+        console.error('Error fetching database data:', err);
+      } finally {
+        setLoading(false);
       }
     };
 

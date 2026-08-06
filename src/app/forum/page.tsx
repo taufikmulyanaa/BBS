@@ -1,16 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageSquare, Plus, AlertTriangle, Filter } from 'lucide-react';
-import { ForumPost } from '@/lib/supabase';
-import { INITIAL_FORUM_POSTS } from '@/lib/mockData';
+import { supabase, ForumPost } from '@/lib/supabase';
 import ForumPostCard from '@/components/ForumPostCard';
 import CreatePostModal from '@/components/CreatePostModal';
 
 export default function ForumPage() {
-  const [posts, setPosts] = useState<ForumPost[]>(INITIAL_FORUM_POSTS);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_kondisi'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const { data } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false });
+        if (data) setPosts(data);
+      } catch (err) {
+        console.error('Error fetching forum posts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const handleCreatePost = (newPost: ForumPost) => {
     setPosts((prev) => [newPost, ...prev]);
