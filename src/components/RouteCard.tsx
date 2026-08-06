@@ -1,21 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { Route } from '@/lib/supabase';
-import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle } from 'lucide-react';
-import LeafletMap from './LeafletMap';
-
+import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle, Edit3 } from 'lucide-react';
 import RouteMapModal from './RouteMapModal';
+import EditRouteModal from './EditRouteModal';
 
 type Props = {
   route: Route;
   onSave?: (routeId: string) => void;
   isSaved?: boolean;
+  onRefresh?: () => void;
+  currentUser?: any;
 };
 
-export default function RouteCard({ route, onSave, isSaved = false }: Props) {
+export default function RouteCard({ route, onSave, isSaved = false, onRefresh, currentUser }: Props) {
   const [showMapModal, setShowMapModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const getLevelBadge = (level: string) => {
     switch (level) {
@@ -71,15 +72,27 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
             )}
           </div>
 
-          {/* Bookmark Button */}
-          <button
-            onClick={() => onSave && onSave(route.id)}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors ${
-              isSaved ? 'bg-amber-500 text-black' : 'bg-[#111111]/70 text-white hover:text-amber-400'
-            }`}
-          >
-            <Bookmark className="w-4 h-4 fill-current" />
-          </button>
+          {/* Header Action Buttons (Edit & Bookmark) */}
+          <div className="absolute top-3 right-3 flex items-center space-x-2">
+            {currentUser && (
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="p-2 rounded-full bg-[#111111]/70 text-white hover:text-amber-400 backdrop-blur-md transition-colors"
+                title="Edit Rute Ini"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              onClick={() => onSave && onSave(route.id)}
+              className={`p-2 rounded-full backdrop-blur-md transition-colors ${
+                isSaved ? 'bg-amber-500 text-black' : 'bg-[#111111]/70 text-white hover:text-amber-400'
+              }`}
+              title="Simpan Rute"
+            >
+              <Bookmark className="w-4 h-4 fill-current" />
+            </button>
+          </div>
         </div>
 
         {/* Card Content */}
@@ -154,6 +167,15 @@ export default function RouteCard({ route, onSave, isSaved = false }: Props) {
         isOpen={showMapModal}
         onClose={() => setShowMapModal(false)}
         route={route}
+      />
+
+      {/* Edit Route Modal */}
+      <EditRouteModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSuccess={() => onRefresh && onRefresh()}
+        route={route}
+        currentUser={currentUser}
       />
     </>
   );

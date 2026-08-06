@@ -153,6 +153,8 @@ export default function RoutesPage() {
               route={route}
               onSave={handleSaveRoute}
               isSaved={savedRouteIds.includes(route.id)}
+              onRefresh={fetchRoutes}
+              currentUser={currentUser}
             />
           ))}
         </div>
