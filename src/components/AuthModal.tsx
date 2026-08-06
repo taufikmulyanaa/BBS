@@ -60,6 +60,9 @@ export default function AuthModal({ isOpen, onClose }: Props) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+        },
       });
       if (error) throw error;
     } catch (err: any) {
