@@ -101,32 +101,6 @@ export default function ForumPage() {
           <h1 className="font-bold text-2xl text-white">
             Forum Diskusi
           </h1>
-          
-          {/* Filter Tabs */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {[
-              { id: 'all', label: 'Semua' },
-              { id: 'diskusi', label: 'Diskusi' },
-              { id: 'laporan_jalan', label: 'Laporan Jalan' },
-              { id: 'rekomendasi_warkop', label: 'Warkop' },
-              { id: 'jual_beli', label: 'Jual Beli' },
-              { id: 'event', label: 'Event' },
-              { id: 'tips', label: 'Tips' },
-              { id: 'bengkel', label: 'Bengkel' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-amber-500 text-black'
-                    : 'bg-[#262626] text-gray-400 hover:bg-[#333333] hover:text-white border border-[#333333]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
       {/* Posts Grid */}
