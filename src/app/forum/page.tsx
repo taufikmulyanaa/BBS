@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, AlertTriangle, Coffee } from 'lucide-react';
+import { MessageSquare, Plus, AlertTriangle, Coffee, Filter, ChevronDown, Check } from 'lucide-react';
 import { supabase, ForumPost } from '@/lib/supabase';
 import ForumPostCard from '@/components/ForumPostCard';
 import CreateForumPostModal from '@/components/CreateForumPostModal';
@@ -14,6 +14,7 @@ export default function ForumPage() {
   const [editingPost, setEditingPost] = useState<ForumPost | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -97,10 +98,66 @@ export default function ForumPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header aligned with content */}
       <div className="max-w-2xl mx-auto w-full">
-        <div className="pb-4 mb-2 flex flex-col space-y-4">
+        <div className="pb-4 mb-2 flex items-center justify-between relative">
           <h1 className="font-bold text-2xl text-white">
             Forum Diskusi
           </h1>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center space-x-2 bg-[#262626] hover:bg-[#333333] border border-[#333333] px-3 py-1.5 rounded-lg text-sm font-bold text-white transition-colors"
+            >
+              <Filter className="w-3.5 h-3.5 text-gray-400" />
+              <span>
+                {
+                  [
+                    { id: 'all', label: 'Semua Kategori' },
+                    { id: 'diskusi', label: 'Diskusi' },
+                    { id: 'laporan_jalan', label: 'Laporan' },
+                    { id: 'rekomendasi_warkop', label: 'Warkop' },
+                    { id: 'jual_beli', label: 'Jual Beli' },
+                    { id: 'event', label: 'Event' },
+                    { id: 'tips', label: 'Tips' },
+                    { id: 'bengkel', label: 'Bengkel' },
+                  ].find((t) => t.id === activeTab)?.label
+                }
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showFilterMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showFilterMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowFilterMenu(false)} />
+                <div className="absolute right-0 mt-2 w-48 bg-[#181818] border border-[#333333] rounded-xl shadow-xl py-1 z-50 animate-fade-in">
+                  {[
+                    { id: 'all', label: 'Semua Kategori' },
+                    { id: 'diskusi', label: 'Diskusi / Umum' },
+                    { id: 'laporan_jalan', label: 'Laporan Jalan' },
+                    { id: 'rekomendasi_warkop', label: 'Warkop' },
+                    { id: 'jual_beli', label: 'Jual Beli' },
+                    { id: 'event', label: 'Event / Acara' },
+                    { id: 'tips', label: 'Tips & Trik' },
+                    { id: 'bengkel', label: 'Bengkel & Perbaikan' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id as any);
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-white/[0.03] transition-colors"
+                    >
+                      <span className={activeTab === tab.id ? 'text-amber-500 font-bold' : 'text-gray-300 font-medium'}>
+                        {tab.label}
+                      </span>
+                      {activeTab === tab.id && <Check className="w-4 h-4 text-amber-500" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
       {/* Posts Grid */}
