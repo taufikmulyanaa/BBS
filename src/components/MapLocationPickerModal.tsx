@@ -33,6 +33,9 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
   const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const [showResultsDropdown, setShowResultsDropdown] = useState(false);
 
+  // Default coordinates: Perumnas Kertasari, Ciamis (-7.3278, 108.3533)
+  const CIAMIS_KERTASARI = { lat: -7.3278, lng: 108.3533, name: 'Perumnas Kertasari, Ciamis' };
+
   // Helper to place marker with custom icon & popup
   const placeMarkerAt = (L: any, lat: number, lng: number, labelName?: string) => {
     if (!mapInstanceRef.current) return;
@@ -76,6 +79,14 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
     mapInstanceRef.current.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
   };
 
+  const jumpToLocation = (lat: number, lng: number, name: string) => {
+    if (typeof window !== 'undefined') {
+      import('leaflet').then((L) => {
+        placeMarkerAt(L, lat, lng, name);
+      });
+    }
+  };
+
   // Detect real active GPS location & Reverse Geocode to get real street address
   const fetchAndSetRealGpsLocation = (L: any, autoZoom = true) => {
     if (typeof window === 'undefined' || !navigator.geolocation) return;
@@ -107,7 +118,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         }
 
         // Reverse geocode via Nominatim to get actual place name
-        let addressName = 'Lokasi GPS Real Anda';
+        let addressName = 'Lokasi Terdeteksi GPS';
         try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
@@ -186,7 +197,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         // Auto select first result to immediately point to the location!
         selectSearchResult(data[0]);
       } else {
-        alert('Lokasi tidak ditemukan. Coba kata kunci yang lebih spesifik (contoh: Gedung Sate Bandung).');
+        alert('Lokasi tidak ditemukan. Coba kata kunci spesifik (contoh: Kertasari Ciamis).');
       }
     } catch (err) {
       console.error('Search error:', err);
@@ -208,8 +219,9 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         mapInstanceRef.current = null;
       }
       
-      const startLat = defaultLocation?.lat || -6.9024;
-      const startLng = defaultLocation?.lng || 107.6187;
+      // Default location initialized to Ciamis (Perumnas Kertasari) if not specified
+      const startLat = defaultLocation?.lat || CIAMIS_KERTASARI.lat;
+      const startLng = defaultLocation?.lng || CIAMIS_KERTASARI.lng;
 
       const map = L.map(mapRef.current).setView([startLat, startLng], 14);
 
@@ -229,8 +241,8 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
       if (defaultLocation) {
         placeMarkerAt(L, startLat, startLng, 'Lokasi Default');
       } else {
-        // Automatically fetch real GPS location on modal launch!
-        fetchAndSetRealGpsLocation(L, true);
+        // Default pin at Perumnas Kertasari, Ciamis
+        placeMarkerAt(L, CIAMIS_KERTASARI.lat, CIAMIS_KERTASARI.lng, CIAMIS_KERTASARI.name);
       }
 
       map.on('click', (e: any) => {
@@ -257,7 +269,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-3xl bg-[#262626] border border-[#333333] rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[80vh]">
+      <div className="relative w-full max-w-3xl bg-[#262626] border border-[#333333] rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[82vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#333333] bg-[#1E1E1E]">
           <div className="flex items-center space-x-2">
@@ -272,44 +284,87 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
           </button>
         </div>
 
-        {/* Search Bar & Dropdown Results */}
-        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <form onSubmit={handleSearch} className="relative flex-1 flex items-center">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3" />
-            <input
-              type="text"
-              placeholder="Cari area/tempat (contoh: Gedung Sate, Alun-alun Bandung)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#262626] border border-[#333333] rounded-lg pl-9 pr-24 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-            />
-            <button
-              type="submit"
-              disabled={searching}
-              className="absolute right-1.5 px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-md transition disabled:opacity-50 flex items-center space-x-1"
-            >
-              {searching ? (
-                <span>Mencari...</span>
-              ) : (
-                <>
-                  <Navigation className="w-3 h-3" />
-                  <span>Cari</span>
-                </>
-              )}
-            </button>
-          </form>
+        {/* Search Bar & Preset Quick Chips */}
+        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20 flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <form onSubmit={handleSearch} className="relative flex-1 flex items-center">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3" />
+              <input
+                type="text"
+                placeholder="Cari area (contoh: Kertasari Ciamis, Gedung Sate)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#262626] border border-[#333333] rounded-lg pl-9 pr-24 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+              />
+              <button
+                type="submit"
+                disabled={searching}
+                className="absolute right-1.5 px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-md transition disabled:opacity-50 flex items-center space-x-1"
+              >
+                {searching ? (
+                  <span>Mencari...</span>
+                ) : (
+                  <>
+                    <Navigation className="w-3 h-3" />
+                    <span>Cari</span>
+                  </>
+                )}
+              </button>
+            </form>
 
-          {/* Current Location GPS Button (Prominent & Always Visible Text) */}
-          <button
-            type="button"
-            onClick={handleGetCurrentLocation}
-            disabled={locating}
-            className="flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-bold rounded-lg transition shrink-0 disabled:opacity-50 shadow-md active:scale-95"
-            title="Gunakan Lokasi GPS Saya Saat Ini"
-          >
-            <Compass className={`w-4 h-4 ${locating ? 'animate-spin text-amber-400' : ''}`} />
-            <span>{locating ? 'Mendeteksi GPS...' : '📍 Lokasi Saya (GPS)'}</span>
-          </button>
+            {/* Current Location GPS Button */}
+            <button
+              type="button"
+              onClick={handleGetCurrentLocation}
+              disabled={locating}
+              className="flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-bold rounded-lg transition shrink-0 disabled:opacity-50 shadow-md active:scale-95"
+              title="Gunakan Lokasi GPS Saya Saat Ini"
+            >
+              <Compass className={`w-4 h-4 ${locating ? 'animate-spin text-amber-400' : ''}`} />
+              <span>{locating ? 'Mendeteksi GPS...' : '📍 GPS Saya'}</span>
+            </button>
+          </div>
+
+          {/* Quick Preset Chips for Easy One-Tap Selection */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <span className="text-gray-400 text-[11px] shrink-0">Pintas Cepat:</span>
+            <button
+              type="button"
+              onClick={() => jumpToLocation(CIAMIS_KERTASARI.lat, CIAMIS_KERTASARI.lng, CIAMIS_KERTASARI.name)}
+              className="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-full hover:bg-amber-500 hover:text-black font-semibold transition shrink-0 flex items-center space-x-1"
+            >
+              <MapPin className="w-3 h-3" />
+              <span>📍 Perumnas Kertasari, Ciamis</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToLocation(-7.3274, 108.3551, 'Alun-alun Ciamis')}
+              className="px-2.5 py-1 bg-[#262626] text-gray-300 border border-[#333333] rounded-full hover:bg-[#333333] hover:text-white font-medium transition shrink-0"
+            >
+              Alun-alun Ciamis
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToLocation(-7.3256, 108.2208, 'Tasikmalaya')}
+              className="px-2.5 py-1 bg-[#262626] text-gray-300 border border-[#333333] rounded-full hover:bg-[#333333] hover:text-white font-medium transition shrink-0"
+            >
+              Tasikmalaya
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToLocation(-7.6974, 108.6504, 'Pangandaran')}
+              className="px-2.5 py-1 bg-[#262626] text-gray-300 border border-[#333333] rounded-full hover:bg-[#333333] hover:text-white font-medium transition shrink-0"
+            >
+              Pangandaran
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToLocation(-6.9024, 107.6187, 'Bandung (Gedung Sate)')}
+              className="px-2.5 py-1 bg-[#262626] text-gray-300 border border-[#333333] rounded-full hover:bg-[#333333] hover:text-white font-medium transition shrink-0"
+            >
+              Bandung
+            </button>
+          </div>
 
           {/* Search Suggestions Dropdown */}
           {showResultsDropdown && searchResults.length > 0 && (
@@ -338,15 +393,14 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         <div className="relative flex-1 bg-[#111111] overflow-hidden">
           <div ref={mapRef} className="absolute inset-0 w-full h-full z-0" />
           
-          {/* Prominent Top Map Button for GPS Location */}
+          {/* Prominent Top Map Button for Ciamis Kertasari */}
           <button
             type="button"
-            onClick={handleGetCurrentLocation}
-            disabled={locating}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-amber-300 transition flex items-center space-x-1.5 hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
+            onClick={() => jumpToLocation(CIAMIS_KERTASARI.lat, CIAMIS_KERTASARI.lng, CIAMIS_KERTASARI.name)}
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-amber-300 transition flex items-center space-x-1.5 hover:scale-105 active:scale-95 cursor-pointer"
           >
-            <Compass className={`w-4 h-4 ${locating ? 'animate-spin' : ''}`} />
-            <span>{locating ? 'Mendeteksi GPS Real...' : '🎯 Pin Lokasi Saya Saat Ini (GPS)'}</span>
+            <MapPin className="w-4 h-4" />
+            <span>📍 Ke Perumnas Kertasari, Ciamis</span>
           </button>
 
           {/* Floating Current Location Button on Map Bottom Right */}
@@ -407,6 +461,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
     </div>
   );
 }
+
 
 
 
