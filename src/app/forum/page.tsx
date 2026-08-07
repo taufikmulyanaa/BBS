@@ -103,7 +103,7 @@ export default function ForumPage() {
           </h1>
           
           {/* Filter Tabs */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {[
               { id: 'all', label: 'Semua' },
               { id: 'diskusi', label: 'Diskusi' },
