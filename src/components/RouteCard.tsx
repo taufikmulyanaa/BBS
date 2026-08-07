@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Route } from '@/lib/supabase';
-import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle, Edit3 } from 'lucide-react';
-import RouteMapModal from './RouteMapModal';
+import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle, Edit3, Eye } from 'lucide-react';
+import RouteDetailModal from './RouteDetailModal';
 import EditRouteModal from './EditRouteModal';
 import LoginRequiredModal from './LoginRequiredModal';
 
@@ -16,11 +16,12 @@ type Props = {
 };
 
 export default function RouteCard({ route, onSave, isSaved = false, onRefresh, currentUser }: Props) {
-  const [showMapModal, setShowMapModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleProtectedAction = (action: () => void) => {
+  const handleProtectedAction = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation();
     if (!currentUser) {
       setShowLoginModal(true);
     } else {
@@ -59,9 +60,20 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
     }
   };
 
+  const openDetails = () => {
+    if (!currentUser) {
+      setShowLoginModal(true);
+    } else {
+      setShowDetailModal(true);
+    }
+  };
+
   return (
     <>
-      <div className="group bg-[#262626] hover:bg-[#2A2A2A] border border-[#333333] hover:border-amber-500/50 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-lg">
+      <div
+        onClick={openDetails}
+        className="group bg-[#262626] hover:bg-[#2A2A2A] border border-[#333333] hover:border-amber-500/50 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-lg cursor-pointer"
+      >
         {/* Card Header Cover */}
         <div className="relative h-48 w-full overflow-hidden bg-[#111111]">
           <img
@@ -83,10 +95,13 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
           </div>
 
           {/* Header Action Buttons (Edit & Bookmark) */}
-          <div className="absolute top-3 right-3 flex items-center space-x-2">
+          <div className="absolute top-3 right-3 flex items-center space-x-2 z-10">
             {currentUser && (currentUser.id === route.dibuat_oleh || !route.dibuat_oleh) && (
               <button
-                onClick={() => setShowEditModal(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowEditModal(true);
+                }}
                 className="p-2 rounded-full bg-[#111111]/70 text-white hover:text-amber-400 backdrop-blur-md transition-colors"
                 title="Edit Rute Ini (Hanya Pembuat)"
               >
@@ -94,7 +109,10 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
               </button>
             )}
             <button
-              onClick={() => onSave && onSave(route.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onSave) onSave(route.id);
+              }}
               className={`p-2 rounded-full backdrop-blur-md transition-colors ${
                 isSaved ? 'bg-amber-500 text-black' : 'bg-[#111111]/70 text-white hover:text-amber-400'
               }`}
@@ -109,7 +127,7 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
         <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-              <span className="flex items-center space-x-1">
+              <span className="flex items-center space-x-1 hover:text-amber-400 transition">
                 <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
                 <span className="text-white font-bold">{route.rating_avg}</span>
                 <span>({route.rating_count} ulasan)</span>
@@ -154,14 +172,14 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
           {/* Action Buttons */}
           <div className="pt-2 flex items-center space-x-2">
             <button
-              onClick={() => handleProtectedAction(() => setShowMapModal(true))}
+              onClick={(e) => handleProtectedAction(e, () => setShowDetailModal(true))}
               className="flex-1 bg-[#1A1A1A] hover:bg-[#333333] text-white border border-[#333333] text-xs font-semibold py-2 rounded-lg flex items-center justify-center space-x-1.5 transition-colors"
             >
-              <MapPin className="w-3.5 h-3.5 text-amber-400" />
-              <span>Lihat Peta</span>
+              <Eye className="w-3.5 h-3.5 text-amber-400" />
+              <span>Lihat Detail & Peta</span>
             </button>
             <button
-              onClick={(e) => handleProtectedAction(() => handleDownloadGpx(e))}
+              onClick={(e) => handleProtectedAction(e, () => handleDownloadGpx(e))}
               className="bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors"
               title="Unduh file GPX"
             >
@@ -172,11 +190,13 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
         </div>
       </div>
 
-      {/* Map Preview Modal */}
-      <RouteMapModal
-        isOpen={showMapModal}
-        onClose={() => setShowMapModal(false)}
+      {/* Detail & Reviews Modal */}
+      <RouteDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
         route={route}
+        currentUser={currentUser}
+        onReviewAdded={() => onRefresh && onRefresh()}
       />
 
       {/* Edit Route Modal */}
@@ -192,7 +212,7 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
       <LoginRequiredModal 
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)} 
-        message="Silakan masuk terlebih dahulu untuk melihat peta lengkap dan mengunduh rute GPX ini."
+        message="Silakan masuk terlebih dahulu untuk melihat detail rute, peta lengkap, dan mengunduh rute GPX ini."
       />
     </>
   );
