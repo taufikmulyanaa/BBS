@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Navigation, Mountain, Download, MapPin, CheckCircle, Star, MessageSquare, Send, User, Calendar, Shield, ThumbsUp } from 'lucide-react';
-import { supabase, Route } from '@/lib/supabase';
+import { X, Navigation, Mountain, Download, MapPin, CheckCircle, Star, MessageSquare, Send, User, Calendar, Shield, ThumbsUp, Plus, ArrowRight, AlertTriangle, Coffee } from 'lucide-react';
+import { supabase, Route, ForumPost } from '@/lib/supabase';
 import LeafletMap from './LeafletMap';
 import LoginRequiredModal from './LoginRequiredModal';
+import Link from 'next/link';
 
 export type RouteReview = {
   id: string;
@@ -48,23 +49,59 @@ const DUMMY_REVIEWS: Record<string, RouteReview[]> = {
   ],
 };
 
+const DUMMY_FORUM_POSTS: ForumPost[] = [
+  {
+    id: 'fp-r1',
+    route_id: 'default',
+    tipe: 'laporan_kondisi',
+    judul: 'Laporan Kondisi Jalan & Perbaikan Aspal',
+    isi: 'Untuk rekan-rekan yang mau gowes di jalur ini, di KM 14 sedang ada pelebaran jalan. Tetap waspada dan kurangi kecepatan saat turunan.',
+    like_count: 12,
+    comment_count: 4,
+    created_at: '2026-08-05T10:00:00Z',
+    author_name: 'Pak Bambang Tanjakan',
+    author_avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'fp-r2',
+    route_id: 'default',
+    tipe: 'rekomendasi_warkop',
+    judul: '☕ Warkop Gowes Pak Haji Slamet - KM 18',
+    isi: 'Rekomendasi tempat ngopi & istirahat di tengah rute ini. Pisang gorengnya crispy, kopi hitamnya mantap, dan ada pompa sepeda gratis.',
+    like_count: 24,
+    comment_count: 8,
+    created_at: '2026-08-03T16:40:00Z',
+    author_name: 'Om Hendra Roadbike',
+    author_avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  },
+];
+
 export default function RouteDetailModal({ isOpen, onClose, route, currentUser, onReviewAdded }: Props) {
   const [reviews, setReviews] = useState<RouteReview[]>([]);
+  const [forumPosts, setForumPosts] = useState<ForumPost[]>([]);
   const [newRating, setNewRating] = useState<number>(5);
   const [newComment, setNewComment] = useState<string>('');
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [postToForum, setPostToForum] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'map' | 'reviews'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'map' | 'reviews' | 'forum'>('info');
+
+  // Forum post creation state
+  const [showCreateForum, setShowCreateForum] = useState<boolean>(false);
+  const [forumJudul, setForumJudul] = useState<string>('');
+  const [forumIsi, setForumIsi] = useState<string>('');
+  const [forumTipe, setForumTipe] = useState<'diskusi' | 'laporan_jalan' | 'rekomendasi_warkop'>('diskusi');
+  const [submittingForum, setSubmittingForum] = useState<boolean>(false);
 
   useEffect(() => {
     if (!route || !isOpen) return;
 
-    const fetchReviews = async () => {
+    const fetchData = async () => {
+      // 1. Fetch Reviews
       let loadedReviews: RouteReview[] = [];
 
       try {
-        // Try fetching from Supabase DB table route_reviews
         const { data, error } = await supabase
           .from('route_reviews')
           .select('*')
@@ -84,7 +121,6 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
           const localData = localStorage.getItem(`bbs_reviews_${route.id}`);
           if (localData) {
             const parsed: RouteReview[] = JSON.parse(localData);
-            // Merge with loaded, avoiding duplicates by id
             const existingIds = new Set(loadedReviews.map((r) => r.id));
             parsed.forEach((item) => {
               if (!existingIds.has(item.id)) {
@@ -97,7 +133,6 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         }
       }
 
-      // If still empty, use sample reviews
       if (loadedReviews.length === 0) {
         loadedReviews = DUMMY_REVIEWS.default.map((rev) => ({
           ...rev,
@@ -106,9 +141,56 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
       }
 
       setReviews(loadedReviews);
+
+      // 2. Fetch Forum Posts for this route
+      let loadedForum: ForumPost[] = [];
+      try {
+        const { data: dbPosts } = await supabase
+          .from('forum_posts')
+          .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
+          .or(`route_id.eq.${route.id},judul.ilike.%${route.nama}%,isi.ilike.%${route.nama}%`)
+          .order('created_at', { ascending: false });
+
+        if (dbPosts && dbPosts.length > 0) {
+          loadedForum = dbPosts.map((p: any) => ({
+            ...p,
+            author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
+            author_avatar: p.profiles?.foto_profil_url || '',
+          }));
+        }
+      } catch (e) {
+        console.error('Error fetching route forum posts:', e);
+      }
+
+      // Merge local forum posts cached in localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          const localForum = localStorage.getItem(`bbs_route_forum_${route.id}`);
+          if (localForum) {
+            const parsedForum: ForumPost[] = JSON.parse(localForum);
+            const existingIds = new Set(loadedForum.map((f) => f.id));
+            parsedForum.forEach((item) => {
+              if (!existingIds.has(item.id)) {
+                loadedForum.unshift(item);
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error reading local forum posts:', e);
+        }
+      }
+
+      if (loadedForum.length === 0) {
+        loadedForum = DUMMY_FORUM_POSTS.map((f) => ({
+          ...f,
+          route_id: route.id,
+        }));
+      }
+
+      setForumPosts(loadedForum);
     };
 
-    fetchReviews();
+    fetchData();
   }, [route, isOpen]);
 
   if (!isOpen || !route) return null;
@@ -172,11 +254,9 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
       created_at: new Date().toISOString(),
     };
 
-    // Update state immediately
     const updatedList = [newRevObj, ...reviews];
     setReviews(updatedList);
 
-    // Save to localStorage for instant persistence
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem(`bbs_reviews_${route.id}`, JSON.stringify(updatedList));
@@ -185,7 +265,46 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
       }
     }
 
-    // Try inserting into Supabase route_reviews table
+    // Also cross-post to Forum if option is checked
+    if (postToForum) {
+      const forumJudulText = `⭐ Ulasan & Rating ${newRating}/5 — ${route.nama}`;
+      const forumIsiText = `[ULASAN RUTE: ${route.nama}]\nRating: ${newRating}/5 Bintang ⭐\n\n"${newComment.trim()}"`;
+      
+      const newForumObj: ForumPost = {
+        id: `fp-${Date.now()}`,
+        route_id: route.id,
+        user_id: currentUser.id,
+        tipe: 'diskusi',
+        judul: forumJudulText,
+        isi: forumIsiText,
+        like_count: 1,
+        comment_count: 0,
+        created_at: new Date().toISOString(),
+        author_name: userName,
+        author_avatar: userAvatar,
+      };
+
+      const updatedForum = [newForumObj, ...forumPosts];
+      setForumPosts(updatedForum);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bbs_route_forum_${route.id}`, JSON.stringify(updatedForum));
+      }
+
+      try {
+        await supabase.from('forum_posts').insert([
+          {
+            route_id: route.id,
+            user_id: currentUser.id,
+            tipe: 'diskusi',
+            judul: forumJudulText,
+            isi: forumIsiText,
+          },
+        ]);
+      } catch (e) {
+        console.error('Error cross posting review to forum DB:', e);
+      }
+    }
+
     try {
       await supabase.from('route_reviews').insert([
         {
@@ -198,7 +317,6 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         },
       ]);
 
-      // Calculate new avg rating and count
       const totalRatings = updatedList.reduce((acc, r) => acc + r.rating, 0);
       const avgRatingNum = Number((totalRatings / updatedList.length).toFixed(1));
 
@@ -220,7 +338,78 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
     if (onReviewAdded) onReviewAdded();
   };
 
-  // Compute live average rating
+  const handleCreateForumPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (!forumJudul.trim() || !forumIsi.trim()) {
+      alert('Silakan lengkapi judul dan isi postingan forum.');
+      return;
+    }
+
+    setSubmittingForum(true);
+
+    const userName =
+      currentUser.user_metadata?.full_name ||
+      currentUser.email?.split('@')[0] ||
+      'Anggota Gowes';
+    const userAvatar =
+      currentUser.user_metadata?.custom_avatar ||
+      currentUser.user_metadata?.avatar_url ||
+      '';
+
+    const dbType = forumTipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
+    const finalJudul = `[${route.nama}] ${forumJudul.trim()}`;
+
+    const newPostObj: ForumPost = {
+      id: `fp-${Date.now()}`,
+      route_id: route.id,
+      user_id: currentUser.id,
+      tipe: dbType,
+      judul: finalJudul,
+      isi: forumIsi.trim(),
+      like_count: 0,
+      comment_count: 0,
+      created_at: new Date().toISOString(),
+      author_name: userName,
+      author_avatar: userAvatar,
+    };
+
+    const updatedForum = [newPostObj, ...forumPosts];
+    setForumPosts(updatedForum);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`bbs_route_forum_${route.id}`, JSON.stringify(updatedForum));
+      } catch (err) {
+        console.error('Error saving local forum post:', err);
+      }
+    }
+
+    try {
+      await supabase.from('forum_posts').insert([
+        {
+          route_id: route.id,
+          user_id: currentUser.id,
+          tipe: dbType,
+          judul: finalJudul,
+          isi: forumIsi.trim(),
+        },
+      ]);
+    } catch (err) {
+      console.error('Error inserting forum post to DB:', err);
+    }
+
+    setForumJudul('');
+    setForumIsi('');
+    setShowCreateForum(false);
+    setSubmittingForum(false);
+  };
+
   const avgRating = reviews.length
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
     : route.rating_avg;
@@ -315,6 +504,18 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
             >
               <Star className="w-4 h-4 fill-current text-amber-400" />
               <span>Ulasan & Rating ({reviews.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('forum')}
+              className={`px-4 py-2 rounded-lg transition flex items-center space-x-1.5 shrink-0 ${
+                activeTab === 'forum'
+                  ? 'bg-amber-500 text-black'
+                  : 'text-gray-400 hover:text-white hover:bg-[#262626]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4 text-amber-400" />
+              <span>Forum Diskusi Rute ({forumPosts.length})</span>
             </button>
           </div>
 
@@ -501,7 +702,17 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
                       />
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center space-x-2 text-xs text-gray-400 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={postToForum}
+                          onChange={(e) => setPostToForum(e.target.checked)}
+                          className="rounded border-[#444444] bg-[#1A1A1A] text-amber-500 focus:ring-amber-500"
+                        />
+                        <span>Bagikan ulasan ini ke Forum Diskusi Komunitas</span>
+                      </label>
+
                       <button
                         type="submit"
                         disabled={submitting}
@@ -562,6 +773,197 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
               </div>
             )}
 
+            {/* TAB 4: FORUM DISKUSI RUTE */}
+            {activeTab === 'forum' && (
+              <div className="space-y-6">
+                
+                {/* Forum Header Banner */}
+                <div className="bg-[#262626] border border-[#333333] p-5 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1 text-center sm:text-left">
+                    <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 justify-center sm:justify-start">
+                      <MessageSquare className="w-4 h-4 text-amber-400" />
+                      <span>Diskusi Forum & Laporan Kondisi Jalan</span>
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      Diskusi khusus seputar rute <span className="text-amber-400 font-semibold">{route.nama}</span>.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        if (!currentUser) {
+                          setShowLoginModal(true);
+                        } else {
+                          setShowCreateForum(!showCreateForum);
+                        }
+                      }}
+                      className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs px-4 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5"
+                    >
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <span>{showCreateForum ? 'Tutup Form' : 'Tulis Post Forum'}</span>
+                    </button>
+
+                    <Link
+                      href="/forum"
+                      className="bg-[#1A1A1A] hover:bg-[#333333] border border-[#333333] text-gray-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center space-x-1"
+                    >
+                      <span>Masuk Forum Utuh</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Create Forum Post Form inside Modal */}
+                {showCreateForum && (
+                  <form onSubmit={handleCreateForumPost} className="bg-[#262626] border border-amber-500/40 p-5 rounded-xl space-y-4 animate-fade-in">
+                    <h4 className="font-heading font-bold text-sm text-white border-b border-[#333333] pb-2 flex items-center space-x-2">
+                      <Plus className="w-4 h-4 text-amber-400" />
+                      <span>Buat Postingan Forum tentang Rute Ini</span>
+                    </h4>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-300 mb-1">Judul Topik / Laporan</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Contoh: Kondisi Aspal Terbaru di KM 10 / Info Warkop Mendoan"
+                          value={forumJudul}
+                          onChange={(e) => setForumJudul(e.target.value)}
+                          className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-300 mb-1">Kategori Post</label>
+                          <select
+                            value={forumTipe}
+                            onChange={(e: any) => setForumTipe(e.target.value)}
+                            className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                          >
+                            <option value="diskusi">💬 Diskusi Umum Rute</option>
+                            <option value="laporan_jalan">🚨 Laporan Kondisi Jalan</option>
+                            <option value="rekomendasi_warkop">☕ Info Warkop Gowes</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-300 mb-1">Pesan / Laporan Lengkap</label>
+                        <textarea
+                          rows={3}
+                          required
+                          placeholder="Tuliskan info atau pertanyaan seputar rute ini..."
+                          value={forumIsi}
+                          onChange={(e) => setForumIsi(e.target.value)}
+                          className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowCreateForum(false)}
+                        className="px-4 py-2 bg-[#1A1A1A] text-gray-400 hover:text-white text-xs font-semibold rounded-xl border border-[#333333]"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={submittingForum}
+                        className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl transition flex items-center space-x-1.5"
+                      >
+                        <Send className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>{submittingForum ? 'Posting...' : 'Kirim Ke Forum'}</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Forum Posts List */}
+                <div className="space-y-3">
+                  {forumPosts.map((post) => (
+                    <div key={post.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2.5">
+                          <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
+                            {post.author_avatar ? (
+                              <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs text-white block">{post.author_name}</span>
+                            <span className="text-[10px] text-gray-400">
+                              {new Date(post.created_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
+                            post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan'
+                              ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                              : post.tipe === 'rekomendasi_warkop'
+                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                              : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                          }`}
+                        >
+                          {post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan' ? (
+                            <>
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>Laporan Jalan</span>
+                            </>
+                          ) : post.tipe === 'rekomendasi_warkop' ? (
+                            <>
+                              <Coffee className="w-3 h-3" />
+                              <span>Warkop Gowes</span>
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare className="w-3 h-3" />
+                              <span>Diskusi</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-sm text-white mb-1">{post.judul}</h4>
+                        <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+                          {post.isi}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs text-gray-400">
+                        <span className="flex items-center space-x-1">
+                          <ThumbsUp className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{post.like_count || 0} Menyukai</span>
+                        </span>
+
+                        <Link
+                          href="/forum"
+                          className="text-amber-400 hover:underline flex items-center space-x-1 font-semibold text-[11px]"
+                        >
+                          <span>Buka di Forum Diskusi Utama</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            )}
+
           </div>
 
           {/* Footer Action Bar */}
@@ -595,7 +997,7 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
       <LoginRequiredModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="Silakan masuk terlebih dahulu untuk memberikan ulasan dan rating pada rute ini."
+        message="Silakan masuk terlebih dahulu untuk memberikan ulasan dan membuat postingan forum pada rute ini."
       />
     </>
   );
