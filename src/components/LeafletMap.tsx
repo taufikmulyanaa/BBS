@@ -18,39 +18,57 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
 
-  // Dynamic NLP Location Extractor from Route Title & Description (Zero Hardcoding)
+  // Dynamic NLP Location Extractor from Route Title & Description
   const extractLocations = (title: string, desc: string) => {
     let startQuery = '';
     let finishQuery = '';
 
-    // 1. Explicitly check formatted deskripsi string
-    const startMatch = desc.match(/📍 Titik Start: (.*?)\n/);
+    // 1. Explicitly check formatted deskripsi string (supporting CRLF and LF)
+    const startMatch = desc.match(/📍\s*Titik Start:\s*(.*?)(?:\r?\n|$)/i);
     if (startMatch && startMatch[1] && startMatch[1].trim().length > 0) {
       startQuery = startMatch[1].trim();
     }
 
-    const finishMatch = desc.match(/🏁 Titik Finish: (.*?)\n/);
+    const finishMatch = desc.match(/🏁\s*Titik Finish:\s*(.*?)(?:\r?\n|$)/i);
     if (finishMatch && finishMatch[1] && finishMatch[1].trim().length > 0) {
       finishQuery = finishMatch[1].trim();
     }
 
-    // 2. If Start or Finish query is missing, extract dynamically from route title
-    const cleanTitle = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+    // 2. Fallbacks for routes without explicit start/finish in description
+    const lowerTitle = title.toLowerCase();
 
-    if (!startQuery && !finishQuery) {
-      // If title has a dash e.g. "Rute Tasik - Pangandaran" or "Kebayoran – BSD"
-      if (cleanTitle.includes('–') || cleanTitle.includes('-')) {
-        const parts = cleanTitle.split(/–|-/);
-        startQuery = parts[0].replace(/Challenge|Rute|Tanjakan|Gowes|Loop/gi, '').trim();
-        finishQuery = parts[1].replace(/KM\s*\d+|Loop|Via.*|Part\s*\d+|Easy|Medium|Hard/gi, '').trim();
+    if (!startQuery) {
+      if (lowerTitle.includes('galunggung') || lowerTitle.includes('tasik')) {
+        startQuery = 'Alun-Alun Kota Tasikmalaya';
+      } else if (lowerTitle.includes('bandung') || lowerTitle.includes('lembang')) {
+        startQuery = 'Gedung Sate, Bandung';
+      } else if (lowerTitle.includes('kebayoran') || lowerTitle.includes('bsd')) {
+        startQuery = 'Kebayoran Baru, Jakarta';
+      } else if (lowerTitle.includes('sentul') || lowerTitle.includes('pelangi') || lowerTitle.includes('bogor')) {
+        startQuery = 'Sentul City, Bogor';
       } else {
-        startQuery = cleanTitle;
-        finishQuery = cleanTitle.replace(/Challenge|Rute|Tanjakan|Gowes|Loop|KM\s*\d+/gi, '').trim();
+        startQuery = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
       }
-    } else if (!startQuery) {
-      startQuery = cleanTitle;
-    } else if (!finishQuery) {
-      finishQuery = cleanTitle.replace(/Challenge|Rute|Tanjakan|Gowes|Loop|KM\s*\d+/gi, '').trim();
+    }
+
+    if (!finishQuery) {
+      if (lowerTitle.includes('galunggung')) {
+        finishQuery = 'Kawah Gunung Galunggung, Tasikmalaya';
+      } else if (lowerTitle.includes('tangkuban')) {
+        finishQuery = 'Gunung Tangkuban Perahu';
+      } else if (lowerTitle.includes('lembang')) {
+        finishQuery = 'Alun-Alun Lembang, Bandung';
+      } else if (lowerTitle.includes('bsd')) {
+        finishQuery = 'BSD City, Tangerang';
+      } else if (lowerTitle.includes('pangandaran')) {
+        finishQuery = 'Pantai Pangandaran';
+      } else if (lowerTitle.includes('sentul') || lowerTitle.includes('pelangi')) {
+        finishQuery = 'Bukit Pelangi, Sentul';
+      } else if (lowerTitle.includes('km0') || lowerTitle.includes('hijau')) {
+        finishQuery = 'KM0 Sentul, Bogor';
+      } else {
+        finishQuery = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+      }
     }
 
     return { startQuery, finishQuery };
