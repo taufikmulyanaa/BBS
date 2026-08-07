@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Navigation, Upload, Image, MapPin, Bike, Send } from 'lucide-react';
+import { X, Navigation, Upload, Image, MapPin, Bike, Send, Flag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUser }: Props) {
   const [nama, setNama] = useState('');
   const [titikStart, setTitikStart] = useState('');
+  const [titikFinish, setTitikFinish] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
   const [jarakKm, setJarakKm] = useState('30');
   const [elevasiM, setElevasiM] = useState('350');
@@ -33,7 +34,6 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
     if (!file) return;
     setGpxFileName(file.name);
 
-    // Read GPX file content or create blob object URL
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
@@ -48,7 +48,6 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create Data URL for instant photo preview
     const reader = new FileReader();
     reader.onload = (event) => {
       setCoverUrl(event.target?.result as string);
@@ -78,9 +77,9 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
         coverUrl ||
         'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80';
 
-      const fullDeskripsi = titikStart
-        ? `📍 Titik Start: ${titikStart}\n🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`
-        : `🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
+      const startText = titikStart ? `📍 Titik Start: ${titikStart}\n` : '';
+      const finishText = titikFinish ? `🏁 Titik Finish: ${titikFinish}\n` : '';
+      const fullDeskripsi = `${startText}${finishText}🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
 
       const { error } = await supabase.from('routes').insert([
         {
@@ -106,6 +105,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
       // Reset form
       setNama('');
       setTitikStart('');
+      setTitikFinish('');
       setDeskripsi('');
       setGpxUrl('');
       setGpxFileName('');
@@ -165,7 +165,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span>Titik Kumpul / Start</span>
+                <span>Titik Start (Awal)</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -189,7 +189,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
                 <input
                   type="text"
-                  placeholder="Alun-Alun / Indomaret KM 0"
+                  placeholder="Gedung Sate / Indomaret KM 0"
                   value={titikStart}
                   onChange={(e) => setTitikStart(e.target.value)}
                   className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
@@ -197,6 +197,42 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
               </div>
             </div>
 
+            <div>
+              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>Titik Tujuan (Finish)</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setTitikFinish(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
+                      );
+                    }
+                  }}
+                  className="text-[10px] text-green-400 hover:underline flex items-center space-x-0.5"
+                  title="Deteksi Lokasi GPS Saat Ini"
+                >
+                  <Flag className="w-3 h-3" />
+                  <span>Pin GPS</span>
+                </button>
+              </label>
+              <div className="relative">
+                <Flag className="w-4 h-4 text-green-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  placeholder="Tangkuban Perahu / Pantai Pangandaran"
+                  value={titikFinish}
+                  onChange={(e) => setTitikFinish(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
                 Kategori Sepeda (Surface)
@@ -216,50 +252,50 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Jarak (KM)
+                </label>
+                <input
+                  type="number"
+                  required
+                  step="0.1"
+                  value={jarakKm}
+                  onChange={(e) => setJarakKm(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Elevasi (m)
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={elevasiM}
+                  onChange={(e) => setElevasiM(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Jarak (KM)
-              </label>
-              <input
-                type="number"
-                required
-                step="0.1"
-                value={jarakKm}
-                onChange={(e) => setJarakKm(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Elevasi (m)
-              </label>
-              <input
-                type="number"
-                required
-                value={elevasiM}
-                onChange={(e) => setElevasiM(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Tingkat Level
-              </label>
-              <select
-                value={level}
-                onChange={(e: any) => setLevel(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              >
-                <option value="easy">EASY</option>
-                <option value="medium">MEDIUM</option>
-                <option value="hard">HARD</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+              Tingkat Level Kesulitan
+            </label>
+            <select
+              value={level}
+              onChange={(e: any) => setLevel(e.target.value)}
+              className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+            >
+              <option value="easy">EASY (Ramah Pemula & Datar)</option>
+              <option value="medium">MEDIUM (Tanjakan Sedang)</option>
+              <option value="hard">HARD (Tanjakan Ekstrem & Endurance)</option>
+            </select>
           </div>
 
           <div>
@@ -296,14 +332,12 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 <Upload className="w-3.5 h-3.5 text-amber-400" />
                 <span>Upload File GPX (Garmin/Strava)</span>
               </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".gpx"
-                  onChange={handleGpxFileChange}
-                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg p-2 text-xs text-gray-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black hover:file:bg-amber-400 cursor-pointer"
-                />
-              </div>
+              <input
+                type="file"
+                accept=".gpx"
+                onChange={handleGpxFileChange}
+                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg p-2 text-xs text-gray-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black hover:file:bg-amber-400 cursor-pointer"
+              />
               {gpxFileName && (
                 <p className="text-[11px] text-green-400 mt-1 truncate">✓ {gpxFileName}</p>
               )}
@@ -314,14 +348,12 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 <Image className="w-3.5 h-3.5 text-amber-400" />
                 <span>Upload Foto Cover Rute</span>
               </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverImageChange}
-                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg p-2 text-xs text-gray-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black hover:file:bg-amber-400 cursor-pointer"
-                />
-              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverImageChange}
+                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg p-2 text-xs text-gray-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black hover:file:bg-amber-400 cursor-pointer"
+              />
             </div>
           </div>
 

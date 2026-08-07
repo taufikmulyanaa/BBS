@@ -21,23 +21,29 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
     let isMounted = true;
 
-    // 1. Dynamic Extraction of Titik Start Location Name
-    let searchLocation = routeName;
-    let labelLocation = routeName;
+    // 1. Dynamic Extraction of Titik Start & Finish Location Names
+    let startQuery = routeName.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+    let finishQuery = '';
 
     const startMatch = routeDescription.match(/📍 Titik Start: (.*?)\n/);
     if (startMatch && startMatch[1] && startMatch[1].trim().length > 0) {
-      searchLocation = startMatch[1].trim();
-      labelLocation = startMatch[1].trim();
-    } else {
-      // Clean prefix numbers and brackets for better geocoding query
-      searchLocation = routeName.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+      startQuery = startMatch[1].trim();
     }
 
-    // 2. Check if explicit GPS coordinates are present e.g. "Lat: -6.9024, Lng: 107.6187"
-    const gpsMatch = routeDescription.match(/Lat:\s*([-\d.]+),\s*Lng:\s*([-\d.]+)/i);
+    const finishMatch = routeDescription.match(/🏁 Titik Finish: (.*?)\n/);
+    if (finishMatch && finishMatch[1] && finishMatch[1].trim().length > 0) {
+      finishQuery = finishMatch[1].trim();
+    }
 
-    const renderMapWithCoords = (startLat: number, startLng: number, displayLabel: string) => {
+    // Function to render Leaflet map with Start & Finish markers + Polyline
+    const renderMapWithCoords = (
+      startLat: number,
+      startLng: number,
+      startLabel: string,
+      finishLat?: number,
+      finishLng?: number,
+      finishLabel?: string
+    ) => {
       import('leaflet').then((L) => {
         if (!isMounted || !mapRef.current) return;
 
@@ -46,7 +52,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           mapInstanceRef.current = null;
         }
 
-        const map = L.map(mapRef.current).setView([startLat, startLng], 14);
+        const map = L.map(mapRef.current).setView([startLat, startLng], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -67,62 +73,78 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           iconAnchor: [12, 12],
         });
 
-        // Add Pin Marker
+        // Add Start Marker
         L.marker([startLat, startLng], { icon: startIcon })
           .addTo(map)
-          .bindPopup(`<b>Titik Kumpul / Start</b><br/>${displayLabel}`)
+          .bindPopup(`<b>Titik Start (Awal)</b><br/>${startLabel}`)
           .openPopup();
+
+        // If Finish location exists, add Finish Marker and Polyline
+        if (finishLat && finishLng) {
+          const finishIcon = L.divIcon({
+            className: 'custom-leaflet-marker-finish',
+            html: `<div style="background-color: #22C55E; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #111111; box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);"></div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+          });
+
+          L.marker([finishLat, finishLng], { icon: finishIcon })
+            .addTo(map)
+            .bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}`);
+
+          // Draw Polyline between Start and Finish
+          const routePolyline = L.polyline(
+            [
+              [startLat, startLng],
+              [(startLat + finishLat) / 2 + 0.005, (startLng + finishLng) / 2 + 0.005],
+              [finishLat, finishLng],
+            ],
+            {
+              color: '#F59E0B',
+              weight: 6,
+              opacity: 0.9,
+              lineCap: 'round',
+              lineJoin: 'round',
+            }
+          ).addTo(map);
+
+          map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+        }
 
         mapInstanceRef.current = map;
       });
     };
 
-    if (gpsMatch) {
-      const parsedLat = parseFloat(gpsMatch[1]);
-      const parsedLng = parseFloat(gpsMatch[2]);
-      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
-        renderMapWithCoords(parsedLat, parsedLng, labelLocation);
-        return;
-      }
-    }
-
-    // 3. Query OpenStreetMap Nominatim Geocoding API for dynamic position
-    const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchLocation)}`;
-
-    fetch(geocodeUrl)
+    // Geocode both Start and Finish using Nominatim API
+    const fetchStart = fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}`)
       .then((res) => res.json())
-      .then((geoData) => {
-        if (!isMounted) return;
+      .catch(() => []);
 
-        if (geoData && geoData.length > 0) {
-          const lat = parseFloat(geoData[0].lat);
-          const lon = parseFloat(geoData[0].lon);
-          renderMapWithCoords(lat, lon, labelLocation);
-        } else {
-          // Fallback keyword matcher if Nominatim API query returns no result
-          const lower = (routeName + ' ' + routeDescription).toLowerCase();
-          let fallbackLat = -6.9024;
-          let fallbackLng = 107.6187;
+    const fetchFinish = finishQuery
+      ? fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}`)
+          .then((res) => res.json())
+          .catch(() => [])
+      : Promise.resolve([]);
 
-          if (lower.includes('pangandaran') || lower.includes('tasik') || lower.includes('ciamis')) {
-            fallbackLat = -7.3274;
-            fallbackLng = 108.3549;
-          } else if (lower.includes('bsd') || lower.includes('kebayoran') || lower.includes('jakarta')) {
-            fallbackLat = -6.2443;
-            fallbackLng = 106.7844;
-          } else if (lower.includes('sentul') || lower.includes('bogor')) {
-            fallbackLat = -6.5892;
-            fallbackLng = 106.8400;
-          }
+    Promise.all([fetchStart, fetchFinish]).then(([startGeo, finishGeo]) => {
+      if (!isMounted) return;
 
-          renderMapWithCoords(fallbackLat, fallbackLng, labelLocation);
-        }
-      })
-      .catch((err) => {
-        console.error('Geocoding error:', err);
-        // Fallback to default Gedung Sate if network fails
-        renderMapWithCoords(-6.9024, 107.6187, labelLocation);
-      });
+      let startLat = -6.9024;
+      let startLng = 107.6187;
+
+      if (startGeo && startGeo.length > 0) {
+        startLat = parseFloat(startGeo[0].lat);
+        startLng = parseFloat(startGeo[0].lon);
+      }
+
+      if (finishGeo && finishGeo.length > 0) {
+        const finishLat = parseFloat(finishGeo[0].lat);
+        const finishLng = parseFloat(finishGeo[0].lon);
+        renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
+      } else {
+        renderMapWithCoords(startLat, startLng, startQuery);
+      }
+    });
 
     return () => {
       isMounted = false;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Send, Trash2, MapPin, Bike, Upload, Image } from 'lucide-react';
+import { X, Edit3, Send, Trash2, MapPin, Bike, Upload, Image, Flag } from 'lucide-react';
 import { supabase, Route } from '@/lib/supabase';
 
 type Props = {
@@ -15,6 +15,7 @@ type Props = {
 export default function EditRouteModal({ isOpen, onClose, onSuccess, route, currentUser }: Props) {
   const [nama, setNama] = useState('');
   const [titikStart, setTitikStart] = useState('');
+  const [titikFinish, setTitikFinish] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
   const [jarakKm, setJarakKm] = useState('30');
   const [elevasiM, setElevasiM] = useState('350');
@@ -32,12 +33,17 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
     if (route) {
       setNama(route.nama || '');
       
-      // Parse Titik Start if formatted in deskripsi
       let cleanDesc = route.deskripsi || '';
       let startMatch = cleanDesc.match(/📍 Titik Start: (.*?)\n/);
       if (startMatch && startMatch[1]) {
         setTitikStart(startMatch[1]);
         cleanDesc = cleanDesc.replace(/📍 Titik Start: .*?\n/, '');
+      }
+
+      let finishMatch = cleanDesc.match(/🏁 Titik Finish: (.*?)\n/);
+      if (finishMatch && finishMatch[1]) {
+        setTitikFinish(finishMatch[1]);
+        cleanDesc = cleanDesc.replace(/🏁 Titik Finish: .*?\n/, '');
       }
 
       let bikeMatch = cleanDesc.match(/🚴 Jenis Sepeda: (.*?)\n\n/);
@@ -102,9 +108,9 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
 
       const tagsArray = [...new Set([...baseTags, jenisSepeda])];
 
-      const fullDeskripsi = titikStart
-        ? `📍 Titik Start: ${titikStart}\n🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`
-        : `🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
+      const startText = titikStart ? `📍 Titik Start: ${titikStart}\n` : '';
+      const finishText = titikFinish ? `🏁 Titik Finish: ${titikFinish}\n` : '';
+      const fullDeskripsi = `${startText}${finishText}🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
 
       const { error } = await supabase
         .from('routes')
@@ -196,7 +202,7 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span>Titik Kumpul / Start</span>
+                <span>Titik Start (Awal)</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -220,7 +226,7 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
                 <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
                 <input
                   type="text"
-                  placeholder="Alun-Alun / Indomaret KM 0"
+                  placeholder="Gedung Sate / Indomaret KM 0"
                   value={titikStart}
                   onChange={(e) => setTitikStart(e.target.value)}
                   className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
@@ -228,6 +234,42 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
               </div>
             </div>
 
+            <div>
+              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>Titik Tujuan (Finish)</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setTitikFinish(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
+                      );
+                    }
+                  }}
+                  className="text-[10px] text-green-400 hover:underline flex items-center space-x-0.5"
+                  title="Deteksi Lokasi GPS Saat Ini"
+                >
+                  <Flag className="w-3 h-3" />
+                  <span>Pin GPS</span>
+                </button>
+              </label>
+              <div className="relative">
+                <Flag className="w-4 h-4 text-green-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  placeholder="Tangkuban Perahu / Pantai Pangandaran"
+                  value={titikFinish}
+                  onChange={(e) => setTitikFinish(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
                 Kategori Sepeda (Surface)
@@ -247,50 +289,50 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
                 </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Jarak (KM)
+                </label>
+                <input
+                  type="number"
+                  required
+                  step="0.1"
+                  value={jarakKm}
+                  onChange={(e) => setJarakKm(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Elevasi (m)
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={elevasiM}
+                  onChange={(e) => setElevasiM(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Jarak (KM)
-              </label>
-              <input
-                type="number"
-                required
-                step="0.1"
-                value={jarakKm}
-                onChange={(e) => setJarakKm(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Elevasi (m)
-              </label>
-              <input
-                type="number"
-                required
-                value={elevasiM}
-                onChange={(e) => setElevasiM(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Tingkat Level
-              </label>
-              <select
-                value={level}
-                onChange={(e: any) => setLevel(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
-              >
-                <option value="easy">EASY</option>
-                <option value="medium">MEDIUM</option>
-                <option value="hard">HARD</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+              Tingkat Level Kesulitan
+            </label>
+            <select
+              value={level}
+              onChange={(e: any) => setLevel(e.target.value)}
+              className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+            >
+              <option value="easy">EASY (Ramah Pemula & Datar)</option>
+              <option value="medium">MEDIUM (Tanjakan Sedang)</option>
+              <option value="hard">HARD (Tanjakan Ekstrem & Endurance)</option>
+            </select>
           </div>
 
           <div>
