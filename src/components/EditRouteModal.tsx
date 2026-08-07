@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Send, Trash2, MapPin, Bike, Upload, Image, Flag } from 'lucide-react';
+import { X, Edit3, Send, Trash2, MapPin, Bike, Upload, Image, Flag, Compass } from 'lucide-react';
 import { supabase, Route } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
@@ -30,6 +30,35 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
   const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [mapPickerTarget, setMapPickerTarget] = useState<'start' | 'finish' | null>(null);
+
+  const handleDetectCurrentLocationForField = (target: 'start' | 'finish') => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      alert('Browser Anda tidak mendukung fitur lokasi (Geolocation).');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        let placeName = `Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`;
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          if (data && data.display_name) {
+            placeName = `${data.display_name.split(',')[0]} (Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)})`;
+          }
+        } catch {}
+        if (target === 'start') {
+          setTitikStart(placeName);
+        } else {
+          setTitikFinish(placeName);
+        }
+      },
+      () => {
+        alert('Gagal mengambil lokasi GPS. Pastikan izin akses lokasi browser diaktifkan.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   useEffect(() => {
     if (route) {
@@ -205,15 +234,26 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                 <span>Titik Start (Awal)</span>
-                <button
-                  type="button"
-                  onClick={() => setMapPickerTarget('start')}
-                  className="text-[10px] text-amber-400 hover:underline flex items-center space-x-0.5"
-                  title="Pilih Lokasi dari Peta"
-                >
-                  <MapPin className="w-3 h-3" />
-                  <span>Pin GPS</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDetectCurrentLocationForField('start')}
+                    className="text-[10px] text-cyan-400 hover:underline flex items-center space-x-0.5"
+                    title="Gunakan Lokasi GPS Saya Saat Ini"
+                  >
+                    <Compass className="w-3 h-3" />
+                    <span>GPS Saya</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapPickerTarget('start')}
+                    className="text-[10px] text-amber-400 hover:underline flex items-center space-x-0.5"
+                    title="Pilih Lokasi dari Peta"
+                  >
+                    <MapPin className="w-3 h-3" />
+                    <span>Pin Peta</span>
+                  </button>
+                </div>
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
@@ -230,15 +270,26 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
             <div>
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                 <span>Titik Tujuan (Finish)</span>
-                <button
-                  type="button"
-                  onClick={() => setMapPickerTarget('finish')}
-                  className="text-[10px] text-green-400 hover:underline flex items-center space-x-0.5"
-                  title="Pilih Lokasi dari Peta"
-                >
-                  <Flag className="w-3 h-3" />
-                  <span>Pin GPS</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDetectCurrentLocationForField('finish')}
+                    className="text-[10px] text-cyan-400 hover:underline flex items-center space-x-0.5"
+                    title="Gunakan Lokasi GPS Saya Saat Ini"
+                  >
+                    <Compass className="w-3 h-3" />
+                    <span>GPS Saya</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapPickerTarget('finish')}
+                    className="text-[10px] text-green-400 hover:underline flex items-center space-x-0.5"
+                    title="Pilih Lokasi dari Peta"
+                  >
+                    <Flag className="w-3 h-3" />
+                    <span>Pin Peta</span>
+                  </button>
+                </div>
               </label>
               <div className="relative">
                 <Flag className="w-4 h-4 text-green-400 absolute left-3 top-3" />

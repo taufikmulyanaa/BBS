@@ -273,7 +273,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         </div>
 
         {/* Search Bar & Dropdown Results */}
-        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20 flex items-center gap-2">
+        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <form onSubmit={handleSearch} className="relative flex-1 flex items-center">
             <Search className="w-4 h-4 text-gray-400 absolute left-3" />
             <input
@@ -299,16 +299,16 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
             </button>
           </form>
 
-          {/* Current Location GPS Button */}
+          {/* Current Location GPS Button (Prominent & Always Visible Text) */}
           <button
             type="button"
             onClick={handleGetCurrentLocation}
             disabled={locating}
-            className="flex items-center space-x-1.5 px-3.5 py-2.5 bg-[#262626] hover:bg-[#333333] border border-[#333333] hover:border-amber-500/50 text-amber-400 text-xs font-bold rounded-lg transition shrink-0 disabled:opacity-50 shadow-md"
+            className="flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-bold rounded-lg transition shrink-0 disabled:opacity-50 shadow-md active:scale-95"
             title="Gunakan Lokasi GPS Saya Saat Ini"
           >
             <Compass className={`w-4 h-4 ${locating ? 'animate-spin text-amber-400' : ''}`} />
-            <span className="hidden sm:inline">{locating ? 'Mendeteksi...' : 'GPS Saya'}</span>
+            <span>{locating ? 'Mendeteksi GPS...' : '📍 Lokasi Saya (GPS)'}</span>
           </button>
 
           {/* Search Suggestions Dropdown */}
@@ -338,16 +338,23 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
         <div className="relative flex-1 bg-[#111111] overflow-hidden">
           <div ref={mapRef} className="absolute inset-0 w-full h-full z-0" />
           
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-semibold shadow-lg border border-[#333333] pointer-events-none">
-            Klik pada peta atau gunakan lokasi saya untuk menempatkan pin
-          </div>
-
-          {/* Floating Current Location Button on Map */}
+          {/* Prominent Top Map Button for GPS Location */}
           <button
             type="button"
             onClick={handleGetCurrentLocation}
             disabled={locating}
-            className="absolute bottom-4 right-4 z-10 bg-[#1E1E1E]/90 hover:bg-black text-amber-400 border border-[#333333] p-3 rounded-full shadow-2xl backdrop-blur-md transition hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-amber-300 transition flex items-center space-x-1.5 hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            <Compass className={`w-4 h-4 ${locating ? 'animate-spin' : ''}`} />
+            <span>{locating ? 'Mendeteksi GPS Real...' : '🎯 Pin Lokasi Saya Saat Ini (GPS)'}</span>
+          </button>
+
+          {/* Floating Current Location Button on Map Bottom Right */}
+          <button
+            type="button"
+            onClick={handleGetCurrentLocation}
+            disabled={locating}
+            className="absolute bottom-4 right-4 z-10 bg-[#1E1E1E]/95 hover:bg-black text-amber-400 border border-amber-500/50 p-3 rounded-full shadow-2xl backdrop-blur-md transition hover:scale-110 active:scale-95 disabled:opacity-50"
             title="Deteksi Lokasi GPS Saya Saat Ini"
           >
             <Compass className={`w-5 h-5 ${locating ? 'animate-spin' : ''}`} />
