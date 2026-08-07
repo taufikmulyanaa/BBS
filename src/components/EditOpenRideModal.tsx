@@ -16,7 +16,8 @@ type Props = {
 export default function EditOpenRideModal({ isOpen, onClose, onSuccess, ride, currentUser }: Props) {
   const [judul, setJudul] = useState('');
   const [titikKumpul, setTitikKumpul] = useState('');
-  const [tanggalWaktu, setTanggalWaktu] = useState('');
+  const [tanggal, setTanggal] = useState('');
+  const [waktu, setWaktu] = useState('');
   const [jarakKm, setJarakKm] = useState('25');
   const [level, setLevel] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [kuotaMaks, setKuotaMaks] = useState('15');
@@ -37,9 +38,13 @@ export default function EditOpenRideModal({ isOpen, onClose, onSuccess, ride, cu
           const localIso = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
             .toISOString()
             .slice(0, 16);
-          setTanggalWaktu(localIso);
+          
+          const [tgl, wkt] = localIso.split('T');
+          setTanggal(tgl);
+          setWaktu(wkt);
         } catch {
-          setTanggalWaktu('');
+          setTanggal('');
+          setWaktu('');
         }
       }
 
@@ -68,7 +73,7 @@ export default function EditOpenRideModal({ isOpen, onClose, onSuccess, ride, cu
         .update({
           judul,
           titik_kumpul: titikKumpul,
-          tanggal_waktu: new Date(tanggalWaktu).toISOString(),
+          tanggal_waktu: new Date(`${tanggal}T${waktu}`).toISOString(),
           jarak_km: parseFloat(jarakKm),
           level,
           kuota_maks: parseInt(kuotaMaks),
@@ -168,18 +173,32 @@ export default function EditOpenRideModal({ isOpen, onClose, onSuccess, ride, cu
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                  Tanggal & Jam Kumpul *
-                </label>
-                <div className="relative">
-                  <Calendar className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                    Tanggal Gowes *
+                  </label>
+                  <div className="relative">
+                    <Calendar className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
+                    <input
+                      type="date"
+                      required
+                      value={tanggal}
+                      onChange={(e) => setTanggal(e.target.value)}
+                      className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg pl-9 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                    Jam Kumpul *
+                  </label>
                   <input
-                    type="datetime-local"
+                    type="time"
                     required
-                    value={tanggalWaktu}
-                    onChange={(e) => setTanggalWaktu(e.target.value)}
-                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg pl-9 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+                    value={waktu}
+                    onChange={(e) => setWaktu(e.target.value)}
+                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
                   />
                 </div>
               </div>
