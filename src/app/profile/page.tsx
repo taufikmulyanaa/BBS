@@ -77,8 +77,8 @@ export default function ProfilePage() {
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 250;
-        const MAX_HEIGHT = 250;
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
         let width = img.width;
         let height = img.height;
 
@@ -108,50 +108,53 @@ export default function ProfilePage() {
         try {
           let urlToSave = compressedDataUrl;
 
-          // Attempt uploading file to Supabase Storage bucket 'avatars' or 'profiles'
-          try {
-            canvas.toBlob(async (blob) => {
-              if (blob) {
-                const fileName = `${user.id}-avatar.jpg`;
-                const { error: storageErr } = await supabase.storage
-                  .from('avatars')
-                  .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+          // Convert canvas to Blob asynchronously via Promise
+          const blob: Blob | null = await new Promise((resolve) =>
+            canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
+          );
 
-                if (!storageErr) {
-                  const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-                  if (publicData?.publicUrl) {
-                    urlToSave = publicData.publicUrl;
-                    setFotoProfilUrl(urlToSave);
-                  }
-                }
+          if (blob) {
+            const fileName = `${user.id}-avatar.jpg`;
+            const { error: storageErr } = await supabase.storage
+              .from('avatars')
+              .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+
+            if (!storageErr) {
+              const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+              if (publicData?.publicUrl) {
+                // Cache-busting timestamp to prevent browser from showing cached old image
+                urlToSave = `${publicData.publicUrl}?t=${Date.now()}`;
               }
-
-              // Save URL to Supabase DB profiles table
-              await supabase.from('profiles').upsert({
-                id: user.id,
-                nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
-                bio,
-                foto_profil_url: urlToSave,
-                updated_at: new Date().toISOString(),
-              });
-
-              // Save URL to Supabase Auth User Metadata
-              await supabase.auth.updateUser({
-                data: { custom_avatar: urlToSave, avatar_url: urlToSave, picture: urlToSave }
-              });
-
-              // Local cache & event notification
-              if (typeof window !== 'undefined') {
-                localStorage.setItem(`bbs_avatar_${user.id}`, urlToSave);
-                window.dispatchEvent(new Event('bbs_avatar_updated'));
-              }
-
-              setSavedSuccess(true);
-              setTimeout(() => setSavedSuccess(false), 4000);
-            }, 'image/jpeg', 0.85);
-          } catch (storageException) {
-            console.error('Storage exception:', storageException);
+            } else {
+              console.error('Storage upload error:', storageErr);
+            }
           }
+
+          setFotoProfilUrl(urlToSave);
+
+          // Save URL to Supabase DB profiles table
+          const { error: dbErr } = await supabase.from('profiles').upsert({
+            id: user.id,
+            nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
+            bio,
+            foto_profil_url: urlToSave,
+            updated_at: new Date().toISOString(),
+          });
+          if (dbErr) console.error('DB profiles upsert error:', dbErr);
+
+          // Save URL to Supabase Auth User Metadata
+          const { error: authErr } = await supabase.auth.updateUser({
+            data: { custom_avatar: urlToSave, foto_profil_url: urlToSave }
+          });
+          if (authErr) console.error('Auth updateUser error:', authErr);
+
+          // Trigger custom event for Navbar & other components
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('bbs_avatar_updated'));
+          }
+
+          setSavedSuccess(true);
+          setTimeout(() => setSavedSuccess(false), 4000);
         } catch (err) {
           console.error('Error saving photo profile:', err);
         } finally {
