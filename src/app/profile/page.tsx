@@ -78,109 +78,76 @@ export default function ProfilePage() {
     });
   }, []);
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = async () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 300;
-        const MAX_HEIGHT = 300;
-        let width = img.width;
-        let height = img.height;
+    if (!user) return;
+    setSaving(true);
 
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
+    try {
+      // 1. Show immediately in UI using object URL
+      const localUrl = URL.createObjectURL(file);
+      setFotoProfilUrl(localUrl);
+
+      // 2. Upload original file directly to Supabase Storage
+      const fileName = `${user.id}-avatar-${Date.now()}.jpg`;
+      const { error: storageErr } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      let urlToSave = localUrl;
+
+      if (!storageErr) {
+        const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+        if (publicData?.publicUrl) {
+          urlToSave = publicData.publicUrl;
         }
+      } else {
+        console.error('Storage upload error:', storageErr);
+        alert(`Gagal mengunggah foto ke server: ${storageErr.message || 'Storage error'}`);
+        // We will continue with the object URL locally, but it won't persist cross-device well.
+      }
 
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
+      // 3. Update UI to use the final public URL (if successful)
+      setFotoProfilUrl(urlToSave);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bbs_avatar_${user.id}`, urlToSave);
+      }
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        setFotoProfilUrl(compressedDataUrl);
+      // 4. Update Supabase profiles table
+      const { error: dbErr } = await supabase.from('profiles').upsert({
+        id: user.id,
+        nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
+        bio,
+        foto_profil_url: urlToSave,
+        updated_at: new Date().toISOString(),
+      });
+      if (dbErr) console.error('DB profiles upsert error:', dbErr);
 
-        if (!user) return;
+      // 5. Update auth user metadata
+      const { error: authErr } = await supabase.auth.updateUser({
+        data: { custom_avatar: urlToSave, foto_profil_url: urlToSave }
+      });
+      if (authErr) console.error('Auth updateUser error:', authErr);
 
-        setSaving(true);
-        try {
-          let urlToSave = compressedDataUrl;
+      // 6. Notify other components
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('bbs_avatar_updated'));
+      }
 
-          // Convert canvas to Blob asynchronously via Promise
-          const blob: Blob | null = await new Promise((resolve) =>
-            canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
-          );
-
-          if (blob) {
-            const fileName = `${user.id}-avatar.jpg`;
-            const { error: storageErr } = await supabase.storage
-              .from('avatars')
-              .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
-
-            if (!storageErr) {
-              const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-              if (publicData?.publicUrl) {
-                // Cache-busting timestamp to prevent browser from showing cached old image
-                urlToSave = `${publicData.publicUrl}?t=${Date.now()}`;
-              }
-            } else {
-              console.error('Storage upload error:', storageErr);
-              alert(`Gagal mengunggah foto ke server: ${storageErr.message || 'Storage error'}`);
-              // Fallback to base64 if it's small, but we'll try to save it anyway
-            }
-          }
-
-          setFotoProfilUrl(urlToSave);
-          
-          // Save to localStorage immediately so it persists on this device
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(`bbs_avatar_${user.id}`, urlToSave);
-          }
-
-          // Save URL to Supabase DB profiles table
-          const { error: dbErr } = await supabase.from('profiles').upsert({
-            id: user.id,
-            nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
-            bio,
-            foto_profil_url: urlToSave,
-            updated_at: new Date().toISOString(),
-          });
-          if (dbErr) console.error('DB profiles upsert error:', dbErr);
-
-          // Save URL to Supabase Auth User Metadata
-          const { error: authErr } = await supabase.auth.updateUser({
-            data: { custom_avatar: urlToSave, foto_profil_url: urlToSave }
-          });
-          if (authErr) console.error('Auth updateUser error:', authErr);
-
-          // Trigger custom event for Navbar & other components
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new Event('bbs_avatar_updated'));
-          }
-
-          setSavedSuccess(true);
-          setTimeout(() => setSavedSuccess(false), 4000);
-        } catch (err) {
-          console.error('Error saving photo profile:', err);
-        } finally {
-          setSaving(false);
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 4000);
+    } catch (err) {
+      console.error('Error in handleAvatarFileChange:', err);
+      alert('Terjadi kesalahan saat mengganti foto.');
+    } finally {
+      setSaving(false);
+      // Reset input value so same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleSaveProfile = async () => {
