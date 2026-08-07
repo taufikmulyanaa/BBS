@@ -35,7 +35,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       finishQuery = finishMatch[1].trim();
     }
 
-    // Function to render Leaflet map with Start & Finish markers + Polyline
+    // Function to render Leaflet map with Start & Finish markers + OSRM Biking Route
     const renderMapWithCoords = (
       startLat: number,
       startLng: number,
@@ -79,7 +79,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           .bindPopup(`<b>Titik Start (Awal)</b><br/>${startLabel}`)
           .openPopup();
 
-        // If Finish location exists, add Finish Marker and Polyline
+        // If Finish location exists, fetch real OSRM Bicycle Routing path along real roads!
         if (finishLat && finishLng) {
           const finishIcon = L.divIcon({
             className: 'custom-leaflet-marker-finish',
@@ -92,23 +92,47 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
             .addTo(map)
             .bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}`);
 
-          // Draw Polyline between Start and Finish
-          const routePolyline = L.polyline(
-            [
-              [startLat, startLng],
-              [(startLat + finishLat) / 2 + 0.005, (startLng + finishLng) / 2 + 0.005],
-              [finishLat, finishLng],
-            ],
-            {
-              color: '#F59E0B',
-              weight: 6,
-              opacity: 0.9,
-              lineCap: 'round',
-              lineJoin: 'round',
-            }
-          ).addTo(map);
+          // Query OSRM Biking API for turn-by-turn bicycle navigation path
+          const osrmUrl = `https://router.project-osrm.org/route/v1/biking/${startLng},${startLat};${finishLng},${finishLat}?overview=full&geometries=geojson`;
 
-          map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+          fetch(osrmUrl)
+            .then((res) => res.json())
+            .then((osrmData) => {
+              if (!isMounted) return;
+
+              let routeCoords: [number, number][] = [
+                [startLat, startLng],
+                [(startLat + finishLat) / 2 + 0.005, (startLng + finishLng) / 2 + 0.005],
+                [finishLat, finishLng],
+              ];
+
+              if (osrmData && osrmData.routes && osrmData.routes.length > 0) {
+                const geoCoords = osrmData.routes[0].geometry.coordinates;
+                routeCoords = geoCoords.map(([lon, lat]: [number, number]) => [lat, lon]);
+              }
+
+              const routePolyline = L.polyline(routeCoords, {
+                color: '#F59E0B',
+                weight: 6,
+                opacity: 0.9,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }).addTo(map);
+
+              map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+            })
+            .catch((err) => {
+              console.error('OSRM Biking Route error:', err);
+              // Fallback simple polyline if OSRM is unreachable
+              const routePolyline = L.polyline(
+                [
+                  [startLat, startLng],
+                  [finishLat, finishLng],
+                ],
+                { color: '#F59E0B', weight: 6, opacity: 0.9 }
+              ).addTo(map);
+              map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+            });
         }
 
         mapInstanceRef.current = map;
