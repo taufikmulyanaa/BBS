@@ -23,8 +23,14 @@ export default function ProfilePage() {
       if (user) {
         setNamaLengkap(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anggota Gowes');
         
-        // Priority 1: Supabase DB profile
-        let liveAvatar = '';
+        // Priority 1: localStorage custom avatar
+        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
+        if (localAvatar) {
+          setFotoProfilUrl(localAvatar);
+        }
+
+        // Priority 2: Supabase DB profile
+        let liveAvatar = localAvatar || '';
         try {
           const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
           if (profile) {
@@ -32,6 +38,11 @@ export default function ProfilePage() {
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
             if (profile.foto_profil_url) {
               liveAvatar = profile.foto_profil_url;
+              // Update local cache with DB truth if it's an HTTP URL
+              if (liveAvatar.startsWith('http') && typeof window !== 'undefined') {
+                localStorage.setItem(`bbs_avatar_${user.id}`, liveAvatar);
+                setFotoProfilUrl(liveAvatar);
+              }
             }
           }
         } catch (e) {
@@ -40,9 +51,8 @@ export default function ProfilePage() {
 
         if (!liveAvatar) {
           liveAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+          setFotoProfilUrl(liveAvatar);
         }
-
-        setFotoProfilUrl(liveAvatar);
 
         // Fetch real stats from Supabase
         const { count: savedCount } = await supabase.from('saved_routes').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
@@ -127,10 +137,17 @@ export default function ProfilePage() {
               }
             } else {
               console.error('Storage upload error:', storageErr);
+              alert(`Gagal mengunggah foto ke server: ${storageErr.message || 'Storage error'}`);
+              // Fallback to base64 if it's small, but we'll try to save it anyway
             }
           }
 
           setFotoProfilUrl(urlToSave);
+          
+          // Save to localStorage immediately so it persists on this device
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`bbs_avatar_${user.id}`, urlToSave);
+          }
 
           // Save URL to Supabase DB profiles table
           const { error: dbErr } = await supabase.from('profiles').upsert({
