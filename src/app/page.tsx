@@ -42,7 +42,7 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/hero-bg.png" 
+            src="https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=2070&auto=format&fit=crop" 
             alt="Cyclists Background" 
             className="w-full h-full object-cover object-center"
           />
