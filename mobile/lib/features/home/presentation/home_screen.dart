@@ -6,7 +6,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../data/models/app_route.dart';
 import '../../../data/models/open_ride.dart';
-import '../../../data/models/forum_post_preview.dart';
 import '../../../providers/home_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -14,114 +13,117 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stats = ref.watch(homeStatsProvider);
     final routes = ref.watch(featuredRoutesProvider);
     final rides = ref.watch(upcomingRidesProvider);
-    final posts = ref.watch(recentForumPostsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('GUYUB GOWES')),
-      body: RefreshIndicator(
-        color: AppTheme.primary,
-        onRefresh: () async {
-          ref.invalidate(homeStatsProvider);
-          ref.invalidate(featuredRoutesProvider);
-          ref.invalidate(upcomingRidesProvider);
-          ref.invalidate(recentForumPostsProvider);
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            stats.when(
-              data: (s) => Row(
-                children: [
-                  Expanded(child: _StatCard(label: 'Anggota Aktif', value: s.anggotaAktif.toString())),
-                  const SizedBox(width: 10),
-                  Expanded(child: _StatCard(label: 'Rute Terverifikasi', value: s.ruteTerverifikasi.toString())),
-                  const SizedBox(width: 10),
-                  Expanded(child: _StatCard(label: 'Open Ride', value: s.openRideAktif.toString())),
-                ],
-              ),
-              loading: () => const SizedBox(height: 80, child: LoadingView()),
-              error: (e, _) => const SizedBox.shrink(),
-            ),
-            const SizedBox(height: 28),
-            _SectionHeader(title: 'Rute Unggulan', onSeeAll: () => context.push('/routes')),
-            const SizedBox(height: 12),
-            routes.when(
-              data: (list) => list.isEmpty
-                  ? const _InlineEmpty(text: 'Belum ada rute.')
-                  : SizedBox(
-                      height: 150,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: list.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, i) => _RoutePreviewCard(route: list[i]),
+      backgroundColor: AppTheme.background,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppTheme.primary,
+          onRefresh: () async {
+            ref.invalidate(featuredRoutesProvider);
+            ref.invalidate(upcomingRidesProvider);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 24),
+              _buildShortcuts(context),
+              const SizedBox(height: 32),
+              _SectionHeader(title: 'Rute Populer', onSeeAll: () => context.push('/routes')),
+              const SizedBox(height: 16),
+              routes.when(
+                data: (list) => list.isEmpty
+                    ? const _InlineEmpty(text: 'Belum ada rute.')
+                    : SizedBox(
+                        height: 220,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: list.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          itemBuilder: (context, i) => _RoutePreviewCard(route: list[i]),
+                        ),
                       ),
-                    ),
-              loading: () => const SizedBox(height: 150, child: LoadingView()),
-              error: (e, _) => const _InlineEmpty(text: 'Gagal memuat rute.'),
-            ),
-            const SizedBox(height: 28),
-            _SectionHeader(title: 'Open Ride Terdekat', onSeeAll: () => context.push('/open-rides')),
-            const SizedBox(height: 12),
-            rides.when(
-              data: (list) => list.isEmpty
-                  ? const _InlineEmpty(text: 'Belum ada Open Ride mendatang.')
-                  : Column(children: list.map((r) => _RidePreviewTile(ride: r)).toList()),
-              loading: () => const SizedBox(height: 80, child: LoadingView()),
-              error: (e, _) => const _InlineEmpty(text: 'Gagal memuat Open Ride.'),
-            ),
-            const SizedBox(height: 28),
-            const _SectionHeader(title: 'Diskusi Forum Terbaru'),
-            const SizedBox(height: 4),
-            const Text(
-              'Fitur Forum lengkap segera hadir di aplikasi mobile.',
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
-            ),
-            const SizedBox(height: 12),
-            posts.when(
-              data: (list) => list.isEmpty
-                  ? const _InlineEmpty(text: 'Belum ada diskusi.')
-                  : Column(children: list.map((p) => _ForumPreviewTile(post: p)).toList()),
-              loading: () => const SizedBox(height: 60, child: LoadingView()),
-              error: (e, _) => const _InlineEmpty(text: 'Gagal memuat forum.'),
-            ),
-            const SizedBox(height: 24),
-          ],
+                loading: () => const SizedBox(height: 220, child: LoadingView()),
+                error: (e, _) => const _InlineEmpty(text: 'Gagal memuat rute.'),
+              ),
+              const SizedBox(height: 32),
+              _SectionHeader(title: 'Open Ride Terdekat', onSeeAll: () => context.push('/open-rides')),
+              const SizedBox(height: 16),
+              rides.when(
+                data: (list) => list.isEmpty
+                    ? const _InlineEmpty(text: 'Belum ada Open Ride mendatang.')
+                    : Column(children: list.map((r) => _RidePreviewTile(ride: r)).toList()),
+                loading: () => const SizedBox(height: 120, child: LoadingView()),
+                error: (e, _) => const _InlineEmpty(text: 'Gagal memuat Open Ride.'),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
+  Widget _buildHeader(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Halo, Ogie! 👋',
+              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Selamat gowes hari ini!',
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+            ),
+          ],
+        ),
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: AppTheme.surfaceAlt,
+          child: Icon(Icons.person, color: AppTheme.textSecondary),
+        ),
+      ],
+    );
+  }
 
-  final String label;
-  final String value;
+  Widget _buildShortcuts(BuildContext context) {
+    final items = [
+      {'icon': Icons.directions_bike, 'label': 'Ride', 'route': '/home'},
+      {'icon': Icons.map, 'label': 'Rute', 'route': '/routes'},
+      {'icon': Icons.forum, 'label': 'Forum', 'route': '/forum'},
+      {'icon': Icons.event, 'label': 'Event', 'route': '/open-rides'},
+      {'icon': Icons.group, 'label': 'Chapter', 'route': '/home'},
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        children: [
-          Text(value, style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 20)),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 10),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: items.map((item) {
+        return GestureDetector(
+          onTap: () => context.push(item['route'] as String),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppTheme.surface,
+                child: Icon(item['icon'] as IconData, color: Colors.white, size: 24),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item['label'] as String,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }).toList(),
     );
   }
 }
@@ -137,11 +139,11 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+        Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         if (onSeeAll != null)
           TextButton(
             onPressed: onSeeAll,
-            child: const Text('Lihat Semua', style: TextStyle(color: AppTheme.primary, fontSize: 12)),
+            child: const Text('Lihat semua', style: TextStyle(color: AppTheme.primary, fontSize: 12)),
           ),
       ],
     );
@@ -166,40 +168,73 @@ class _RoutePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = route.coverImageUrl != null && route.coverImageUrl!.isNotEmpty;
+    
     return GestureDetector(
       onTap: () => context.push('/routes/${route.id}'),
       child: Container(
-        width: 200,
-        padding: const EdgeInsets.all(14),
+        width: 280,
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.border),
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(16),
+          image: hasImage
+              ? DecorationImage(image: NetworkImage(route.coverImageUrl!), fit: BoxFit.cover)
+              : null,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LevelBadge(level: route.level),
-            const SizedBox(height: 8),
-            Text(
-              route.nama,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 13),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Color(0xCC000000)],
             ),
-            const Spacer(),
-            Row(
-              children: [
-                const Icon(Icons.route, size: 13, color: AppTheme.textMuted),
-                const SizedBox(width: 4),
-                Text('${route.jarakKm} km', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
-                const Spacer(),
-                const Icon(Icons.star, size: 13, color: AppTheme.primary),
-                const SizedBox(width: 2),
-                Text(route.ratingAvg.toStringAsFixed(1), style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
-              ],
-            ),
-          ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: route.level.toLowerCase() == 'easy' ? AppTheme.success : AppTheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  route.level.toUpperCase(),
+                  style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                route.nama,
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.route, size: 14, color: AppTheme.textSecondary),
+                  const SizedBox(width: 4),
+                  Text('${route.jarakKm} km', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.landscape, size: 14, color: AppTheme.textSecondary),
+                  const SizedBox(width: 4),
+                  Text('${route.elevasiM ?? 0} m elevasi', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.star, size: 14, color: AppTheme.primary),
+                  const SizedBox(width: 4),
+                  Text(route.ratingAvg.toStringAsFixed(1), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  const Text(' (120)', style: TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -214,95 +249,92 @@ class _RidePreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = ride.tanggalWaktuDate;
-    final dateLabel = date != null ? DateFormat('EEE, d MMM · HH:mm', 'id_ID').format(date) : '';
+    final day = date != null ? DateFormat('dd').format(date) : '--';
+    final month = date != null ? DateFormat('MMM').format(date).toUpperCase() : '---';
+    final fullDate = date != null ? DateFormat('EEEE, dd MMM yyyy • HH:mm', 'id_ID').format(date) : '';
 
     return GestureDetector(
       onTap: () => context.push('/open-rides/${ride.id}'),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.border),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.border, width: 0.5),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.background,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(day, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(month, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dateLabel, style: const TextStyle(color: AppTheme.primary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(ride.judul, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(
-                    ride.judul,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 13),
+                  Text(fullDate, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.route, size: 14, color: AppTheme.textSecondary),
+                      const SizedBox(width: 4),
+                      Text('${ride.jarakKm} km', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                      const SizedBox(width: 16),
+                      Icon(Icons.terrain, size: 14, color: ride.level.toLowerCase() == 'easy' ? AppTheme.success : AppTheme.primary),
+                      const SizedBox(width: 4),
+                      Text(ride.level, style: TextStyle(color: ride.level.toLowerCase() == 'easy' ? AppTheme.success : AppTheme.primary, fontSize: 12)),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    ride.titikKumpul,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(ride.titikKumpul, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12), overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.people_outline, size: 14, color: AppTheme.textSecondary),
+                          const SizedBox(width: 4),
+                          Text('${ride.participantCount} / ${ride.kuotaMaks} peserta', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text('Join', style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppTheme.textMuted),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ForumPreviewTile extends StatelessWidget {
-  const _ForumPreviewTile({required this.post});
-
-  final ForumPostPreview post;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: AppTheme.primary,
-            backgroundImage: post.authorAvatar != null && post.authorAvatar!.isNotEmpty
-                ? NetworkImage(post.authorAvatar!)
-                : null,
-            child: (post.authorAvatar == null || post.authorAvatar!.isEmpty)
-                ? Text(post.authorName.substring(0, 1).toUpperCase(), style: const TextStyle(color: Colors.black, fontSize: 11))
-                : null,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(post.authorName, style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                const SizedBox(height: 2),
-                Text(
-                  post.isi,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

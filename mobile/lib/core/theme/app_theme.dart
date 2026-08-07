@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primary = Color(0xFFEA9B28);
@@ -18,6 +19,10 @@ class AppTheme {
     return ThemeData.dark().copyWith(
       scaffoldBackgroundColor: background,
       primaryColor: primary,
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
+        bodyColor: textPrimary,
+        displayColor: textPrimary,
+      ),
       colorScheme: const ColorScheme.dark(
         primary: primary,
         secondary: primaryLight,
