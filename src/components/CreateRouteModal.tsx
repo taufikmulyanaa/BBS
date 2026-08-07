@@ -23,7 +23,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
   const [jenisSepeda, setJenisSepeda] = useState('Semua Sepeda (All Bike)');
   const [permukaan, setPermukaan] = useState('');
   const [tagsInput, setTagsInput] = useState('Tanjakan, Pemandangan, Kopi');
-  const [gpxUrl, setGpxUrl] = useState('');
+  const [gpxFile, setGpxFile] = useState<File | null>(null);
   const [gpxFileName, setGpxFileName] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [coverFileName, setCoverFileName] = useState('');
@@ -37,15 +37,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
     const file = e.target.files?.[0];
     if (!file) return;
     setGpxFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      const blob = new Blob([content], { type: 'application/gpx+xml' });
-      const blobUrl = URL.createObjectURL(blob);
-      setGpxUrl(blobUrl);
-    };
-    reader.readAsText(file);
+    setGpxFile(file);
   };
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +74,15 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
         coverUrl ||
         'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80';
 
+      let gpxUrl: string | undefined;
+      if (gpxFile) {
+        const filePath = `route-gpx/${currentUser.id}-${Date.now()}.gpx`;
+        const { error: uploadError } = await supabase.storage.from('forum-media').upload(filePath, gpxFile);
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = supabase.storage.from('forum-media').getPublicUrl(filePath);
+        gpxUrl = publicUrlData.publicUrl;
+      }
+
       const { error } = await supabase.from('routes').insert([
         {
           nama,
@@ -90,7 +91,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
           elevasi_m: parseInt(elevasiM),
           level,
           tags: tagsArray,
-          gpx_file_url: gpxUrl || undefined,
+          gpx_file_url: gpxUrl,
           cover_image_url: defaultCover,
           titik_awal: titikStart || undefined,
           titik_akhir: titikFinish || undefined,
@@ -112,7 +113,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
       setTitikFinish('');
       setPermukaan('');
       setDeskripsi('');
-      setGpxUrl('');
+      setGpxFile(null);
       setGpxFileName('');
       setCoverUrl('');
       setCoverFileName('');

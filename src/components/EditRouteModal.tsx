@@ -24,7 +24,7 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
   const [jenisSepeda, setJenisSepeda] = useState('Semua Sepeda (All Bike)');
   const [permukaan, setPermukaan] = useState('');
   const [tagsInput, setTagsInput] = useState('');
-  const [gpxUrl, setGpxUrl] = useState('');
+  const [gpxFile, setGpxFile] = useState<File | null>(null);
   const [gpxFileName, setGpxFileName] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [coverFileName, setCoverFileName] = useState('');
@@ -68,7 +68,8 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
       setElevasiM(route.elevasi_m?.toString() || '350');
       setLevel(route.level || 'medium');
       setTagsInput(route.tags?.join(', ') || '');
-      setGpxUrl(route.gpx_file_url || '');
+      setGpxFile(null);
+      setGpxFileName('');
       setCoverUrl(route.cover_image_url || '');
     }
   }, [route]);
@@ -79,15 +80,7 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
     const file = e.target.files?.[0];
     if (!file) return;
     setGpxFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      const blob = new Blob([content], { type: 'application/gpx+xml' });
-      const blobUrl = URL.createObjectURL(blob);
-      setGpxUrl(blobUrl);
-    };
-    reader.readAsText(file);
+    setGpxFile(file);
   };
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,6 +112,15 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
         .filter((t) => t.length > 0);
 
       const tagsArray = [...new Set([...baseTags, jenisSepeda])];
+
+      let gpxUrl: string | undefined;
+      if (gpxFile) {
+        const filePath = `route-gpx/${currentUser.id}-${Date.now()}.gpx`;
+        const { error: uploadError } = await supabase.storage.from('forum-media').upload(filePath, gpxFile);
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = supabase.storage.from('forum-media').getPublicUrl(filePath);
+        gpxUrl = publicUrlData.publicUrl;
+      }
 
       const { error } = await supabase
         .from('routes')
