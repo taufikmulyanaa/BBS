@@ -50,6 +50,7 @@ export type OpenRide = {
 export type ForumPost = {
   id: string;
   route_id?: string;
+  chapter_id?: string;
   user_id?: string;
   author_id?: string;
   tipe: 'diskusi' | 'laporan_kondisi' | 'laporan_jalan' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel';
@@ -62,4 +63,48 @@ export type ForumPost = {
   author_name?: string;
   author_avatar?: string;
   route_name?: string;
+};
+
+export type Chapter = {
+  id: string;
+  nama: string;
+  kota: string;
+  slug: string;
+  deskripsi?: string;
+  cover_image_url?: string;
+  status: 'aktif' | 'nonaktif';
+  dibuat_oleh?: string;
+  created_at: string;
+};
+
+export type ChapterMember = {
+  chapter_id: string;
+  user_id: string;
+  role: 'admin' | 'member';
+  status: 'pending' | 'aktif' | 'ditolak';
+  requested_at: string;
+  decided_at?: string;
+  decided_by?: string;
+};
+
+export type ChapterEvent = {
+  id: string;
+  chapter_id: string;
+  jenis: 'open_ride' | 'kopdar' | 'lainnya';
+  judul: string;
+  deskripsi?: string;
+  lokasi?: string;
+  tanggal_waktu: string;
+  kuota_maks?: number;
+  status: 'akan_datang' | 'selesai' | 'dibatalkan';
+  dibuat_oleh?: string;
+  created_at: string;
+  participant_count?: number;
+};
+
+export type ChapterEventParticipant = {
+  event_id: string;
+  user_id: string;
+  status_konfirmasi: 'terdaftar' | 'hadir' | 'tidak_hadir';
+  joined_at: string;
 };

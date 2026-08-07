@@ -11,9 +11,10 @@ type Props = {
   onClose: () => void;
   onSuccess: () => void;
   currentUser: any;
+  chapterId?: string;
 };
 
-export default function CreateForumPostModal({ isOpen, onClose, onSuccess, currentUser }: Props) {
+export default function CreateForumPostModal({ isOpen, onClose, onSuccess, currentUser, chapterId }: Props) {
   const [isi, setIsi] = useState('');
   const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel'>('diskusi');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
@@ -145,6 +146,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         isi: fullContent,
         tipe: dbType,
         user_id: currentUser.id,
+        chapter_id: chapterId || null,
       };
 
       const { error } = await supabase.from('forum_posts').insert([payload]);
