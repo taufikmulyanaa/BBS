@@ -145,7 +145,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (isEditing && provinces.length === 0) {
-      fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json')
+      fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
         .then((res) => res.json())
         .then((data) => setProvinces(data))
         .catch((err) => console.error('Error fetching provinces:', err));
@@ -154,7 +154,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (selectedProvId) {
-      fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${selectedProvId}.json`)
+      fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvId}.json`)
         .then((res) => res.json())
         .then((data) => setCities(data))
         .catch((err) => console.error('Error fetching cities:', err));
