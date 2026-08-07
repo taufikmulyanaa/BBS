@@ -13,13 +13,30 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    const loadUserAndProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-    });
+
+      if (user) {
+        let currentAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        const { data: profile } = await supabase.from('profiles').select('foto_profil_url').eq('id', user.id).single();
+        if (profile?.foto_profil_url) {
+          currentAvatar = profile.foto_profil_url;
+        }
+        setAvatarUrl(currentAvatar);
+      }
+    };
+
+    loadUserAndProfile();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        loadUserAndProfile();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -90,9 +107,9 @@ export default function Navbar() {
                     className="flex items-center space-x-2 bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] px-3 py-1.5 rounded-lg text-sm text-[#F5F5F5] transition-colors"
                   >
                     <div className="w-7 h-7 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-amber-500/40">
-                      {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
+                      {avatarUrl ? (
                         <img
-                          src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                          src={avatarUrl}
                           alt="Avatar"
                           className="w-full h-full object-cover"
                         />

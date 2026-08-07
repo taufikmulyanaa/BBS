@@ -61,16 +61,66 @@ export default function ProfilePage() {
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-          const dataUrl = reader.result as string;
-          setFotoProfilUrl(dataUrl);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setFotoProfilUrl(compressedDataUrl);
+
+        // Immediate Auto-Save to Supabase
+        if (user) {
+          setSaving(true);
+          try {
+            await supabase.from('profiles').upsert({
+              id: user.id,
+              nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
+              bio,
+              foto_profil_url: compressedDataUrl,
+              updated_at: new Date().toISOString(),
+            });
+
+            await supabase.auth.updateUser({
+              data: { avatar_url: compressedDataUrl, picture: compressedDataUrl }
+            });
+
+            setSavedSuccess(true);
+            setTimeout(() => setSavedSuccess(false), 4000);
+          } catch (err) {
+            console.error('Error auto-saving photo profile:', err);
+          } finally {
+            setSaving(false);
+          }
         }
       };
-      reader.readAsDataURL(file);
-    }
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveProfile = async () => {
@@ -84,10 +134,13 @@ export default function ProfilePage() {
           foto_profil_url: fotoProfilUrl,
           updated_at: new Date().toISOString(),
         });
+        await supabase.auth.updateUser({
+          data: { full_name: namaLengkap, avatar_url: fotoProfilUrl }
+        });
       }
       setIsEditing(false);
       setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
+      setTimeout(() => setSavedSuccess(false), 4000);
     } catch (err) {
       console.error('Error saving profile:', err);
     } finally {
