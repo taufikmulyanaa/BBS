@@ -197,13 +197,19 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       });
     };
 
+    const formatGeocodeQuery = (q: string) => {
+      if (!q) return '';
+      const clean = q.trim();
+      return clean.toLowerCase().includes('indonesia') ? clean : `${clean}, Indonesia`;
+    };
+
     // Geocode both Start and Finish dynamically using Nominatim API (100% Dynamic, Zero Hardcoding)
-    const fetchStart = fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}`)
+    const fetchStart = fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formatGeocodeQuery(startQuery))}`)
       .then((res) => res.json())
       .catch(() => []);
 
     const fetchFinish = finishQuery
-      ? fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}`)
+      ? fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formatGeocodeQuery(finishQuery))}`)
           .then((res) => res.json())
           .catch(() => [])
       : Promise.resolve([]);
