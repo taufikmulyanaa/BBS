@@ -16,7 +16,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
-  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
+  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string; startCoords?: string; finishCoords?: string } | null>(null);
 
   // 100% Pure Dynamic Query Cleaning (No Hardcoded Places)
   const sanitizeQuery = (str: string) => {
@@ -62,6 +62,18 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
     }
 
     return { startQuery, finishQuery };
+  };
+  
+  const parseDirectCoordinates = (query: string) => {
+    const match = query.match(/lat:\s*([-\d.]+)[,\s]*lng:\s*([-\d.]+)/i);
+    if (match) {
+      return { lat: parseFloat(match[1]), lon: parseFloat(match[2]) };
+    }
+    const plainMatch = query.match(/([-\d.]+),\s*([-\d.]+)/);
+    if (plainMatch) {
+      return { lat: parseFloat(plainMatch[1]), lon: parseFloat(plainMatch[2]) };
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -110,7 +122,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
         L.marker([startLat, startLng], { icon: startIcon })
           .addTo(map)
-          .bindPopup(`<b>Titik Start (Awal)</b><br/>${startLabel}`)
+          .bindPopup(`<b>Titik Start (Awal)</b><br/>${startLabel}<br/><small className="text-gray-500">${startLat.toFixed(5)}, ${startLng.toFixed(5)}</small>`)
           .openPopup();
 
         // If Finish location exists, fetch real OSRM Bicycle Routing path along real roads!
@@ -123,7 +135,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           });
 
           const finishMarker = L.marker([finishLat, finishLng], { icon: finishIcon }).addTo(map);
-          finishMarker.bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}`);
+          finishMarker.bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}<br/><small className="text-gray-500">${finishLat.toFixed(5)}, ${finishLng.toFixed(5)}</small>`);
 
           const osrmUrl = `https://router.project-osrm.org/route/v1/biking/${startLng},${startLat};${finishLng},${finishLat}?overview=full&geometries=geojson`;
 
@@ -149,10 +161,22 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
                 const mins = totalMins % 60;
                 const durationText = hrs > 0 ? `${hrs} jam ${mins} menit` : `${mins} menit`;
 
-                setRouteStats({ distance: `${distKm} km`, duration: durationText });
-
                 const lastCoord = routeCoords[routeCoords.length - 1];
                 finishMarker.setLatLng(lastCoord);
+                
+                setRouteStats({ 
+                  distance: `${distKm} km`, 
+                  duration: durationText, 
+                  startCoords: `${startLat.toFixed(5)}, ${startLng.toFixed(5)}`, 
+                  finishCoords: `${lastCoord[0].toFixed(5)}, ${lastCoord[1].toFixed(5)}` 
+                });
+              } else {
+                 setRouteStats({ 
+                  distance: `N/A`, 
+                  duration: `N/A`, 
+                  startCoords: `${startLat.toFixed(5)}, ${startLng.toFixed(5)}`, 
+                  finishCoords: `${finishLat.toFixed(5)}, ${finishLng.toFixed(5)}` 
+                });
               }
 
               L.polyline(routeCoords, {
@@ -175,6 +199,12 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
             })
             .catch((err) => {
               console.error('OSRM Biking Route error:', err);
+              setRouteStats({ 
+                distance: `N/A`, 
+                duration: `N/A`, 
+                startCoords: `${startLat.toFixed(5)}, ${startLng.toFixed(5)}`, 
+                finishCoords: `${finishLat.toFixed(5)}, ${finishLng.toFixed(5)}` 
+              });
               const routePolyline = L.polyline(
                 [
                   [startLat, startLng],
@@ -184,6 +214,12 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
               ).addTo(map);
               map.fitBounds(routePolyline.getBounds(), { padding: [45, 45] });
             });
+        } else {
+           setRouteStats({ 
+            distance: `N/A`, 
+            duration: `N/A`, 
+            startCoords: `${startLat.toFixed(5)}, ${startLng.toFixed(5)}` 
+          });
         }
 
         mapInstanceRef.current = map;
@@ -191,52 +227,87 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
     };
 
     // Step 1: Geocode Start Location (Global Indonesia Search)
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}&countrycodes=id`)
-      .then((res) => res.json())
-      .then((startGeo) => {
-        if (!isMounted) return;
-
-        let startLat = -6.9024;
-        let startLng = 107.6187;
-
-        if (startGeo && startGeo.length > 0) {
-          startLat = parseFloat(startGeo[0].lat);
-          startLng = parseFloat(startGeo[0].lon);
+    const directStart = parseDirectCoordinates(startQuery);
+    
+    if (directStart) {
+      const startLat = directStart.lat;
+      const startLng = directStart.lon;
+      
+      if (!finishQuery) {
+        renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, 'Tujuan Gowes');
+      } else {
+        const directFinish = parseDirectCoordinates(finishQuery);
+        if (directFinish) {
+          renderMapWithCoords(startLat, startLng, startQuery, directFinish.lat, directFinish.lon, finishQuery);
+        } else {
+          // Geocode finish
+          fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}&countrycodes=id`)
+            .then((res) => res.json())
+            .then((finishGeo) => {
+              if (!isMounted) return;
+              if (finishGeo && finishGeo.length > 0) {
+                renderMapWithCoords(startLat, startLng, startQuery, parseFloat(finishGeo[0].lat), parseFloat(finishGeo[0].lon), finishQuery);
+              } else {
+                renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, finishQuery);
+              }
+            })
+            .catch(() => renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, finishQuery));
         }
+      }
+    } else {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}&countrycodes=id`)
+        .then((res) => res.json())
+        .then((startGeo) => {
+          if (!isMounted) return;
 
-        if (!finishQuery) {
-          renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, 'Tujuan Gowes');
-          return;
-        }
+          let startLat = -6.9024;
+          let startLng = 107.6187;
 
-        // Step 2: Geocode Finish Location (Global Indonesia Search without viewbox constraints)
-        const finishUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}&countrycodes=id`;
+          if (startGeo && startGeo.length > 0) {
+            startLat = parseFloat(startGeo[0].lat);
+            startLng = parseFloat(startGeo[0].lon);
+          }
 
-        fetch(finishUrl)
-          .then((res) => res.json())
-          .then((finishGeo) => {
-            if (!isMounted) return;
+          if (!finishQuery) {
+            renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, 'Tujuan Gowes');
+            return;
+          }
 
-            let finishLat: number | undefined = undefined;
-            let finishLng: number | undefined = undefined;
+          // Step 2: Geocode Finish Location (Global Indonesia Search without viewbox constraints)
+          const directFinish = parseDirectCoordinates(finishQuery);
+          if (directFinish) {
+             renderMapWithCoords(startLat, startLng, startQuery, directFinish.lat, directFinish.lon, finishQuery);
+             return;
+          }
 
-            if (finishGeo && finishGeo.length > 0) {
-              finishLat = parseFloat(finishGeo[0].lat);
-              finishLng = parseFloat(finishGeo[0].lon);
-            } else {
-              finishLat = startLat - 0.08;
-              finishLng = startLng + 0.08;
-            }
+          const finishUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}&countrycodes=id`;
 
-            renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
-          })
-          .catch(() => {
-            renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, finishQuery);
-          });
-      })
-      .catch(() => {
-        renderMapWithCoords(-6.9024, 107.6187, startQuery);
-      });
+          fetch(finishUrl)
+            .then((res) => res.json())
+            .then((finishGeo) => {
+              if (!isMounted) return;
+
+              let finishLat: number | undefined = undefined;
+              let finishLng: number | undefined = undefined;
+
+              if (finishGeo && finishGeo.length > 0) {
+                finishLat = parseFloat(finishGeo[0].lat);
+                finishLng = parseFloat(finishGeo[0].lon);
+              } else {
+                finishLat = startLat - 0.08;
+                finishLng = startLng + 0.08;
+              }
+
+              renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
+            })
+            .catch(() => {
+              renderMapWithCoords(startLat, startLng, startQuery, startLat - 0.08, startLng + 0.08, finishQuery);
+            });
+        })
+        .catch(() => {
+          renderMapWithCoords(-6.9024, 107.6187, startQuery);
+        });
+    }
 
     return () => {
       isMounted = false;
@@ -259,16 +330,24 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           <span className="text-white truncate max-w-[200px]">{routeName}</span>
         </div>
         {routeStats && (
-          <div className="flex items-center space-x-3 text-[11px] font-semibold text-gray-300 border-t border-[#333333]/60 pt-1 mt-0.5">
-            <span className="text-cyan-400 flex items-center space-x-1">
-              <span>🚴 Estimasi:</span>
-              <strong className="text-white">{routeStats.duration}</strong>
-            </span>
-            <span>•</span>
-            <span className="text-green-400 flex items-center space-x-1">
-              <span>📏 Navigasi:</span>
-              <strong className="text-white">{routeStats.distance}</strong>
-            </span>
+          <div className="flex flex-col space-y-1 border-t border-[#333333]/60 pt-1 mt-0.5">
+            <div className="flex items-center space-x-3 text-[11px] font-semibold text-gray-300">
+              <span className="text-cyan-400 flex items-center space-x-1">
+                <span>🚴 Estimasi:</span>
+                <strong className="text-white">{routeStats.duration}</strong>
+              </span>
+              <span>•</span>
+              <span className="text-green-400 flex items-center space-x-1">
+                <span>📏 Navigasi:</span>
+                <strong className="text-white">{routeStats.distance}</strong>
+              </span>
+            </div>
+            {(routeStats.startCoords || routeStats.finishCoords) && (
+              <div className="flex items-center space-x-3 text-[9px] font-mono text-gray-400 pt-0.5">
+                {routeStats.startCoords && <span>Start: {routeStats.startCoords}</span>}
+                {routeStats.finishCoords && <span>Finish: {routeStats.finishCoords}</span>}
+              </div>
+            )}
           </div>
         )}
       </div>
