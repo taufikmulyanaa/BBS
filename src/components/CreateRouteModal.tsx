@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Navigation, Upload, Image, MapPin, Bike, Send, Flag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import MapLocationPickerModal from './MapLocationPickerModal';
 
 type Props = {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
   const [coverUrl, setCoverUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [mapPickerTarget, setMapPickerTarget] = useState<'start' | 'finish' | null>(null);
 
   if (!isOpen) return null;
 
@@ -168,18 +170,9 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 <span>Titik Start (Awal)</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                          setTitikStart(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
-                        },
-                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
-                      );
-                    }
-                  }}
+                  onClick={() => setMapPickerTarget('start')}
                   className="text-[10px] text-amber-400 hover:underline flex items-center space-x-0.5"
-                  title="Deteksi Lokasi GPS Saat Ini"
+                  title="Pilih Lokasi di Peta"
                 >
                   <MapPin className="w-3 h-3" />
                   <span>Pin GPS</span>
@@ -202,18 +195,9 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                 <span>Titik Tujuan (Finish)</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                          setTitikFinish(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
-                        },
-                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
-                      );
-                    }
-                  }}
+                  onClick={() => setMapPickerTarget('finish')}
                   className="text-[10px] text-green-400 hover:underline flex items-center space-x-0.5"
-                  title="Deteksi Lokasi GPS Saat Ini"
+                  title="Pilih Lokasi di Peta"
                 >
                   <Flag className="w-3 h-3" />
                   <span>Pin GPS</span>
@@ -382,6 +366,19 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
           </div>
         </form>
       </div>
+
+      <MapLocationPickerModal
+        isOpen={mapPickerTarget !== null}
+        onClose={() => setMapPickerTarget(null)}
+        title={mapPickerTarget === 'start' ? 'Pilih Titik Start' : 'Pilih Titik Tujuan (Finish)'}
+        onSelect={(lat, lng) => {
+          if (mapPickerTarget === 'start') {
+            setTitikStart(`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+          } else {
+            setTitikFinish(`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+          }
+        }}
+      />
     </div>
   );
 }
