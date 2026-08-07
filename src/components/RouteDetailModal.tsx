@@ -26,56 +26,6 @@ type Props = {
   onReviewAdded?: () => void;
 };
 
-const DUMMY_REVIEWS: Record<string, RouteReview[]> = {
-  default: [
-    {
-      id: 'rev-1',
-      route_id: 'default',
-      user_name: 'Kang Asep Gowes',
-      user_avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      rating: 5,
-      comment: 'Jalur sangat mantap! Pemandangan sawah di km 15 indah sekali. Ada warkop legendaris pisang goreng hangat di pertengahan rute.',
-      created_at: '2026-08-01T08:30:00Z',
-    },
-    {
-      id: 'rev-2',
-      route_id: 'default',
-      user_name: 'Bapak Yudi MTB',
-      user_avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-      rating: 4,
-      comment: 'Tanjakannya lumayan bikin betis pegal tapi terbayar dengan turunan mulus. Cocok untuk gowes santai hari Minggu.',
-      created_at: '2026-07-28T14:20:00Z',
-    },
-  ],
-};
-
-const DUMMY_FORUM_POSTS: ForumPost[] = [
-  {
-    id: 'fp-r1',
-    route_id: 'default',
-    tipe: 'laporan_kondisi',
-    judul: 'Laporan Kondisi Jalan & Perbaikan Aspal',
-    isi: 'Untuk rekan-rekan yang mau gowes di jalur ini, di KM 14 sedang ada pelebaran jalan. Tetap waspada dan kurangi kecepatan saat turunan.',
-    like_count: 12,
-    comment_count: 4,
-    created_at: '2026-08-05T10:00:00Z',
-    author_name: 'Pak Bambang Tanjakan',
-    author_avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'fp-r2',
-    route_id: 'default',
-    tipe: 'rekomendasi_warkop',
-    judul: '☕ Warkop Gowes Pak Haji Slamet - KM 18',
-    isi: 'Rekomendasi tempat ngopi & istirahat di tengah rute ini. Pisang gorengnya crispy, kopi hitamnya mantap, dan ada pompa sepeda gratis.',
-    like_count: 24,
-    comment_count: 8,
-    created_at: '2026-08-03T16:40:00Z',
-    author_name: 'Om Hendra Roadbike',
-    author_avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-  },
-];
-
 export default function RouteDetailModal({ isOpen, onClose, route, currentUser, onReviewAdded }: Props) {
   const [reviews, setReviews] = useState<RouteReview[]>([]);
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([]);
@@ -98,7 +48,7 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
     if (!route || !isOpen) return;
 
     const fetchData = async () => {
-      // 1. Fetch Reviews
+      // 1. Fetch Reviews strictly from database & local user storage
       let loadedReviews: RouteReview[] = [];
 
       try {
@@ -115,7 +65,7 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         console.error('Error fetching DB reviews:', err);
       }
 
-      // Check localStorage for local cached reviews
+      // Merge local user-submitted reviews
       if (typeof window !== 'undefined') {
         try {
           const localData = localStorage.getItem(`bbs_reviews_${route.id}`);
@@ -133,16 +83,9 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         }
       }
 
-      if (loadedReviews.length === 0) {
-        loadedReviews = DUMMY_REVIEWS.default.map((rev) => ({
-          ...rev,
-          route_id: route.id,
-        }));
-      }
-
       setReviews(loadedReviews);
 
-      // 2. Fetch Forum Posts for this route
+      // 2. Fetch Forum Posts strictly from database & local user storage
       let loadedForum: ForumPost[] = [];
       try {
         const { data: dbPosts } = await supabase
@@ -162,7 +105,7 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         console.error('Error fetching route forum posts:', e);
       }
 
-      // Merge local forum posts cached in localStorage
+      // Merge local user-submitted forum posts
       if (typeof window !== 'undefined') {
         try {
           const localForum = localStorage.getItem(`bbs_route_forum_${route.id}`);
@@ -178,13 +121,6 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         } catch (e) {
           console.error('Error reading local forum posts:', e);
         }
-      }
-
-      if (loadedForum.length === 0) {
-        loadedForum = DUMMY_FORUM_POSTS.map((f) => ({
-          ...f,
-          route_id: route.id,
-        }));
       }
 
       setForumPosts(loadedForum);
@@ -729,45 +665,55 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
                 <div className="space-y-3">
                   <h4 className="font-heading font-bold text-sm text-white">Daftar Ulasan Komunitas</h4>
 
-                  {reviews.map((rev) => (
-                    <div key={rev.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
-                            {rev.user_avatar ? (
-                              <img src={rev.user_avatar} alt={rev.user_name} className="w-full h-full object-cover" />
-                            ) : (
-                              <span>{rev.user_name.charAt(0).toUpperCase()}</span>
-                            )}
-                          </div>
-                          <div>
-                            <span className="font-bold text-xs text-white block">{rev.user_name}</span>
-                            <span className="text-[10px] text-gray-400">
-                              {new Date(rev.created_at).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Rating Stars */}
-                        <div className="flex items-center space-x-0.5 text-amber-400">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star
-                              key={s}
-                              className={`w-3.5 h-3.5 ${s <= rev.rating ? 'fill-current' : 'text-gray-600'}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-gray-300 leading-relaxed pl-10">
-                        "{rev.comment}"
+                  {reviews.length === 0 ? (
+                    <div className="bg-[#262626] border border-[#333333] p-8 rounded-xl text-center space-y-2">
+                      <Star className="w-8 h-8 text-amber-500 mx-auto opacity-70" />
+                      <p className="text-white font-bold text-sm">Belum Ada Ulasan</p>
+                      <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                        Jadilah yang pertama memberikan ulasan & rating pengalaman gowes Anda di rute ini!
                       </p>
                     </div>
-                  ))}
+                  ) : (
+                    reviews.map((rev) => (
+                      <div key={rev.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
+                              {rev.user_avatar ? (
+                                <img src={rev.user_avatar} alt={rev.user_name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{rev.user_name?.charAt(0).toUpperCase() || 'P'}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="font-bold text-xs text-white block">{rev.user_name}</span>
+                              <span className="text-[10px] text-gray-400">
+                                {new Date(rev.created_at).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Rating Stars */}
+                          <div className="flex items-center space-x-0.5 text-amber-400">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className={`w-3.5 h-3.5 ${s <= rev.rating ? 'fill-current' : 'text-gray-600'}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-gray-300 leading-relaxed pl-10">
+                          "{rev.comment}"
+                        </p>
+                      </div>
+                    ))
+                  )}
                 </div>
 
               </div>
@@ -885,80 +831,90 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
 
                 {/* Forum Posts List */}
                 <div className="space-y-3">
-                  {forumPosts.map((post) => (
-                    <div key={post.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
-                            {post.author_avatar ? (
-                              <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
+                  {forumPosts.length === 0 ? (
+                    <div className="bg-[#262626] border border-[#333333] p-8 rounded-xl text-center space-y-2">
+                      <MessageSquare className="w-8 h-8 text-amber-500 mx-auto opacity-70" />
+                      <p className="text-white font-bold text-sm">Belum Ada Postingan Forum</p>
+                      <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                        Mulai diskusi atau bagikan laporan kondisi jalanan untuk rute ini.
+                      </p>
+                    </div>
+                  ) : (
+                    forumPosts.map((post) => (
+                      <div key={post.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
+                              {post.author_avatar ? (
+                                <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="font-bold text-xs text-white block">{post.author_name}</span>
+                              <span className="text-[10px] text-gray-400">
+                                {new Date(post.created_at).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                          </div>
+
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
+                              post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan'
+                                ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                                : post.tipe === 'rekomendasi_warkop'
+                                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                                : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                            }`}
+                          >
+                            {post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan' ? (
+                              <>
+                                <AlertTriangle className="w-3 h-3" />
+                                <span>Laporan Jalan</span>
+                              </>
+                            ) : post.tipe === 'rekomendasi_warkop' ? (
+                              <>
+                                <Coffee className="w-3 h-3" />
+                                <span>Warkop Gowes</span>
+                              </>
                             ) : (
-                              <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
+                              <>
+                                <MessageSquare className="w-3 h-3" />
+                                <span>Diskusi</span>
+                              </>
                             )}
-                          </div>
-                          <div>
-                            <span className="font-bold text-xs text-white block">{post.author_name}</span>
-                            <span className="text-[10px] text-gray-400">
-                              {new Date(post.created_at).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })}
-                            </span>
-                          </div>
+                          </span>
                         </div>
 
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
-                            post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan'
-                              ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                              : post.tipe === 'rekomendasi_warkop'
-                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                              : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                          }`}
-                        >
-                          {post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan' ? (
-                            <>
-                              <AlertTriangle className="w-3 h-3" />
-                              <span>Laporan Jalan</span>
-                            </>
-                          ) : post.tipe === 'rekomendasi_warkop' ? (
-                            <>
-                              <Coffee className="w-3 h-3" />
-                              <span>Warkop Gowes</span>
-                            </>
-                          ) : (
-                            <>
-                              <MessageSquare className="w-3 h-3" />
-                              <span>Diskusi</span>
-                            </>
-                          )}
-                        </span>
-                      </div>
+                        <div>
+                          <h4 className="font-bold text-sm text-white mb-1">{post.judul}</h4>
+                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+                            {post.isi}
+                          </p>
+                        </div>
 
-                      <div>
-                        <h4 className="font-bold text-sm text-white mb-1">{post.judul}</h4>
-                        <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
-                          {post.isi}
-                        </p>
-                      </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs text-gray-400">
+                          <span className="flex items-center space-x-1">
+                            <ThumbsUp className="w-3.5 h-3.5 text-amber-400" />
+                            <span>{post.like_count || 0} Menyukai</span>
+                          </span>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs text-gray-400">
-                        <span className="flex items-center space-x-1">
-                          <ThumbsUp className="w-3.5 h-3.5 text-amber-400" />
-                          <span>{post.like_count || 0} Menyukai</span>
-                        </span>
-
-                        <Link
-                          href="/forum"
-                          className="text-amber-400 hover:underline flex items-center space-x-1 font-semibold text-[11px]"
-                        >
-                          <span>Buka di Forum Diskusi Utama</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
+                          <Link
+                            href="/forum"
+                            className="text-amber-400 hover:underline flex items-center space-x-1 font-semibold text-[11px]"
+                          >
+                            <span>Buka di Forum Diskusi Utama</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
               </div>
