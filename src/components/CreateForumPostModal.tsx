@@ -159,7 +159,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
             Cancel
           </button>
           <h3 className="font-bold text-[16px] text-white absolute left-1/2 -translate-x-1/2">
-            New thread
+            Postingan Baru
           </h3>
           <div className="flex items-center space-x-4">
              <button className="text-gray-400 hover:text-white transition hidden sm:block">
@@ -209,9 +209,9 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                   onChange={(e: any) => setTipe(e.target.value)}
                   className="bg-transparent text-gray-400 text-[15px] focus:outline-none focus:text-amber-400 cursor-pointer appearance-none hover:text-gray-300"
                 >
-                  <option className="text-black" value="diskusi">Diskusi / Umum</option>
-                  <option className="text-black" value="laporan_jalan">Laporan Jalan</option>
-                  <option className="text-black" value="rekomendasi_warkop">Warkop</option>
+                  <option className="bg-[#181818] text-white" value="diskusi">Diskusi / Umum</option>
+                  <option className="bg-[#181818] text-white" value="laporan_jalan">Laporan Jalan</option>
+                  <option className="bg-[#181818] text-white" value="rekomendasi_warkop">Warkop</option>
                 </select>
               </div>
 
@@ -292,7 +292,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
               </div>
               
               <div className="mt-4 pb-2">
-                 <span className="text-[15px] text-gray-600">Add to thread</span>
+                 <span className="text-[15px] text-gray-600">Tambahkan ke diskusi</span>
               </div>
             </div>
           </div>
