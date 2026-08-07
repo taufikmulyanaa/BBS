@@ -162,11 +162,10 @@ export default function Navbar() {
 
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center space-x-1.5 text-sm text-[#8E8B87] hover:text-[#EA9B28] px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center text-sm text-[#8E8B87] hover:text-[#EA9B28] px-3 py-1.5 rounded-lg transition-colors"
                     title="Keluar"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Keluar</span>
                   </button>
                 </div>
               ) : (
@@ -175,7 +174,7 @@ export default function Navbar() {
                   className="flex items-center space-x-2 bg-[#EA9B28] hover:bg-[#D98A17] text-[#141415] font-bold text-sm px-4 py-2 rounded-lg transition-all shadow-md shadow-[#EA9B28]/20"
                 >
                   <LogIn className="w-4 h-4 stroke-[2.5]" />
-                  <span>Masuk / Daftar</span>
+                  <span>Masuk</span>
                 </button>
               )}
             </div>
