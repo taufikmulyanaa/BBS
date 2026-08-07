@@ -95,7 +95,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
           tags: tagsArray,
           gpx_file_url: gpxUrl || undefined,
           cover_image_url: defaultCover,
-          status_verifikasi: 'terverifikasi',
+          status_verifikasi: 'belum_diverifikasi',
           rating_avg: 0,
           rating_count: 0,
           dibuat_oleh: currentUser.id,
