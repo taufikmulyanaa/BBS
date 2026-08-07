@@ -100,51 +100,6 @@ export default function ForumPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#333333] space-x-6 text-sm font-bold overflow-x-auto pb-1">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'all'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-gray-400 hover:text-white'
-          }`}
-        >
-          Semua Topik
-        </button>
-        <button
-          onClick={() => setActiveTab('laporan_jalan')}
-          className={`pb-3 border-b-2 flex items-center space-x-1.5 transition-colors whitespace-nowrap ${
-            activeTab === 'laporan_jalan'
-              ? 'border-red-500 text-red-400'
-              : 'border-transparent text-gray-400 hover:text-white'
-          }`}
-        >
-          <AlertTriangle className="w-4 h-4 text-red-500" />
-          <span>Laporan Kondisi Jalan</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('diskusi')}
-          className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'diskusi'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-gray-400 hover:text-white'
-          }`}
-        >
-          Diskusi Rute & Gear
-        </button>
-        <button
-          onClick={() => setActiveTab('rekomendasi_warkop')}
-          className={`pb-3 border-b-2 flex items-center space-x-1.5 transition-colors whitespace-nowrap ${
-            activeTab === 'rekomendasi_warkop'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-gray-400 hover:text-white'
-          }`}
-        >
-          <Coffee className="w-4 h-4 text-amber-400" />
-          <span>Info Warkop Gowes</span>
-        </button>
-      </div>
 
       {/* Posts Grid */}
       {loading ? (
