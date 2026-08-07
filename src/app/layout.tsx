@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Guyub Gowes — Bapak-Bapak Sepedahan',
-  description: 'Platform komunitas pesepeda bapak-bapak: direktori rute GPX, gowes bareng (Open Ride), dan forum diskusi jalanan.',
+  description: 'Platform komunitas pesepeda bapak-bapak: rute GPX, gowes bareng (Open Ride), dan forum diskusi jalanan.',
   keywords: ['sepeda', 'gowes', 'bapak-bapak sepedahan', 'guyub gowes', 'open ride', 'rute gpx'],
   icons: {
     icon: '/logo.jpg',

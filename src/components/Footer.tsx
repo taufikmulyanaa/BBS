@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="flex flex-col gap-2 text-sm">
           <span className="font-semibold text-white mb-1">Navigasi</span>
           <Link href="/" className="text-gray-500 hover:text-amber-400 transition">Beranda Utama</Link>
-          <Link href="/routes" className="text-gray-500 hover:text-amber-400 transition">Direktori Rute & GPX</Link>
+          <Link href="/routes" className="text-gray-500 hover:text-amber-400 transition">Rute & GPX</Link>
           <Link href="/open-rides" className="text-gray-500 hover:text-amber-400 transition">Jadwal Open Ride</Link>
           <Link href="/forum" className="text-gray-500 hover:text-amber-400 transition">Forum Diskusi Komunitas</Link>
         </div>

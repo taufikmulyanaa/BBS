@@ -91,7 +91,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: 'Beranda', icon: Bike },
-    { href: '/routes', label: 'Direktori Rute', icon: Navigation },
+    { href: '/routes', label: 'Rute', icon: Navigation },
     { href: '/open-rides', label: 'Open Ride', icon: Calendar },
     { href: '/forum', label: 'Forum', icon: MessageSquare },
     ...(user ? [{ href: '/profile', label: 'Profil', icon: User }] : []),

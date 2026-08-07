@@ -136,10 +136,10 @@ export default function RoutesPage() {
         <div className="space-y-3">
           <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
             <Navigation className="w-4 h-4" />
-            <span>Katalog Rute Komunitas</span>
+            <span>Rute Komunitas</span>
           </div>
           <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-white">
-            Direktori Rute Gowes & GPX
+            Rute Gowes & GPX
           </h1>
           <p className="text-sm text-gray-400 max-w-2xl">
             Unduh file GPX rute favorit, pelajari elevasi & tingkat kesulitan sebelum gowes bersama komunitas.

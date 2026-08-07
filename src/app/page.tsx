@@ -226,7 +226,7 @@ export default function Home() {
               <span>Rute Unggulan</span>
             </div>
             <h2 className="font-heading font-bold text-2xl md:text-3xl text-white">
-              Direktori Rute Gowes Pilihan
+              Rute Gowes Pilihan
             </h2>
           </div>
           <Link
