@@ -68,6 +68,12 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
     }
   }, [currentUser, post.id]);
 
+  useEffect(() => {
+    if (isDetailView || showComments) {
+      loadComments();
+    }
+  }, [isDetailView, post.id]);
+
   const handleLike = async () => {
     if (!currentUser) {
       setLoginMessage('Silakan masuk terlebih dahulu untuk menyukai postingan.');
@@ -117,6 +123,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
         parent_comment_id: c.parent_comment_id,
       }));
       setComments(formatted);
+      setCommentsCount(formatted.length);
     }
   };
 
