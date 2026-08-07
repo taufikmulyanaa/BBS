@@ -77,8 +77,8 @@ export default function ProfilePage() {
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 180;
-        const MAX_HEIGHT = 180;
+        const MAX_WIDTH = 250;
+        const MAX_HEIGHT = 250;
         let width = img.width;
         let height = img.height;
 
@@ -99,40 +99,63 @@ export default function ProfilePage() {
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
         setFotoProfilUrl(compressedDataUrl);
 
-        // Immediate persistence in localStorage
-        if (user && typeof window !== 'undefined') {
-          localStorage.setItem(`bbs_avatar_${user.id}`, compressedDataUrl);
-          window.dispatchEvent(new Event('bbs_avatar_updated'));
-        }
+        if (!user) return;
 
-        // Save to Supabase DB & Auth User Metadata for cross-device sync
-        if (user) {
-          setSaving(true);
+        setSaving(true);
+        try {
+          let urlToSave = compressedDataUrl;
+
+          // Attempt uploading file to Supabase Storage bucket 'avatars' or 'profiles'
           try {
-            const { error: dbError } = await supabase.from('profiles').upsert({
-              id: user.id,
-              nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
-              bio,
-              foto_profil_url: compressedDataUrl,
-              updated_at: new Date().toISOString(),
-            });
-            if (dbError) console.error('Supabase profile upsert error:', dbError);
+            canvas.toBlob(async (blob) => {
+              if (blob) {
+                const fileName = `${user.id}-avatar.jpg`;
+                const { error: storageErr } = await supabase.storage
+                  .from('avatars')
+                  .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
 
-            const { error: authError } = await supabase.auth.updateUser({
-              data: { custom_avatar: compressedDataUrl, avatar_url: compressedDataUrl, picture: compressedDataUrl }
-            });
-            if (authError) console.error('Supabase auth updateUser error:', authError);
+                if (!storageErr) {
+                  const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+                  if (publicData?.publicUrl) {
+                    urlToSave = publicData.publicUrl;
+                    setFotoProfilUrl(urlToSave);
+                  }
+                }
+              }
 
-            setSavedSuccess(true);
-            setTimeout(() => setSavedSuccess(false), 4000);
-          } catch (err) {
-            console.error('Error auto-saving photo profile:', err);
-          } finally {
-            setSaving(false);
+              // Save URL to Supabase DB profiles table
+              await supabase.from('profiles').upsert({
+                id: user.id,
+                nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
+                bio,
+                foto_profil_url: urlToSave,
+                updated_at: new Date().toISOString(),
+              });
+
+              // Save URL to Supabase Auth User Metadata
+              await supabase.auth.updateUser({
+                data: { custom_avatar: urlToSave, avatar_url: urlToSave, picture: urlToSave }
+              });
+
+              // Local cache & event notification
+              if (typeof window !== 'undefined') {
+                localStorage.setItem(`bbs_avatar_${user.id}`, urlToSave);
+                window.dispatchEvent(new Event('bbs_avatar_updated'));
+              }
+
+              setSavedSuccess(true);
+              setTimeout(() => setSavedSuccess(false), 4000);
+            }, 'image/jpeg', 0.85);
+          } catch (storageException) {
+            console.error('Storage exception:', storageException);
           }
+        } catch (err) {
+          console.error('Error saving photo profile:', err);
+        } finally {
+          setSaving(false);
         }
       };
       img.src = event.target?.result as string;
