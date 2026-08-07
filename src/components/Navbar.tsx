@@ -112,14 +112,6 @@ export default function Navbar() {
               <div className="w-10 h-10 rounded-full overflow-hidden border border-amber-500/50 shadow-lg group-hover:border-amber-400 transition-colors flex items-center justify-center bg-black/50">
                 <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
               </div>
-              <div>
-                <span className="font-heading font-bold text-sm text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">
-                  Bapak-Bapak Sepedahan
-                </span>
-                <span className="block text-[10px] uppercase font-bold tracking-wider text-amber-400">
-                  Gowes Bareng • Guyub Rukun • Sehat & Bahagia
-                </span>
-              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -150,10 +142,10 @@ export default function Navbar() {
                 <div className="flex items-center space-x-3">
                   <Link
                     href="/profile"
-                    className="flex items-center bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] px-1 py-1 rounded-full text-sm text-[#F5F5F5] transition-colors"
+                    className="flex items-center rounded-full transition-transform hover:scale-105"
                     title="Profil"
                   >
-                    <div className="w-8 h-8 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-amber-500/40">
+                    <div className="w-9 h-9 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-[#42403B] shadow-md">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
