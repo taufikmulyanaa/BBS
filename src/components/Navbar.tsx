@@ -41,22 +41,45 @@ export default function Navbar() {
 
     const handleOAuthRedirect = async () => {
       if (typeof window === 'undefined') return;
-      const code = new URLSearchParams(window.location.search).get('code');
-      if (!code) return;
 
-      try {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          console.error('Error exchanging OAuth code for session:', error);
+      // PKCE flow: Supabase redirects back with ?code=...
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (code) {
+        try {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error('Error exchanging OAuth code for session:', error);
+          }
+        } catch (err) {
+          // Can throw (rather than return {error}) e.g. when the code has
+          // already been exchanged/expired — happens if this effect re-runs
+          // (Fast Refresh, a manual reload) before the URL is cleaned up.
+          console.error('Error exchanging OAuth code for session:', err);
+        } finally {
+          // Strip ?code=... from the address bar without a full page reload.
+          window.history.replaceState({}, '', window.location.pathname);
         }
-      } catch (err) {
-        // Can throw (rather than return {error}) e.g. when the code has
-        // already been exchanged/expired — happens if this effect re-runs
-        // (Fast Refresh, a manual reload) before the URL is cleaned up.
-        console.error('Error exchanging OAuth code for session:', err);
-      } finally {
-        // Strip ?code=... from the address bar without a full page reload.
-        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      }
+
+      // Implicit flow: Supabase redirects back with #access_token=...&refresh_token=...
+      // (which env/project this app hits can pick either flow, so both are handled here).
+      if (window.location.hash.includes('access_token')) {
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const access_token = hashParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token');
+        if (access_token && refresh_token) {
+          try {
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (error) {
+              console.error('Error setting session from OAuth redirect:', error);
+            }
+          } catch (err) {
+            console.error('Error setting session from OAuth redirect:', err);
+          } finally {
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        }
       }
     };
 
