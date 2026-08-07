@@ -25,6 +25,10 @@ export default function ProfilePage() {
   const [loadingUnverified, setLoadingUnverified] = useState(false);
   const [activeTab, setActiveTab] = useState<'statistik' | 'layanan' | 'admin' | 'verifikasi'>('statistik');
 
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [selectedProvId, setSelectedProvId] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -138,6 +142,26 @@ export default function ProfilePage() {
       setLoadingUnverified(false);
     }
   };
+
+  useEffect(() => {
+    if (isEditing && provinces.length === 0) {
+      fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json')
+        .then((res) => res.json())
+        .then((data) => setProvinces(data))
+        .catch((err) => console.error('Error fetching provinces:', err));
+    }
+  }, [isEditing, provinces.length]);
+
+  useEffect(() => {
+    if (selectedProvId) {
+      fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${selectedProvId}.json`)
+        .then((res) => res.json())
+        .then((data) => setCities(data))
+        .catch((err) => console.error('Error fetching cities:', err));
+    } else {
+      setCities([]);
+    }
+  }, [selectedProvId]);
 
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -509,14 +533,34 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 mb-1">Kota / Kecamatan Basecamp (Cth: Bandung Selatan)</label>
-                    <input
-                      type="text"
+                    <label className="block text-[11px] font-bold text-gray-400 mb-1">Pilih Provinsi</label>
+                    <select
+                      value={selectedProvId}
+                      onChange={(e) => setSelectedProvId(e.target.value)}
+                      className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500 mb-2"
+                    >
+                      <option value="">-- Pilih Provinsi --</option>
+                      {provinces.map((prov) => (
+                        <option key={prov.id} value={prov.id}>
+                          {prov.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label className="block text-[11px] font-bold text-gray-400 mb-1">Pilih Kota / Kabupaten (Basecamp)</label>
+                    <select
                       value={kotaBasecamp}
                       onChange={(e) => setKotaBasecamp(e.target.value)}
-                      placeholder="Masukkan kota domisili gowes..."
-                      className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    />
+                      disabled={!selectedProvId || cities.length === 0}
+                      className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                    >
+                      <option value="">-- Pilih Kota/Kabupaten --</option>
+                      {cities.map((city) => (
+                        <option key={city.id} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="flex space-x-2">
