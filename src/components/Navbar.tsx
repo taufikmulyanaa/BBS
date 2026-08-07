@@ -21,16 +21,37 @@ export default function Navbar() {
       setUser(user);
 
       if (user) {
-        let currentAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-        const { data: profile } = await supabase.from('profiles').select('foto_profil_url').eq('id', user.id).single();
-        if (profile?.foto_profil_url) {
-          currentAvatar = profile.foto_profil_url;
+        // Priority 1: localStorage custom avatar
+        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
+        if (localAvatar) {
+          setAvatarUrl(localAvatar);
+          return;
         }
+
+        // Priority 2: Custom avatar from metadata or profiles table
+        let currentAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        try {
+          const { data: profile } = await supabase.from('profiles').select('foto_profil_url').eq('id', user.id).maybeSingle();
+          if (profile?.foto_profil_url) {
+            currentAvatar = profile.foto_profil_url;
+          }
+        } catch {
+          // ignore
+        }
+
         setAvatarUrl(currentAvatar);
       }
     };
 
     loadUserAndProfile();
+
+    const handleAvatarUpdate = () => {
+      loadUserAndProfile();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bbs_avatar_updated', handleAvatarUpdate);
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
@@ -39,7 +60,12 @@ export default function Navbar() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('bbs_avatar_updated', handleAvatarUpdate);
+      }
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {

@@ -23,9 +23,17 @@ export default function ProfilePage() {
       if (user) {
         setNamaLengkap(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anggota Gowes');
         
-        // Google OAuth default avatar URL
-        const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-        if (googleAvatar) setFotoProfilUrl(googleAvatar);
+        // Priority 1: localStorage custom avatar
+        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
+
+        // Priority 2: Google OAuth / Metadata avatar
+        const googleAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        
+        if (localAvatar) {
+          setFotoProfilUrl(localAvatar);
+        } else if (googleAvatar) {
+          setFotoProfilUrl(googleAvatar);
+        }
 
         // Fetch real stats from Supabase
         const { count: savedCount } = await supabase.from('saved_routes').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
@@ -38,12 +46,16 @@ export default function ProfilePage() {
           forumPosts: postsCount || 0,
         });
 
-        // Try fetching profile from Supabase
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (profile) {
-          if (profile.bio) setBio(profile.bio);
-          if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
-          if (profile.foto_profil_url) setFotoProfilUrl(profile.foto_profil_url);
+        // Try fetching profile from Supabase with maybeSingle() to avoid PGRST116 throw
+        try {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+          if (profile) {
+            if (profile.bio) setBio(profile.bio);
+            if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
+            if (profile.foto_profil_url && !localAvatar) setFotoProfilUrl(profile.foto_profil_url);
+          }
+        } catch {
+          // ignore
         }
       } else {
         // Fallback count from public tables
@@ -93,7 +105,13 @@ export default function ProfilePage() {
         const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
         setFotoProfilUrl(compressedDataUrl);
 
-        // Immediate Auto-Save to Supabase
+        // Immediate persistence in localStorage
+        if (user && typeof window !== 'undefined') {
+          localStorage.setItem(`bbs_avatar_${user.id}`, compressedDataUrl);
+          window.dispatchEvent(new Event('bbs_avatar_updated'));
+        }
+
+        // Save to Supabase
         if (user) {
           setSaving(true);
           try {
@@ -106,7 +124,7 @@ export default function ProfilePage() {
             });
 
             await supabase.auth.updateUser({
-              data: { avatar_url: compressedDataUrl, picture: compressedDataUrl }
+              data: { custom_avatar: compressedDataUrl, avatar_url: compressedDataUrl, picture: compressedDataUrl }
             });
 
             setSavedSuccess(true);
@@ -127,6 +145,11 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       if (user) {
+        if (fotoProfilUrl && typeof window !== 'undefined') {
+          localStorage.setItem(`bbs_avatar_${user.id}`, fotoProfilUrl);
+          window.dispatchEvent(new Event('bbs_avatar_updated'));
+        }
+
         await supabase.from('profiles').upsert({
           id: user.id,
           nama_lengkap: namaLengkap,
@@ -135,7 +158,7 @@ export default function ProfilePage() {
           updated_at: new Date().toISOString(),
         });
         await supabase.auth.updateUser({
-          data: { full_name: namaLengkap, avatar_url: fotoProfilUrl }
+          data: { full_name: namaLengkap, custom_avatar: fotoProfilUrl, avatar_url: fotoProfilUrl }
         });
       }
       setIsEditing(false);
