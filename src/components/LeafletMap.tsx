@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
 type Props = {
@@ -15,6 +15,8 @@ type Props = {
 export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription = '', className = 'w-full h-full' }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+
+  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
@@ -68,7 +70,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         // Start Marker Icon (Amber Pin)
         const startIcon = L.divIcon({
           className: 'custom-leaflet-marker-start',
-          html: `<div style="background-color: #F59E0B; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #111111; box-shadow: 0 0 14px rgba(245, 158, 11, 0.9);"></div>`,
+          html: `<div style="background-color: #F59E0B; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 0 16px rgba(245, 158, 11, 1);"></div>`,
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
@@ -83,14 +85,14 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         if (finishLat && finishLng) {
           const finishIcon = L.divIcon({
             className: 'custom-leaflet-marker-finish',
-            html: `<div style="background-color: #22C55E; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #111111; box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);"></div>`,
+            html: `<div style="background-color: #22C55E; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 0 16px rgba(34, 197, 94, 1);"></div>`,
             iconSize: [24, 24],
             iconAnchor: [12, 12],
           });
 
-          L.marker([finishLat, finishLng], { icon: finishIcon })
-            .addTo(map)
-            .bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}`);
+          // Add Finish Marker initially
+          const finishMarker = L.marker([finishLat, finishLng], { icon: finishIcon }).addTo(map);
+          finishMarker.bindPopup(`<b>Titik Tujuan (Finish)</b><br/>${finishLabel || 'Tujuan Gowes'}`);
 
           // Query OSRM Biking API for turn-by-turn bicycle navigation path
           const osrmUrl = `https://router.project-osrm.org/route/v1/biking/${startLng},${startLat};${finishLng},${finishLat}?overview=full&geometries=geojson`;
@@ -107,31 +109,54 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
               ];
 
               if (osrmData && osrmData.routes && osrmData.routes.length > 0) {
-                const geoCoords = osrmData.routes[0].geometry.coordinates;
+                const route = osrmData.routes[0];
+                const geoCoords = route.geometry.coordinates;
                 routeCoords = geoCoords.map(([lon, lat]: [number, number]) => [lat, lon]);
+
+                // Calculate Distance & Duration
+                const distKm = (route.distance / 1000).toFixed(1);
+                const totalMins = Math.round(route.duration / 60);
+                const hrs = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                const durationText = hrs > 0 ? `${hrs} jam ${mins} menit` : `${mins} menit`;
+
+                setRouteStats({ distance: `${distKm} km`, duration: durationText });
+
+                // Snap Finish Marker EXACTLY to the last coordinate of the route polyline!
+                const lastCoord = routeCoords[routeCoords.length - 1];
+                finishMarker.setLatLng(lastCoord);
               }
 
-              const routePolyline = L.polyline(routeCoords, {
-                color: '#F59E0B',
-                weight: 6,
-                opacity: 0.9,
+              // High-Contrast Dual Polyline (Dark Outline + Neon Cyan Blue Line)
+              L.polyline(routeCoords, {
+                color: '#000000',
+                weight: 10,
+                opacity: 0.6,
                 lineCap: 'round',
                 lineJoin: 'round',
               }).addTo(map);
 
-              map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+              const routePolyline = L.polyline(routeCoords, {
+                color: '#0284C7', // Vibrant Cyan/Sky Blue for high contrast against maps
+                weight: 6,
+                opacity: 1,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }).addTo(map);
+
+              map.fitBounds(routePolyline.getBounds(), { padding: [45, 45] });
             })
             .catch((err) => {
               console.error('OSRM Biking Route error:', err);
-              // Fallback simple polyline if OSRM is unreachable
+              // Fallback polyline if OSRM fails
               const routePolyline = L.polyline(
                 [
                   [startLat, startLng],
                   [finishLat, finishLng],
                 ],
-                { color: '#F59E0B', weight: 6, opacity: 0.9 }
+                { color: '#0284C7', weight: 6, opacity: 1 }
               ).addTo(map);
-              map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+              map.fitBounds(routePolyline.getBounds(), { padding: [45, 45] });
             });
         }
 
@@ -180,14 +205,13 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           finishQuery = 'BSD City (Line Pipe)';
         } else if (lowerName.includes('pangandaran') || lowerName.includes('tasik')) {
           finishLat = -7.6322;
-          finishLng = 108.6534; // Pangandaran Beach
+          finishLng = 108.6534; // Pantai Pangandaran
           finishQuery = 'Pantai Pangandaran';
         } else if (lowerName.includes('sentul') || lowerName.includes('pelangi') || lowerName.includes('bogor')) {
           finishLat = -6.6415;
           finishLng = 106.8920; // Bukit Pelangi
           finishQuery = 'Bukit Pelangi Sentul';
         } else {
-          // Default offset relative to start position
           finishLat = startLat - 0.08;
           finishLng = startLng + 0.06;
           finishQuery = 'Tujuan Rute Gowes';
@@ -209,8 +233,27 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
   return (
     <div className="relative w-full h-full min-h-[350px] rounded-xl overflow-hidden border border-[#333333]">
       <div ref={mapRef} className="w-full h-full min-h-[350px] z-0" />
-      <div className="absolute bottom-2 left-2 z-10 bg-[#111111]/90 border border-[#333333] px-3 py-1.5 rounded-lg text-xs font-mono text-amber-400">
-        OpenStreetMap • {routeName}
+      
+      {/* Route Info Badge HUD Overlay */}
+      <div className="absolute bottom-3 left-3 z-10 bg-[#111111]/90 backdrop-blur-md border border-[#333333] px-3.5 py-2 rounded-xl text-xs shadow-xl flex flex-col space-y-1">
+        <div className="flex items-center space-x-2 font-mono text-amber-400">
+          <span className="font-bold">OpenStreetMap</span>
+          <span>•</span>
+          <span className="text-white truncate max-w-[200px]">{routeName}</span>
+        </div>
+        {routeStats && (
+          <div className="flex items-center space-x-3 text-[11px] font-semibold text-gray-300 border-t border-[#333333]/60 pt-1 mt-0.5">
+            <span className="text-cyan-400 flex items-center space-x-1">
+              <span>🚴 Estimasi:</span>
+              <strong className="text-white">{routeStats.duration}</strong>
+            </span>
+            <span>•</span>
+            <span className="text-green-400 flex items-center space-x-1">
+              <span>📏 Navigasi:</span>
+              <strong className="text-white">{routeStats.distance}</strong>
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
