@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../data/models/app_route.dart';
 import '../../../data/models/open_ride.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/home_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -28,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _buildHeader(context),
+              _buildHeader(context, ref),
               const SizedBox(height: 24),
               _buildShortcuts(context),
               const SizedBox(height: 32),
@@ -67,19 +68,25 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return const Row(
+  Widget _buildHeader(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(currentProfileProvider).valueOrNull;
+    final user = ref.watch(currentUserProvider);
+    final displayName = profile?.namaLengkap ?? user?.email?.split('@').first ?? 'Goweser';
+    final firstName = displayName.trim().split(RegExp(r'\s+')).first;
+    final avatarUrl = profile?.fotoProfilUrl;
+
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Halo, Ogie! 👋',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+              'Halo, $firstName! 👋',
+              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 4),
-            Text(
+            const SizedBox(height: 4),
+            const Text(
               'Selamat gowes hari ini!',
               style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
             ),
@@ -88,7 +95,10 @@ class HomeScreen extends ConsumerWidget {
         CircleAvatar(
           radius: 20,
           backgroundColor: AppTheme.surfaceAlt,
-          child: Icon(Icons.person, color: AppTheme.textSecondary),
+          backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+          child: avatarUrl == null || avatarUrl.isEmpty
+              ? const Icon(Icons.person, color: AppTheme.textSecondary)
+              : null,
         ),
       ],
     );

@@ -13,6 +13,9 @@ class AppRoute {
   final int ratingCount;
   final String? dibuatOleh;
   final String createdAt;
+  final String? titikAwal;
+  final String? titikAkhir;
+  final String? permukaan;
 
   AppRoute({
     required this.id,
@@ -29,7 +32,13 @@ class AppRoute {
     required this.ratingCount,
     this.dibuatOleh,
     required this.createdAt,
+    this.titikAwal,
+    this.titikAkhir,
+    this.permukaan,
   });
+
+  /// True when there's at least one "Info Rute" field to show.
+  bool get hasRouteInfo => titikAwal != null || titikAkhir != null || permukaan != null;
 
   bool get isVerified => statusVerifikasi == 'terverifikasi';
 
@@ -49,6 +58,9 @@ class AppRoute {
       ratingCount: (json['rating_count'] as num?)?.toInt() ?? 0,
       dibuatOleh: json['dibuat_oleh'] as String?,
       createdAt: json['created_at'] as String? ?? '',
+      titikAwal: json['titik_awal'] as String?,
+      titikAkhir: json['titik_akhir'] as String?,
+      permukaan: json['permukaan'] as String?,
     );
   }
 }

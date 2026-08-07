@@ -7,6 +7,8 @@ class ForumPostPreview {
   final String authorName;
   final String? authorAvatar;
   final String createdAt;
+  final int likeCount;
+  final int commentCount;
 
   ForumPostPreview({
     required this.id,
@@ -15,6 +17,8 @@ class ForumPostPreview {
     required this.authorName,
     this.authorAvatar,
     required this.createdAt,
+    this.likeCount = 0,
+    this.commentCount = 0,
   });
 
   factory ForumPostPreview.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class ForumPostPreview {
       authorName: profile?['nama_lengkap'] as String? ?? 'Anggota Gowes',
       authorAvatar: profile?['foto_profil_url'] as String?,
       createdAt: json['created_at'] as String? ?? '',
+      likeCount: (json['like_count'] as num?)?.toInt() ?? 0,
+      commentCount: (json['comment_count'] as num?)?.toInt() ?? 0,
     );
   }
 }

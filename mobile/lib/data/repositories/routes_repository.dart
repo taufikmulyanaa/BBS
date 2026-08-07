@@ -1,5 +1,6 @@
 import '../../core/supabase_config.dart';
 import '../models/app_route.dart';
+import '../models/forum_post_preview.dart';
 
 class RoutesRepository {
   Future<List<AppRoute>> fetchRoutes({int? limit}) async {
@@ -42,6 +43,18 @@ class RoutesRepository {
       'rating': rating,
       'comment': comment,
     });
+  }
+
+  Future<ForumPostPreview?> fetchLatestDiscussion(String routeId) async {
+    final data = await supabase
+        .from('forum_posts')
+        .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
+        .eq('route_id', routeId)
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+    if (data == null) return null;
+    return ForumPostPreview.fromJson(data);
   }
 
   Future<bool> isRouteSaved(String userId, String routeId) async {

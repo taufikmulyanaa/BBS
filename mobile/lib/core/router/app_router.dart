@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../data/models/app_route.dart';
 import '../../data/models/open_ride.dart';
 import '../../features/auth/presentation/auth_screen.dart';
 import '../../features/forum/presentation/forum_placeholder_screen.dart';
@@ -14,6 +15,7 @@ import '../../features/open_rides/presentation/open_ride_form_screen.dart';
 import '../../features/open_rides/presentation/open_rides_list_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/routes/presentation/route_detail_screen.dart';
+import '../../features/routes/presentation/route_map_screen.dart';
 import '../../features/routes/presentation/routes_list_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../widgets/main_shell.dart';
@@ -54,6 +56,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: ':id',
                     builder: (context, state) => RouteDetailScreen(routeId: state.pathParameters['id']!),
+                    routes: [
+                      GoRoute(
+                        path: 'map',
+                        builder: (context, state) {
+                          final route = state.extra as AppRoute;
+                          return RouteMapScreen(routeName: route.nama, gpxFileUrl: route.gpxFileUrl!);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
