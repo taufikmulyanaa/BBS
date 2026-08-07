@@ -161,13 +161,40 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         startLng = parseFloat(startGeo[0].lon);
       }
 
+      let finishLat: number | undefined = undefined;
+      let finishLng: number | undefined = undefined;
+
       if (finishGeo && finishGeo.length > 0) {
-        const finishLat = parseFloat(finishGeo[0].lat);
-        const finishLng = parseFloat(finishGeo[0].lon);
-        renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
+        finishLat = parseFloat(finishGeo[0].lat);
+        finishLng = parseFloat(finishGeo[0].lon);
       } else {
-        renderMapWithCoords(startLat, startLng, startQuery);
+        // Fallback default finish offset if no explicit finish location was entered
+        const lowerName = (routeName + ' ' + routeDescription).toLowerCase();
+        if (lowerName.includes('lembang') || lowerName.includes('teh') || lowerName.includes('bandung')) {
+          finishLat = -6.7600;
+          finishLng = 107.6100; // Tangkuban Perahu / Lembang Peak
+          finishQuery = 'Tangkuban Perahu / Lembang';
+        } else if (lowerName.includes('bsd') || lowerName.includes('kebayoran')) {
+          finishLat = -6.3015;
+          finishLng = 106.6534; // BSD Line Pipe
+          finishQuery = 'BSD City (Line Pipe)';
+        } else if (lowerName.includes('pangandaran') || lowerName.includes('tasik')) {
+          finishLat = -7.6322;
+          finishLng = 108.6534; // Pangandaran Beach
+          finishQuery = 'Pantai Pangandaran';
+        } else if (lowerName.includes('sentul') || lowerName.includes('pelangi') || lowerName.includes('bogor')) {
+          finishLat = -6.6415;
+          finishLng = 106.8920; // Bukit Pelangi
+          finishQuery = 'Bukit Pelangi Sentul';
+        } else {
+          // Default offset relative to start position
+          finishLat = startLat - 0.08;
+          finishLng = startLng + 0.06;
+          finishQuery = 'Tujuan Rute Gowes';
+        }
       }
+
+      renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
     });
 
     return () => {
