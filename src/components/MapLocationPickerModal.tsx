@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, CheckCircle, MapPin } from 'lucide-react';
+import { X, CheckCircle, MapPin, Search } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 type Props = {
@@ -18,6 +18,30 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
   const markerInstanceRef = useRef<any>(null);
 
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim() || !mapInstanceRef.current) return;
+
+    setSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=id`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        mapInstanceRef.current.setView([lat, lng], 14);
+      } else {
+        alert('Lokasi tidak ditemukan.');
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setSearching(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || typeof window === 'undefined' || !mapRef.current) return;
@@ -102,6 +126,27 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333]">
+          <form onSubmit={handleSearch} className="relative flex items-center">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3" />
+            <input
+              type="text"
+              placeholder="Cari area lokasi (contoh: Pantai Batu Hiu, Parigi)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#262626] border border-[#333333] rounded-lg pl-9 pr-24 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition"
+            />
+            <button
+              type="submit"
+              disabled={searching}
+              className="absolute right-1.5 px-3 py-1.5 bg-[#333333] hover:bg-[#444444] text-gray-300 text-xs font-bold rounded-md transition disabled:opacity-50"
+            >
+              {searching ? 'Mencari...' : 'Cari'}
+            </button>
+          </form>
         </div>
 
         {/* Map Container */}
