@@ -20,6 +20,8 @@ export default function ProfilePage() {
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const [unverifiedRoutes, setUnverifiedRoutes] = useState<any[]>([]);
+  const [loadingUnverified, setLoadingUnverified] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +51,7 @@ export default function ProfilePage() {
             if (profile.role === 'admin') {
               setIsAdmin(true);
               fetchAdminProfiles();
+              fetchUnverifiedRoutes();
             }
             
             if (profile.foto_profil_url) {
@@ -105,6 +108,30 @@ export default function ProfilePage() {
       console.error('Error fetching all profiles:', err);
     } finally {
       setLoadingProfiles(false);
+    }
+  };
+
+  const fetchUnverifiedRoutes = async () => {
+    setLoadingUnverified(true);
+    try {
+      const { data, error } = await supabase
+        .from('routes')
+        .select(`
+          id, 
+          nama, 
+          created_at, 
+          dibuat_oleh,
+          profiles:dibuat_oleh(nama_lengkap)
+        `)
+        .eq('status_verifikasi', 'belum_diverifikasi')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setUnverifiedRoutes(data);
+    } catch (err) {
+      console.error('Error fetching unverified routes:', err);
+    } finally {
+      setLoadingUnverified(false);
     }
   };
 
@@ -290,6 +317,29 @@ export default function ProfilePage() {
       alert(`Gagal menghapus pengguna: ${err.message}`);
     } finally {
       setIsDeletingUser(false);
+    }
+  };
+
+  const handleVerifyRoute = async (routeId: string) => {
+    try {
+      const { error } = await supabase.from('routes').update({ status_verifikasi: 'terverifikasi' }).eq('id', routeId);
+      if (error) throw error;
+      setUnverifiedRoutes(prev => prev.filter(r => r.id !== routeId));
+    } catch (err) {
+      console.error('Error verifying route:', err);
+      alert('Gagal memverifikasi rute.');
+    }
+  };
+
+  const handleRejectRoute = async (routeId: string) => {
+    if (!confirm('Tolak rute ini? Tindakan ini akan menghapus rute secara permanen dari database.')) return;
+    try {
+      const { error } = await supabase.from('routes').delete().eq('id', routeId);
+      if (error) throw error;
+      setUnverifiedRoutes(prev => prev.filter(r => r.id !== routeId));
+    } catch (err) {
+      console.error('Error rejecting route:', err);
+      alert('Gagal menghapus rute.');
     }
   };
 
@@ -647,6 +697,69 @@ export default function ProfilePage() {
                           </button>
                         </div>
                       )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Admin Verification Dashboard */}
+          {isAdmin && (
+            <div className="bg-[#262626] border border-green-500/30 rounded-2xl p-6 space-y-4 shadow-xl mt-6">
+              <div className="flex items-center justify-between border-b border-[#333333] pb-3">
+                <h3 className="font-heading font-bold text-base text-green-400 flex items-center space-x-2">
+                  <Check className="w-4 h-4" />
+                  <span>Admin Tools: Antrean Verifikasi</span>
+                </h3>
+                {unverifiedRoutes.length > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {unverifiedRoutes.length} Baru
+                  </span>
+                )}
+              </div>
+
+              {loadingUnverified ? (
+                <p className="text-xs text-gray-400 italic">Memuat antrean rute...</p>
+              ) : unverifiedRoutes.length === 0 ? (
+                <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl p-6 flex flex-col items-center justify-center text-center space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 mb-2">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <p className="text-sm font-bold text-gray-300">Semua Rute Sudah Terverifikasi!</p>
+                  <p className="text-xs text-gray-500">Tidak ada antrean rute baru saat ini.</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+                  {unverifiedRoutes.map((route) => (
+                    <div key={route.id} className="bg-[#1A1A1A] border border-[#333333] p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0 hover:border-green-500/30 transition">
+                      <div className="flex-1">
+                        <Link href={`/routes?id=${route.id}`} className="hover:underline">
+                          <h4 className="font-bold text-sm text-white">{route.nama}</h4>
+                        </Link>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Oleh: <span className="font-semibold text-gray-300">{route.profiles?.nama_lengkap || 'Pengguna'}</span>
+                          <span className="mx-2">•</span>
+                          {new Date(route.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                      
+                      <div className="flex space-x-2 sm:shrink-0">
+                        <button
+                          onClick={() => handleRejectRoute(route.id)}
+                          className="flex-1 sm:flex-none p-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition flex items-center justify-center"
+                          title="Tolak & Hapus Rute"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleVerifyRoute(route.id)}
+                          className="flex-1 sm:flex-none p-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500 hover:text-black font-semibold transition flex items-center justify-center"
+                          title="Setujui & Verifikasi"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
