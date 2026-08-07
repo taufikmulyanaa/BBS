@@ -15,6 +15,52 @@ type Props = {
   isDetailView?: boolean;
 };
 
+const LocationBadge = ({ lokasi }: { lokasi: string }) => {
+  const [placeName, setPlaceName] = useState<string | null>(null);
+  
+  const match = lokasi.match(/Lat:\s*([-.\d]+),\s*Lng:\s*([-.\d]+)/i);
+  
+  useEffect(() => {
+    if (match) {
+      const lat = match[1];
+      const lng = match[2];
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.display_name) {
+            const parts = data.display_name.split(', ');
+            setPlaceName(parts.slice(0, 3).join(', '));
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  }, [lokasi]);
+
+  if (match) {
+    const lat = match[1];
+    const lng = match[2];
+    return (
+      <a 
+        href={`https://www.google.com/maps?q=${lat},${lng}`} 
+        target="_blank" 
+        rel="noreferrer"
+        className="inline-flex items-center space-x-1 text-[12px] text-amber-400 hover:text-amber-300 font-semibold mt-1 mb-2 hover:underline bg-amber-500/10 px-2 py-1 rounded-md w-fit"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MapPin className="w-3 h-3 shrink-0" />
+        <span className="truncate max-w-[250px]">{placeName || 'Memuat peta...'}</span>
+      </a>
+    );
+  }
+
+  return (
+    <div className="inline-flex items-center space-x-1 text-[12px] text-amber-400 font-semibold mt-1 mb-2 bg-amber-500/10 px-2 py-1 rounded-md w-fit">
+      <MapPin className="w-3 h-3 shrink-0" />
+      <span className="truncate max-w-[250px]">{lokasi}</span>
+    </div>
+  );
+};
+
 type CommentItem = {
   id: string;
   user_id: string;
@@ -201,8 +247,10 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
     try {
       const date = new Date(isoString);
       const diffMs = Date.now() - date.getTime();
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      if (diffHours < 1) return 'Baru saja';
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      if (diffMins < 1) return 'Baru saja';
+      if (diffMins < 60) return `${diffMins} menit lalu`;
+      const diffHours = Math.floor(diffMins / 60);
       if (diffHours < 24) return `${diffHours} jam lalu`;
       const diffDays = Math.floor(diffHours / 24);
       return `${diffDays} hari lalu`;
@@ -300,10 +348,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
 
           {/* Linked Location/Route info if present */}
           {post.lokasi_patokan && (
-            <div className="inline-flex items-center space-x-1 text-[11px] text-amber-400 font-semibold mt-0.5">
-              <MapPin className="w-3 h-3" />
-              <span>Lokasi: {post.lokasi_patokan}</span>
-            </div>
+            <LocationBadge lokasi={post.lokasi_patokan} />
           )}
 
           {/* Text Content */}
