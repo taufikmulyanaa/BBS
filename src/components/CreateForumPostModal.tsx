@@ -306,16 +306,26 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                   >
                     <Smile className="w-[18px] h-[18px]" />
                   </button>
-                  
                   {showEmojiPicker && (
-                    <div className="absolute top-8 left-0 z-50">
-                      <EmojiPicker 
-                        theme={Theme.DARK}
-                        onEmojiClick={(emojiData) => {
-                          setIsi((prev) => prev + emojiData.emoji);
-                          setShowEmojiPicker(false);
-                        }}
-                      />
+                    <div 
+                      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowEmojiPicker(false);
+                      }}
+                    >
+                      <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="shadow-2xl rounded-lg overflow-hidden border border-[#333333]"
+                      >
+                        <EmojiPicker 
+                          theme={Theme.DARK}
+                          onEmojiClick={(emojiData) => {
+                            setIsi((prev) => prev + emojiData.emoji);
+                            setShowEmojiPicker(false);
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
