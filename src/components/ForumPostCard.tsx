@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { ForumPost, supabase } from '@/lib/supabase';
-import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3, Trash2, Camera, ExternalLink, X } from 'lucide-react';
+import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3, Trash2, Camera, ExternalLink, X, ArrowLeft } from 'lucide-react';
 import LoginRequiredModal from './LoginRequiredModal';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   post: ForumPost;
@@ -11,6 +12,7 @@ type Props = {
   onEdit?: (post: ForumPost) => void;
   onDelete?: (postId: string) => void;
   currentUser?: any;
+  isDetailView?: boolean;
 };
 
 type CommentItem = {
@@ -23,10 +25,11 @@ type CommentItem = {
   parent_comment_id?: string | null;
 };
 
-export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentUser }: Props) {
+export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentUser, isDetailView = false }: Props) {
+  const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.like_count || 0);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(isDetailView);
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -296,7 +299,12 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
           )}
 
           {/* Text Content */}
-          <div className="mt-1">
+          <div 
+            className={`mt-1 ${!isDetailView ? 'cursor-pointer group-hover/post:opacity-80 transition' : ''}`}
+            onClick={() => {
+              if (!isDetailView) router.push(`/forum/${post.id}`);
+            }}
+          >
             {post.judul && post.judul !== cleanIsiText.slice(0, post.judul.length) && (
                <h3 className="font-bold text-[15px] text-white leading-snug mb-1">
                  {post.judul}
