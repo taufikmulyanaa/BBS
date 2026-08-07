@@ -163,6 +163,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
             isi: data[0].isi,
             created_at: data[0].created_at,
             parent_comment_id: data[0].parent_comment_id,
+            author_avatar: localAvatar || currentUser?.user_metadata?.custom_avatar || currentUser?.user_metadata?.avatar_url,
           },
         ]);
         setCommentsCount((prev) => prev + 1);
@@ -478,8 +479,8 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
             )}
             <form onSubmit={handleSendComment} className="flex items-start space-x-2">
               <div className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-[#333333] flex items-center justify-center shrink-0 overflow-hidden">
-                {currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.custom_avatar ? (
-                   <img src={currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.custom_avatar} alt="You" className="w-full h-full object-cover" />
+                {localAvatar || currentUser?.user_metadata?.custom_avatar || currentUser?.user_metadata?.avatar_url ? (
+                   <img src={localAvatar || currentUser?.user_metadata?.custom_avatar || currentUser?.user_metadata?.avatar_url} alt="You" className="w-full h-full object-cover" />
                 ) : (
                    <span className="text-xs text-gray-400 font-bold">{currentUser?.user_metadata?.full_name?.charAt(0).toUpperCase() || 'P'}</span>
                 )}
