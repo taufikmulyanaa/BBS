@@ -75,9 +75,18 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
         ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${cleanIsi}`
         : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${cleanIsi}` : cleanIsi;
 
+      const activeTag = (() => {
+        if (tipe === 'rekomendasi_warkop') return warkopTag;
+        if (tipe === 'jual_beli') return '[JUAL_BELI]';
+        if (tipe === 'event') return '[EVENT]';
+        if (tipe === 'tips') return '[TIPS]';
+        if (tipe === 'bengkel') return '[BENGKEL]';
+        return null;
+      })();
+
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
-      const finalJudul = isWarkop && !judul.includes(warkopTag) 
-        ? `☕ ${warkopTag} ${judul}` 
+      const finalJudul = activeTag && !judul.includes(activeTag) 
+        ? `${activeTag === warkopTag ? '☕ ' : ''}${activeTag} ${judul}` 
         : judul;
 
       const { error } = await supabase
@@ -201,6 +210,10 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
                   <option className="bg-[#181818] text-white" value="diskusi">Diskusi / Umum</option>
                   <option className="bg-[#181818] text-white" value="laporan_jalan">Laporan Jalan</option>
                   <option className="bg-[#181818] text-white" value="rekomendasi_warkop">Warkop</option>
+                  <option className="bg-[#181818] text-white" value="jual_beli">Jual Beli</option>
+                  <option className="bg-[#181818] text-white" value="event">Event / Acara</option>
+                  <option className="bg-[#181818] text-white" value="tips">Tips & Trik</option>
+                  <option className="bg-[#181818] text-white" value="bengkel">Bengkel & Perbaikan</option>
                 </select>
               </div>
 

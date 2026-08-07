@@ -321,6 +321,22 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
                 <span className="text-amber-400 text-[10px] font-bold">
                   ☕ Warkop
                 </span>
+              ) : post.tipe === 'jual_beli' ? (
+                <span className="text-green-400 text-[10px] font-bold">
+                  🛒 Jual Beli
+                </span>
+              ) : post.tipe === 'event' ? (
+                <span className="text-purple-400 text-[10px] font-bold">
+                  📅 Event
+                </span>
+              ) : post.tipe === 'tips' ? (
+                <span className="text-blue-400 text-[10px] font-bold">
+                  💡 Tips & Trik
+                </span>
+              ) : post.tipe === 'bengkel' ? (
+                <span className="text-orange-400 text-[10px] font-bold">
+                  🔧 Bengkel
+                </span>
               ) : null}
 
               {(isAuthor || isAdmin) && (

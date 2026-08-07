@@ -9,7 +9,7 @@ import EditForumPostModal from '@/components/EditForumPostModal';
 
 export default function ForumPage() {
   const [posts, setPosts] = useState<ForumPost[]>([]);
-  const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_jalan' | 'rekomendasi_warkop'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_jalan' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<ForumPost | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -30,6 +30,14 @@ export default function ForumPage() {
           const text = `${p.judul || ''} ${p.isi || ''}`.toLowerCase();
           if (text.includes('[warkop]') || text.includes('warkop') || text.includes('warung kopi')) {
             itemTipe = 'rekomendasi_warkop';
+          } else if (text.includes('[jual_beli]')) {
+            itemTipe = 'jual_beli';
+          } else if (text.includes('[event]')) {
+            itemTipe = 'event';
+          } else if (text.includes('[tips]')) {
+            itemTipe = 'tips';
+          } else if (text.includes('[bengkel]')) {
+            itemTipe = 'bengkel';
           }
 
           const isUserAuthor = user && p.user_id === user.id;
@@ -89,10 +97,36 @@ export default function ForumPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header aligned with content */}
       <div className="max-w-2xl mx-auto w-full">
-        <div className="pb-4 mb-2">
+        <div className="pb-4 mb-2 flex flex-col space-y-4">
           <h1 className="font-bold text-2xl text-white">
             Forum Diskusi
           </h1>
+          
+          {/* Filter Tabs */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+            {[
+              { id: 'all', label: 'Semua' },
+              { id: 'diskusi', label: 'Diskusi' },
+              { id: 'laporan_jalan', label: 'Laporan Jalan' },
+              { id: 'rekomendasi_warkop', label: 'Warkop' },
+              { id: 'jual_beli', label: 'Jual Beli' },
+              { id: 'event', label: 'Event' },
+              { id: 'tips', label: 'Tips' },
+              { id: 'bengkel', label: 'Bengkel' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-amber-500 text-black'
+                    : 'bg-[#262626] text-gray-400 hover:bg-[#333333] hover:text-white border border-[#333333]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       {/* Posts Grid */}

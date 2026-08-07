@@ -127,8 +127,17 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       let generatedJudul = isi.trim().substring(0, 40);
       if (isi.trim().length > 40) generatedJudul += '...';
       
-      const finalJudul = isWarkop && !generatedJudul.includes(warkopTag) 
-        ? `☕ ${warkopTag} ${generatedJudul}` 
+      const activeTag = (() => {
+        if (tipe === 'rekomendasi_warkop') return warkopTag;
+        if (tipe === 'jual_beli') return '[JUAL_BELI]';
+        if (tipe === 'event') return '[EVENT]';
+        if (tipe === 'tips') return '[TIPS]';
+        if (tipe === 'bengkel') return '[BENGKEL]';
+        return null;
+      })();
+      
+      const finalJudul = activeTag && !generatedJudul.includes(activeTag) 
+        ? `${activeTag === warkopTag ? '☕ ' : ''}${activeTag} ${generatedJudul}` 
         : generatedJudul;
 
       const payload: any = {
@@ -227,6 +236,10 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                   <option className="bg-[#181818] text-white" value="diskusi">Diskusi / Umum</option>
                   <option className="bg-[#181818] text-white" value="laporan_jalan">Laporan Jalan</option>
                   <option className="bg-[#181818] text-white" value="rekomendasi_warkop">Warkop</option>
+                  <option className="bg-[#181818] text-white" value="jual_beli">Jual Beli</option>
+                  <option className="bg-[#181818] text-white" value="event">Event / Acara</option>
+                  <option className="bg-[#181818] text-white" value="tips">Tips & Trik</option>
+                  <option className="bg-[#181818] text-white" value="bengkel">Bengkel & Perbaikan</option>
                 </select>
               </div>
 
