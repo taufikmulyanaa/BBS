@@ -480,12 +480,6 @@ export default function ProfilePage() {
                 <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span>{user?.email || 'anggota@guyubgowes.com'}</span>
               </p>
-              {kotaBasecamp && (
-                <p className="text-xs text-gray-400 flex items-center justify-center space-x-1.5 mt-1">
-                  <Navigation className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span>{kotaBasecamp}</span>
-                </p>
-              )}
 
               <div className="pt-2 flex justify-center">
                 <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold px-3.5 py-1 rounded-full flex items-center space-x-1.5">
@@ -582,7 +576,21 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-300 leading-relaxed italic">"{bio}"</p>
+                  {kotaBasecamp ? (
+                    <div className="flex items-start space-x-2 bg-[#262626] border border-[#3A3A3A] p-2.5 rounded-lg">
+                      <Navigation className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Basecamp Gowes</p>
+                        <p className="text-xs text-white font-semibold">{kotaBasecamp}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2 bg-red-500/10 border border-red-500/30 p-2.5 rounded-lg text-red-400">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <p className="text-[11px] font-semibold">Basecamp belum diatur. Silakan edit profil.</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-300 leading-relaxed italic border-l-2 border-[#3A3A3A] pl-3 py-1">"{bio}"</p>
                 </div>
               )}
 
