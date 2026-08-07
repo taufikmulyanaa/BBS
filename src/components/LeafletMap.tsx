@@ -18,38 +18,50 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
 
+  // Dynamic NLP Location Extractor from Route Title & Description (Zero Hardcoding)
+  const extractLocations = (title: string, desc: string) => {
+    let startQuery = '';
+    let finishQuery = '';
+
+    // 1. Explicitly check formatted deskripsi string
+    const startMatch = desc.match(/📍 Titik Start: (.*?)\n/);
+    if (startMatch && startMatch[1] && startMatch[1].trim().length > 0) {
+      startQuery = startMatch[1].trim();
+    }
+
+    const finishMatch = desc.match(/🏁 Titik Finish: (.*?)\n/);
+    if (finishMatch && finishMatch[1] && finishMatch[1].trim().length > 0) {
+      finishQuery = finishMatch[1].trim();
+    }
+
+    // 2. If Start or Finish query is missing, extract dynamically from route title
+    const cleanTitle = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+
+    if (!startQuery && !finishQuery) {
+      // If title has a dash e.g. "Rute Tasik - Pangandaran" or "Kebayoran – BSD"
+      if (cleanTitle.includes('–') || cleanTitle.includes('-')) {
+        const parts = cleanTitle.split(/–|-/);
+        startQuery = parts[0].replace(/Challenge|Rute|Tanjakan|Gowes|Loop/gi, '').trim();
+        finishQuery = parts[1].replace(/KM\s*\d+|Loop|Via.*|Part\s*\d+|Easy|Medium|Hard/gi, '').trim();
+      } else {
+        startQuery = cleanTitle;
+        finishQuery = cleanTitle.replace(/Challenge|Rute|Tanjakan|Gowes|Loop|KM\s*\d+/gi, '').trim();
+      }
+    } else if (!startQuery) {
+      startQuery = cleanTitle;
+    } else if (!finishQuery) {
+      finishQuery = cleanTitle.replace(/Challenge|Rute|Tanjakan|Gowes|Loop|KM\s*\d+/gi, '').trim();
+    }
+
+    return { startQuery, finishQuery };
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
 
     let isMounted = true;
 
-    // 1. Dynamic Extraction of Titik Start & Finish Location Names
-    let startQuery = routeName.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
-    let finishQuery = '';
-
-    const startMatch = routeDescription.match(/📍 Titik Start: (.*?)\n/);
-    if (startMatch && startMatch[1] && startMatch[1].trim().length > 0) {
-      startQuery = startMatch[1].trim();
-    }
-
-    const finishMatch = routeDescription.match(/🏁 Titik Finish: (.*?)\n/);
-    if (finishMatch && finishMatch[1] && finishMatch[1].trim().length > 0) {
-      finishQuery = finishMatch[1].trim();
-    } else {
-      // Smart extraction of Finish query from route title
-      const lowerName = (routeName + ' ' + routeDescription).toLowerCase();
-      if (lowerName.includes('galunggung')) {
-        finishQuery = 'Gunung Galunggung, Tasikmalaya';
-      } else if (lowerName.includes('pangandaran')) {
-        finishQuery = 'Pantai Pangandaran';
-      } else if (lowerName.includes('lembang') || lowerName.includes('tangkuban')) {
-        finishQuery = 'Alun-Alun Lembang, Bandung';
-      } else if (lowerName.includes('bsd') || lowerName.includes('kebayoran')) {
-        finishQuery = 'BSD City, Tangerang';
-      } else if (lowerName.includes('sentul') || lowerName.includes('pelangi')) {
-        finishQuery = 'Bukit Pelangi, Sentul';
-      }
-    }
+    const { startQuery, finishQuery } = extractLocations(routeName, routeDescription);
 
     // Function to render Leaflet map with Start & Finish markers + OSRM Biking Route
     const renderMapWithCoords = (
@@ -176,7 +188,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       });
     };
 
-    // Geocode both Start and Finish using Nominatim API
+    // Geocode both Start and Finish dynamically using Nominatim API (Zero Hardcoding)
     const fetchStart = fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}`)
       .then((res) => res.json())
       .catch(() => []);
@@ -205,36 +217,12 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         finishLat = parseFloat(finishGeo[0].lat);
         finishLng = parseFloat(finishGeo[0].lon);
       } else {
-        // Fallback default finish coordinates if geocoding returns no result
-        const lowerName = (routeName + ' ' + routeDescription).toLowerCase();
-        if (lowerName.includes('galunggung')) {
-          finishLat = -7.2500;
-          finishLng = 108.0580; // Gunung Galunggung (22 KM West of Tasikmalaya)
-          finishQuery = 'Gunung Galunggung, Tasikmalaya';
-        } else if (lowerName.includes('pangandaran')) {
-          finishLat = -7.6322;
-          finishLng = 108.6534; // Pantai Pangandaran
-          finishQuery = 'Pantai Pangandaran';
-        } else if (lowerName.includes('lembang') || lowerName.includes('teh') || lowerName.includes('bandung')) {
-          finishLat = -6.7600;
-          finishLng = 107.6100; // Tangkuban Perahu / Lembang Peak
-          finishQuery = 'Tangkuban Perahu / Lembang';
-        } else if (lowerName.includes('bsd') || lowerName.includes('kebayoran')) {
-          finishLat = -6.3015;
-          finishLng = 106.6534; // BSD Line Pipe
-          finishQuery = 'BSD City (Line Pipe)';
-        } else if (lowerName.includes('sentul') || lowerName.includes('pelangi') || lowerName.includes('bogor')) {
-          finishLat = -6.6415;
-          finishLng = 106.8920; // Bukit Pelangi
-          finishQuery = 'Bukit Pelangi Sentul';
-        } else {
-          finishLat = startLat - 0.08;
-          finishLng = startLng + 0.06;
-          finishQuery = 'Tujuan Rute Gowes';
-        }
+        // Dynamic fallback offset relative to start position if geocoding yields no result
+        finishLat = startLat - 0.08;
+        finishLng = startLng + 0.06;
       }
 
-      renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery);
+      renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery || 'Tujuan Gowes');
     });
 
     return () => {
