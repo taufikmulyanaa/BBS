@@ -288,9 +288,9 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
           </button>
         </div>
 
-        {/* Dynamic Search Bar & GPS Button */}
-        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <form onSubmit={handleSearch} className="relative flex-1 flex items-center">
+        {/* Dynamic Search Bar */}
+        <div className="p-3 bg-[#1A1A1A] border-b border-[#333333] relative z-20">
+          <form onSubmit={handleSearch} className="relative flex items-center">
             <Search className="w-4 h-4 text-gray-400 absolute left-3" />
             <input
               type="text"
@@ -314,18 +314,6 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
               )}
             </button>
           </form>
-
-          {/* Current Location GPS Button */}
-          <button
-            type="button"
-            onClick={handleGetCurrentLocation}
-            disabled={locating}
-            className="flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-bold rounded-lg transition shrink-0 disabled:opacity-50 shadow-md active:scale-95"
-            title="Gunakan Lokasi GPS Saya Saat Ini"
-          >
-            <Compass className={`w-4 h-4 ${locating ? 'animate-spin text-amber-400' : ''}`} />
-            <span>{locating ? 'Mendeteksi GPS...' : '📍 GPS Saya'}</span>
-          </button>
 
           {/* Dynamic Search Suggestions Dropdown */}
           {showResultsDropdown && searchResults.length > 0 && (
