@@ -37,7 +37,7 @@ export default function Footer() {
 
         <div className="flex flex-col gap-2 text-sm">
           <span className="font-semibold text-white mb-1">Lainnya</span>
-          <Link href="/profile" className="text-gray-500 hover:text-amber-400 transition">Profil Anggota</Link>
+          <Link href="/privacy" className="text-gray-500 hover:text-amber-400 transition">Kebijakan Privasi</Link>
           <span className="text-xs text-amber-400 font-mono mt-1">Status: Live Production v1.0</span>
         </div>
       </div>
