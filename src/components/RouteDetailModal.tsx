@@ -911,7 +911,7 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
                 )}
 
                 {/* Forum Posts List */}
-                <div className="space-y-3">
+                <div className="mt-4">
                   {forumPosts.length === 0 ? (
                     <div className="bg-[#262626] border border-[#333333] p-8 rounded-xl text-center space-y-2">
                       <MessageSquare className="w-8 h-8 text-amber-500 mx-auto opacity-70" />

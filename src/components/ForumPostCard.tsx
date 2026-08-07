@@ -224,253 +224,282 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
     : post.author_avatar;
 
   return (
-    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 space-y-4 transition-all shadow-md">
-      <div className="space-y-4">
-        {/* Author Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center border border-amber-500/40 shrink-0">
-              {authorAvatar ? (
-                <img src={authorAvatar} alt={post.author_name} className="w-full h-full object-cover" />
-              ) : (
-                <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
-              )}
-            </div>
-            <div>
-              <h4 className="font-heading font-bold text-sm text-white">{post.author_name || 'Bapak Sepeda'}</h4>
-              <span suppressHydrationWarning className="text-[11px] text-gray-400">
+    <div className="py-4 px-4 hover:bg-white/[0.02] transition-colors">
+      <div className="flex space-x-3">
+        {/* Left Column: Avatar & Thread Line */}
+        <div className="flex flex-col items-center shrink-0">
+          <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center shrink-0">
+            {authorAvatar ? (
+              <img src={authorAvatar} alt={post.author_name} className="w-full h-full object-cover" />
+            ) : (
+              <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
+            )}
+          </div>
+          {/* Vertical line connecting to bottom */}
+          <div className="w-[1.5px] bg-[#333333] grow mt-2 mb-1" />
+        </div>
+
+        {/* Right Column: Content */}
+        <div className="flex-1 min-w-0 pb-2">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-2">
+              <h4 className="font-bold text-[15px] text-white hover:underline cursor-pointer">{post.author_name || 'Bapak Sepeda'}</h4>
+              <span suppressHydrationWarning className="text-sm text-gray-500">
                 {getTimeAgo(post.created_at)}
               </span>
             </div>
+
+            <div className="flex items-center space-x-2">
+              {post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi' ? (
+                <span className="text-red-400 text-[10px] font-bold flex items-center space-x-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span>Laporan Jalan</span>
+                </span>
+              ) : post.tipe === 'rekomendasi_warkop' ? (
+                <span className="text-amber-400 text-[10px] font-bold">
+                  ☕ Warkop
+                </span>
+              ) : null}
+
+              {(isAuthor || isAdmin) && (
+                <div className="flex items-center space-x-1 ml-2">
+                  {onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(post)}
+                      className="text-gray-500 hover:text-amber-400 transition"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => onDelete(post.id)}
+                      className="text-gray-500 hover:text-red-400 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Post Type Badge & Edit Button */}
-          <div className="flex items-center space-x-2">
-            {(isAuthor || isAdmin) && (
-              <div className="flex items-center space-x-1">
-                {onEdit && (
-                  <button
-                    type="button"
-                    onClick={() => onEdit && onEdit(post)}
-                    className="p-1.5 rounded-lg bg-[#1A1A1A] hover:bg-amber-500 hover:text-black text-amber-400 border border-[#333333] transition"
-                    title="Edit Post"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    type="button"
-                    onClick={() => onDelete && onDelete(post.id)}
-                    className="p-1.5 rounded-lg bg-[#1A1A1A] hover:bg-red-500 hover:text-white text-red-400 border border-[#333333] transition"
-                    title="Hapus Post"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
+          {/* Linked Location/Route info if present */}
+          {post.lokasi_patokan && (
+            <div className="inline-flex items-center space-x-1 text-[11px] text-amber-400 font-semibold mt-0.5">
+              <MapPin className="w-3 h-3" />
+              <span>Lokasi: {post.lokasi_patokan}</span>
+            </div>
+          )}
+
+          {/* Text Content */}
+          <div className="mt-1">
+            {post.judul && post.judul !== cleanIsiText.slice(0, post.judul.length) && (
+               <h3 className="font-bold text-[15px] text-white leading-snug mb-1">
+                 {post.judul}
+               </h3>
             )}
-
-            {post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi' ? (
-              <span className="bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
-                <AlertTriangle className="w-3 h-3" />
-                <span>Laporan Jalan</span>
-              </span>
-            ) : post.tipe === 'rekomendasi_warkop' ? (
-              <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                ☕ Rekomendasi Warkop
-              </span>
-            ) : (
-              <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                Diskusi Rute
-              </span>
-            )}
+            <p className="text-[15px] text-white leading-relaxed whitespace-pre-line break-words">
+              {cleanIsiText}
+            </p>
           </div>
-        </div>
-
-        {/* Linked Location/Route info if present */}
-        {post.lokasi_patokan && (
-          <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 bg-[#1A1A1A] border border-[#333333] px-2.5 py-1 rounded-md">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>Lokasi: {post.lokasi_patokan}</span>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="space-y-2">
-          <h3 className="font-heading font-extrabold text-lg text-white leading-tight">
-            {post.judul}
-          </h3>
-          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
-            {cleanIsiText}
-          </p>
 
           {/* Photo Attachments Preview Grid */}
           {photoUrls.length > 0 && (
-            <div className="pt-2">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {photoUrls.slice(0, 5).map((url, i) => (
+            <div className="mt-3">
+              <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-[#333333]">
+                {photoUrls.slice(0, 4).map((url, i) => (
                   <a
                     key={i}
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="relative aspect-video rounded-lg overflow-hidden border border-[#333333] group/img bg-black/40 block"
+                    className="relative aspect-video group/img bg-black/40 block"
                   >
                     <img src={url} alt={`Lampiran ${i + 1}`} className="w-full h-full object-cover group-hover/img:scale-105 transition" />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition">
-                      <ExternalLink className="w-4 h-4 text-white" />
-                    </div>
                   </a>
                 ))}
               </div>
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Footer Actions */}
-      <div className="space-y-3 pt-3">
-        <div className="pt-3 border-t border-[#333333] flex items-center justify-between text-xs text-gray-400">
-          <div className="flex items-center space-x-4">
+          {/* Minimal Action Buttons (Like Threads) */}
+          <div className="flex items-center space-x-4 mt-3 text-gray-500">
             <button
               onClick={handleLike}
-              className={`flex items-center space-x-1.5 transition-colors ${
-                liked ? 'text-red-500' : 'hover:text-white'
-              }`}
+              className={`flex items-center space-x-1.5 group transition ${liked ? 'text-red-500' : 'hover:text-white'}`}
             >
-              <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-              <span className="font-bold">{likesCount}</span>
+              <div className={`p-1.5 rounded-full group-hover:bg-white/10 transition ${liked ? 'bg-red-500/10' : ''}`}>
+                <Heart className={`w-[18px] h-[18px] ${liked ? 'fill-current' : ''}`} />
+              </div>
+              <span className="text-[13px] font-semibold">{likesCount > 0 ? likesCount : ''}</span>
             </button>
 
             <button
               onClick={handleToggleComments}
-              className="flex items-center space-x-1.5 hover:text-white transition-colors"
+              className={`flex items-center space-x-1.5 group transition ${showComments ? 'text-amber-400' : 'hover:text-white'}`}
             >
-              <MessageSquare className="w-4 h-4 text-amber-400" />
-              <span>{commentsCount} Komentar</span>
+              <div className={`p-1.5 rounded-full group-hover:bg-white/10 transition ${showComments ? 'bg-amber-400/10' : ''}`}>
+                <MessageSquare className={`w-[18px] h-[18px] ${showComments ? 'fill-current' : ''}`} />
+              </div>
+              <span className="text-[13px] font-semibold">{commentsCount > 0 ? commentsCount : ''}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: post.judul, text: post.isi, url: window.location.href });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert('Tautan postingan disalin!');
+                }
+              }}
+              className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition"
+            >
+              <Share2 className="w-[18px] h-[18px]" />
             </button>
           </div>
-
-          <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({ title: post.judul, text: post.isi, url: window.location.href });
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Tautan postingan berhasil disalin!');
-              }
-            }}
-            className="p-1.5 rounded-lg hover:bg-[#1A1A1A] hover:text-white transition-colors"
-            title="Bagikan"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
         </div>
+      </div>
 
-        {/* Comments Drawer */}
-        {showComments && (
-          <div className="pt-3 border-t border-[#333333] space-y-3 animate-fade-in">
-            <h4 className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
-              <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
-              <span>Komentar Komunitas ({comments.length})</span>
-            </h4>
+      {/* Comments Section */}
+      {showComments && (
+        <div className="pl-12 space-y-2 mt-2 pb-2">
+          {comments.length === 0 ? (
+            <p className="text-[13px] text-gray-500 pl-3 border-l-2 border-[#333333]">Jadilah yang pertama berkomentar!</p>
+          ) : (
+            <div className="space-y-4 pr-1">
+              {comments.filter(c => !c.parent_comment_id).map((comment) => (
+                <div key={comment.id} className="flex space-x-2">
+                  {/* Parent Comment Avatar */}
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center shrink-0 text-xs">
+                      {comment.author_avatar ? (
+                        <img src={comment.author_avatar} alt={comment.author_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{comment.author_name?.charAt(0).toUpperCase() || 'A'}</span>
+                      )}
+                    </div>
+                    {/* Only show line if there are replies */}
+                    {comments.some(r => r.parent_comment_id === comment.id) && (
+                      <div className="w-[1.5px] bg-[#333333] grow mt-2 mb-1" />
+                    )}
+                  </div>
 
-            {comments.length === 0 ? (
-              <p className="text-xs text-gray-500 italic">Belum ada komentar. Jadilah yang pertama berkomentar!</p>
-            ) : (
-              <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
-                {comments.filter(c => !c.parent_comment_id).map((comment) => (
-                  <div key={comment.id} className="space-y-2">
-                    {/* Parent Comment */}
-                    <div className="p-2.5 bg-[#1A1A1A] rounded-xl border border-[#333333] text-xs space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-400">{comment.author_name}</span>
-                        <div className="flex items-center space-x-2">
-                          <span suppressHydrationWarning className="text-[10px] text-gray-500">
-                            {getTimeAgo(comment.created_at)}
-                          </span>
-                          {(comment.user_id === currentUser?.id || isAdmin) && (
-                            <button
-                              onClick={() => handleDeleteComment(comment.id)}
-                              className="text-gray-500 hover:text-red-400 transition"
-                              title="Hapus Komentar"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-gray-300 leading-snug">{comment.isi}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-[14px] text-white hover:underline cursor-pointer">{comment.author_name}</span>
+                      <span suppressHydrationWarning className="text-[12px] text-gray-500">
+                        {getTimeAgo(comment.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-[14px] text-gray-300 leading-snug mt-0.5">{comment.isi}</p>
+                    <div className="flex items-center space-x-4 mt-1.5 text-gray-500">
                       <button 
                         onClick={() => setReplyingTo(comment.id)} 
-                        className="text-[10px] text-gray-400 hover:text-amber-400 transition font-bold mt-1 inline-block"
+                        className="text-[12px] font-bold hover:text-amber-400 transition"
                       >
                         Balas
                       </button>
+                      {(comment.user_id === currentUser?.id || isAdmin) && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          className="hover:text-red-400 transition"
+                          title="Hapus Komentar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
 
                     {/* Replies */}
-                    <div className="pl-4 space-y-2 border-l-2 border-[#333333] ml-2">
-                      {comments.filter(r => r.parent_comment_id === comment.id).map(reply => (
-                        <div key={reply.id} className="p-2 bg-[#141415] rounded-xl border border-[#333333] text-xs space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-amber-400">{reply.author_name}</span>
-                            <div className="flex items-center space-x-2">
-                              <span suppressHydrationWarning className="text-[10px] text-gray-500">
-                                {getTimeAgo(reply.created_at)}
-                              </span>
-                              {(reply.user_id === currentUser?.id || isAdmin) && (
-                                <button
-                                  onClick={() => handleDeleteComment(reply.id)}
-                                  className="text-gray-500 hover:text-red-400 transition"
-                                  title="Hapus Balasan"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
+                    {comments.some(r => r.parent_comment_id === comment.id) && (
+                      <div className="mt-3 space-y-3">
+                        {comments.filter(r => r.parent_comment_id === comment.id).map(reply => (
+                          <div key={reply.id} className="flex space-x-2">
+                            <div className="w-7 h-7 rounded-full bg-blue-500/80 text-white font-bold overflow-hidden flex items-center justify-center shrink-0 text-[10px]">
+                              {reply.author_avatar ? (
+                                <img src={reply.author_avatar} alt={reply.author_name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{reply.author_name?.charAt(0).toUpperCase() || 'A'}</span>
                               )}
                             </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-[13px] text-white hover:underline cursor-pointer">{reply.author_name}</span>
+                                <span suppressHydrationWarning className="text-[11px] text-gray-500">
+                                  {getTimeAgo(reply.created_at)}
+                                </span>
+                              </div>
+                              <p className="text-[13px] text-gray-300 leading-snug mt-0.5">{reply.isi}</p>
+                              <div className="flex items-center space-x-4 mt-1 text-gray-500">
+                                {(reply.user_id === currentUser?.id || isAdmin) && (
+                                  <button
+                                    onClick={() => handleDeleteComment(reply.id)}
+                                    className="hover:text-red-400 transition"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-gray-300 leading-snug">{reply.isi}</p>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
+          )}
 
-            {/* Add Comment Form */}
+          {/* Add Comment Form */}
+          <div className="mt-2 pl-[42px]">
             {replyingTo && (
-              <div className="flex items-center justify-between bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
-                <span className="text-[10px] text-amber-400">
-                  Membalas komentar <span className="font-bold">{comments.find(c => c.id === replyingTo)?.author_name}</span>
+              <div className="flex items-center justify-between bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 mb-2">
+                <span className="text-[11px] text-amber-400">
+                  Membalas <span className="font-bold">{comments.find(c => c.id === replyingTo)?.author_name}</span>
                 </span>
                 <button onClick={() => setReplyingTo(null)} className="text-gray-400 hover:text-white">
                   <X className="w-3 h-3" />
                 </button>
               </div>
             )}
-            <form onSubmit={handleSendComment} className="flex items-center space-x-2 pt-1">
-              <input
-                type="text"
-                placeholder={currentUser ? 'Tulis komentar...' : 'Masuk untuk berkomentar'}
-                disabled={!currentUser || submittingComment}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!currentUser || submittingComment || !newComment.trim()}
-                className="bg-amber-500 hover:bg-amber-400 text-black p-2 rounded-lg font-bold transition disabled:opacity-50"
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
+            <form onSubmit={handleSendComment} className="flex items-start space-x-2">
+              <div className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-[#333333] flex items-center justify-center shrink-0 overflow-hidden">
+                {currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.custom_avatar ? (
+                   <img src={currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.custom_avatar} alt="You" className="w-full h-full object-cover" />
+                ) : (
+                   <span className="text-xs text-gray-400 font-bold">{currentUser?.user_metadata?.full_name?.charAt(0).toUpperCase() || 'P'}</span>
+                )}
+              </div>
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder={currentUser ? (replyingTo ? 'Tulis balasan...' : 'Balas postingan ini...') : 'Masuk untuk membalas'}
+                  disabled={!currentUser || submittingComment}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="w-full bg-transparent border-b border-[#333333] focus:border-amber-500 px-1 py-1.5 text-[14px] text-white placeholder-gray-500 focus:outline-none transition disabled:opacity-50"
+                />
+                {newComment.trim().length > 0 && (
+                  <button
+                    type="submit"
+                    disabled={submittingComment}
+                    className="absolute right-0 top-1.5 text-amber-400 font-bold text-sm hover:text-amber-300"
+                  >
+                    Kirim
+                  </button>
+                )}
+              </div>
             </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
 
       {/* Login Required Modal */}
       <LoginRequiredModal 
