@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { X, MessageSquare, MapPin, Tag, Send, Info, Camera, Image as ImageIcon, Navigation, Plus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Image as ImageIcon, MapPin, MoreHorizontal, FileText } from 'lucide-react';
 import { supabase, Route } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
@@ -13,29 +13,31 @@ type Props = {
 };
 
 export default function CreateForumPostModal({ isOpen, onClose, onSuccess, currentUser }: Props) {
-  const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
-  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('laporan_jalan');
+  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('diskusi');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
-  const [selectedRouteId, setSelectedRouteId] = useState<string>('');
   const [photos, setPhotos] = useState<File[]>([]);
-  const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showMapPicker, setShowMapPicker] = useState(false);
+  const [localAvatar, setLocalAvatar] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      // Reset when closed
+      setIsi('');
+      setLokasiPatokan('');
+      setPhotos([]);
+      setErrorMsg(null);
+      setTipe('diskusi');
+      return;
+    }
 
-    // Fetch routes for dropdown selection
-    supabase
-      .from('routes')
-      .select('id, nama')
-      .order('nama', { ascending: true })
-      .then(({ data }) => {
-        if (data) setRoutes(data as Route[]);
-      });
-  }, [isOpen]);
+    if (currentUser && typeof window !== 'undefined') {
+      setLocalAvatar(localStorage.getItem(`bbs_avatar_${currentUser.id}`));
+    }
+  }, [isOpen, currentUser]);
 
   if (!isOpen) return null;
 
@@ -48,18 +50,22 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       }
       setPhotos((prev) => [...prev, ...selected].slice(0, 5));
     }
+    // reset input value so the same file can be selected again if removed
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleRemovePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!currentUser) {
       setErrorMsg('Silakan masuk terlebih dahulu untuk membuat postingan forum.');
       return;
     }
+    if (!isi.trim()) return;
 
     setLoading(true);
     setErrorMsg(null);
@@ -101,20 +107,21 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       }
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
-      const finalJudul = isWarkop && !judul.includes(warkopTag) 
-        ? `☕ ${warkopTag} ${judul}` 
-        : judul;
+      
+      // Auto-generate judul
+      let generatedJudul = isi.trim().substring(0, 40);
+      if (isi.trim().length > 40) generatedJudul += '...';
+      
+      const finalJudul = isWarkop && !generatedJudul.includes(warkopTag) 
+        ? `☕ ${warkopTag} ${generatedJudul}` 
+        : generatedJudul;
 
       const payload: any = {
-        judul: finalJudul,
+        judul: finalJudul || 'Diskusi Baru',
         isi: fullContent,
         tipe: dbType,
         user_id: currentUser.id,
       };
-
-      if (selectedRouteId) {
-        payload.route_id = selectedRouteId;
-      }
 
       const { error } = await supabase.from('forum_posts').insert([payload]);
 
@@ -122,12 +129,6 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
 
       onSuccess();
       onClose();
-      // Reset form
-      setJudul('');
-      setIsi('');
-      setLokasiPatokan('');
-      setSelectedRouteId('');
-      setPhotos([]);
     } catch (err: any) {
       console.error('Error creating forum post:', err);
       setErrorMsg(err.message || 'Gagal mengirim postingan forum.');
@@ -136,216 +137,183 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
     }
   };
 
+  const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    setIsi(e.target.value);
+  };
+
+  const avatarUrl = localAvatar || currentUser?.user_metadata?.custom_avatar || currentUser?.user_metadata?.avatar_url;
+  const username = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Anggota Gowes';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-6 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-2xl bg-[#222222] border border-[#333333] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/60 sm:bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full h-full sm:h-auto sm:max-w-[600px] bg-[#181818] sm:border sm:border-[#333333] sm:rounded-2xl shadow-2xl flex flex-col animate-slide-up sm:animate-none">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#333333] bg-[#1E1E1E] shrink-0">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-black flex items-center justify-center font-extrabold shadow-lg shadow-amber-500/20">
-              <MessageSquare className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-lg text-white">Post Diskusi / Laporan Baru</h3>
-              <p className="text-xs text-gray-400">Bagikan info kondisi jalan, rekomendasi warkop, atau gear gowes</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between p-4 shrink-0 border-b border-[#262626] sm:border-none">
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-[#333333] transition"
+            className="text-[15px] text-white hover:text-gray-300 transition"
           >
-            <X className="w-5 h-5" />
+            Cancel
           </button>
+          <h3 className="font-bold text-[16px] text-white absolute left-1/2 -translate-x-1/2">
+            New thread
+          </h3>
+          <div className="flex items-center space-x-4">
+             <button className="text-gray-400 hover:text-white transition hidden sm:block">
+               <FileText className="w-5 h-5" />
+             </button>
+             <button className="text-gray-400 hover:text-white transition">
+               <MoreHorizontal className="w-5 h-5" />
+             </button>
+          </div>
         </div>
 
-        {/* Scrollable Form Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 text-white">
+        {/* Body */}
+        <div className="p-4 overflow-y-auto flex-1 text-white">
           {errorMsg && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-semibold">
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-semibold">
               {errorMsg}
             </div>
           )}
 
-          <form id="create-forum-post-form" onSubmit={handleSubmit} className="space-y-6">
-            
-            {/* SECTION 1: Judul, Kategori & Tautan Rute */}
-            <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
-              <div className="flex items-center space-x-2 text-amber-400 border-b border-[#2A2A2A] pb-2.5">
-                <Tag className="w-4 h-4" />
-                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-amber-400">
-                  1. Judul, Kategori & Tautan Rute
-                </h4>
+          <div className="flex">
+            {/* Left Column (Avatar + Line) */}
+            <div className="flex flex-col items-center shrink-0 mr-3">
+              <div className="w-10 h-10 rounded-full bg-[#262626] border border-[#333333] flex items-center justify-center overflow-hidden shrink-0">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="You" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-sm text-gray-400 font-bold">{username.charAt(0).toUpperCase()}</span>
+                )}
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                  Judul Topik / Laporan *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Perbaikan Aspal di KM 12 Tanjakan Pelangi"
-                  value={judul}
-                  onChange={(e) => setJudul(e.target.value)}
-                  className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                    Kategori Post *
-                  </label>
-                  <select
-                    value={tipe}
-                    onChange={(e: any) => setTipe(e.target.value)}
-                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition cursor-pointer"
-                  >
-                    <option value="laporan_jalan">🚨 Laporan Kondisi Jalan</option>
-                    <option value="diskusi">💬 Diskusi Komunitas / Gear</option>
-                    <option value="rekomendasi_warkop">☕ Rekomendasi Warkop Gowes</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                    Tautkan ke Rute (Opsional)
-                  </label>
-                  <select
-                    value={selectedRouteId}
-                    onChange={(e) => setSelectedRouteId(e.target.value)}
-                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition cursor-pointer"
-                  >
-                    <option value="">-- Tanpa Tautan Rute --</option>
-                    {routes.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        🚴 {r.nama}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="w-[2px] bg-[#333333] grow my-2 min-h-[40px]"></div>
+              <div className="w-4 h-4 rounded-full bg-[#262626] border border-[#333333] flex items-center justify-center overflow-hidden shrink-0 mt-1 opacity-50">
+                 {avatarUrl ? (
+                  <img src={avatarUrl} alt="You" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[8px] text-gray-400 font-bold">{username.charAt(0).toUpperCase()}</span>
+                )}
               </div>
             </div>
 
-            {/* SECTION 2: Lokasi Patokan */}
-            <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
-              <div className="flex items-center space-x-2 text-amber-400 border-b border-[#2A2A2A] pb-2.5">
-                <MapPin className="w-4 h-4" />
-                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-amber-400">
-                  2. Lokasi / Patokan
-                </h4>
+            {/* Right Column (Content) */}
+            <div className="flex-1 min-w-0 pt-0.5">
+              <div className="flex items-center flex-wrap gap-1 mb-1">
+                <span className="font-bold text-[15px] hover:underline cursor-pointer">{username}</span>
+                <span className="text-gray-500 mx-1">›</span>
+                <select
+                  value={tipe}
+                  onChange={(e: any) => setTipe(e.target.value)}
+                  className="bg-transparent text-gray-400 text-[15px] focus:outline-none focus:text-amber-400 cursor-pointer appearance-none hover:text-gray-300"
+                >
+                  <option className="text-black" value="diskusi">Diskusi / Umum</option>
+                  <option className="text-black" value="laporan_jalan">Laporan Jalan</option>
+                  <option className="text-black" value="rekomendasi_warkop">Warkop</option>
+                </select>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-gray-300 uppercase tracking-wider">
-                    Lokasi / Patokan Jalan (Opsional)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowMapPicker(true)}
-                    className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black border border-amber-500/30 rounded-md text-xs font-semibold transition flex items-center space-x-1.5 shrink-0"
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>Pilih di Peta</span>
-                  </button>
-                </div>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    placeholder="Contoh: KM 12 Jalur Tanjakan Kertasari"
-                    value={lokasiPatokan}
-                    onChange={(e) => setLokasiPatokan(e.target.value)}
-                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg pl-9 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500"
-                  />
-                </div>
-              </div>
-            </div>
+              <textarea
+                placeholder="What's new?"
+                value={isi}
+                onChange={handleTextareaInput}
+                className="w-full bg-transparent text-[15px] text-white focus:outline-none placeholder:text-gray-500 resize-none min-h-[24px] py-1"
+                rows={1}
+                style={{ overflow: 'hidden' }}
+              />
 
-            {/* SECTION 3: Isi Pesan & Foto Lampiran */}
-            <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
-              <div className="flex items-center space-x-2 text-amber-400 border-b border-[#2A2A2A] pb-2.5">
-                <Info className="w-4 h-4" />
-                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-amber-400">
-                  3. Detail Pesan & Lampiran Foto (Maks 5 Foto)
-                </h4>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                  Isi Pesan / Laporan Detail *
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Tuliskan info lengkap kondisi jalan, perbaikan yang sedang berlangsung, atau rekomendasi warkop..."
-                  value={isi}
-                  onChange={(e) => setIsi(e.target.value)}
-                  className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500 resize-none"
-                />
-              </div>
-
-              {/* Photo Attachments File Input */}
-              <div className="space-y-3 pt-2 border-t border-[#2A2A2A]">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
-                    <Camera className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Foto Lampiran ({photos.length}/5)</span>
-                  </label>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
+              {/* Photos Preview */}
+              {photos.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
                   {photos.map((file, idx) => (
-                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#333333] group bg-black/50">
-                      <img src={URL.createObjectURL(file)} alt="preview" className="w-full h-full object-cover opacity-80" />
+                    <div key={idx} className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden group border border-[#333333]">
+                      <img src={URL.createObjectURL(file)} alt="preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => handleRemovePhoto(idx)}
-                        className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="w-3 h-3" />
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
                     </div>
                   ))}
-                  {photos.length < 5 && (
-                    <label className="w-20 h-20 rounded-lg border-2 border-dashed border-[#444444] hover:border-amber-500 flex flex-col items-center justify-center cursor-pointer transition text-gray-500 hover:text-amber-500 bg-[#1A1A1A]">
-                      <Plus className="w-5 h-5 mb-1" />
-                      <span className="text-[10px] font-bold">Upload</span>
-                      <input type="file" multiple accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                    </label>
-                  )}
                 </div>
+              )}
+
+              {/* Location Badge */}
+              {lokasiPatokan && (
+                <div className="mt-2 inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+                  <MapPin className="w-3 h-3" />
+                  <span className="truncate max-w-[200px]">{lokasiPatokan}</span>
+                  <button onClick={() => setLokasiPatokan('')} className="ml-1 hover:text-white">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {/* Toolbar */}
+              <div className="flex items-center space-x-4 mt-3 text-gray-500">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="hover:text-white transition" 
+                  title="Add Image"
+                >
+                  <ImageIcon className="w-[18px] h-[18px]" />
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  className="hidden" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handlePhotoChange} 
+                />
+
+                <button 
+                  onClick={() => setShowMapPicker(true)}
+                  className="hover:text-white transition" 
+                  title="Add Location"
+                >
+                  <MapPin className="w-[18px] h-[18px]" />
+                </button>
+                
+                {/* Dummy tools to match Threads aesthetic */}
+                <span className="text-gray-700 cursor-not-allowed">GIF</span>
+                <span className="text-gray-700 cursor-not-allowed text-lg leading-none">☺</span>
+                <span className="text-gray-700 cursor-not-allowed">
+                   <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </span>
+              </div>
+              
+              <div className="mt-4 pb-2">
+                 <span className="text-[15px] text-gray-600">Add to thread</span>
               </div>
             </div>
-
-          </form>
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 sm:p-5 bg-[#1E1E1E] border-t border-[#333333] flex items-center justify-end space-x-3 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-lg border border-[#333333] text-gray-300 text-sm font-semibold hover:bg-[#333333] transition"
-          >
-            Batal
+        {/* Footer */}
+        <div className="p-4 flex items-center justify-between shrink-0">
+          <button className="text-[15px] text-gray-500 hover:text-gray-300 transition flex items-center space-x-2">
+             <span>Anyone can reply</span>
           </button>
+          
           <button
-            type="submit"
-            form="create-forum-post-form"
-            disabled={loading}
-            className="px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition shadow-lg shadow-amber-500/20 flex items-center space-x-2 disabled:opacity-50 active:scale-95 cursor-pointer"
+            onClick={handleSubmit}
+            disabled={loading || !isi.trim()}
+            className={`px-5 py-1.5 rounded-full font-bold text-[15px] transition ${
+              isi.trim() && !loading
+                ? 'bg-white text-black hover:bg-gray-200'
+                : 'bg-[#262626] text-gray-500 cursor-not-allowed'
+            }`}
           >
-            {loading ? (
-              <span>Mengirim...</span>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span>Kirim Postingan</span>
-              </>
-            )}
+            {loading ? 'Posting...' : 'Post'}
           </button>
         </div>
       </div>
@@ -353,7 +321,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       <MapLocationPickerModal
         isOpen={showMapPicker}
         onClose={() => setShowMapPicker(false)}
-        title="Pilih Lokasi Patokan di Peta"
+        title="Pilih Lokasi"
         onSelect={(lat, lng) => {
           setLokasiPatokan(`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
         }}
