@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { OpenRide, supabase } from '@/lib/supabase';
 import { Calendar, Clock, MapPin, Users, CheckCircle2, UserPlus, Info, Edit3 } from 'lucide-react';
+import LoginRequiredModal from './LoginRequiredModal';
 
 type Props = {
   ride: OpenRide;
@@ -14,6 +15,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
   const [joined, setJoined] = useState(isJoined);
   const [participantsCount, setParticipantsCount] = useState(ride.participant_count || 5);
   const [loading, setLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const isCreator =
     currentUser &&
@@ -22,7 +24,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
 
   const handleJoinClick = async () => {
     if (!currentUser) {
-      alert('Silakan masuk terlebih dahulu untuk bergabung ke Open Ride.');
+      setShowLoginModal(true);
       return;
     }
 
@@ -197,6 +199,12 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
           )}
         </button>
       </div>
+
+      <LoginRequiredModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        message="Silakan masuk terlebih dahulu untuk bergabung ke Open Ride dan gowes bareng komunitas."
+      />
     </div>
   );
 }

@@ -69,8 +69,18 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
+    
+    const handleOpenAuth = () => {
+      setIsAuthModalOpen(true);
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('open_auth_modal', handleOpenAuth);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('open_auth_modal', handleOpenAuth);
+    };
   }, []);
 
   const handleSignOut = async () => {
