@@ -52,16 +52,18 @@ export default function OpenRideDetailModal({
   const [isJoined, setIsJoined] = useState(false);
   const [joining, setJoining] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [creatorProfile, setCreatorProfile] = useState<{ name: string; avatar: string }>({
     name: 'Pengurus Gowes',
     avatar: '',
   });
 
-  const isCreator =
-    currentUser &&
-    ride &&
-    ((ride.creator_id && currentUser.id === ride.creator_id) ||
-      (ride.dibuat_oleh && currentUser.id === ride.dibuat_oleh));
+  const isCreatorOrAdmin =
+    isAdmin ||
+    (currentUser &&
+      ride &&
+      ((ride.creator_id && currentUser.id === ride.creator_id) ||
+        (ride.dibuat_oleh && currentUser.id === ride.dibuat_oleh)));
 
   useEffect(() => {
     if (!isOpen || !ride) return;
@@ -74,6 +76,17 @@ export default function OpenRideDetailModal({
     setLoadingParticipants(true);
 
     try {
+      if (currentUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', currentUser.id)
+          .single();
+        if (profile?.role === 'admin') {
+          setIsAdmin(true);
+        }
+      }
+
       // 1. Fetch Creator Info
       const creatorId = ride.dibuat_oleh || ride.creator_id;
       if (creatorId) {
@@ -219,7 +232,7 @@ export default function OpenRideDetailModal({
   };
 
   const handleUpdateStatus = async (participantUserId: string, newStatus: 'hadir' | 'tidak_hadir' | 'terkonfirmasi') => {
-    if (!isCreator) return;
+    if (!isCreatorOrAdmin) return;
 
     try {
       await supabase
@@ -236,7 +249,7 @@ export default function OpenRideDetailModal({
   };
 
   const handleRemoveParticipant = async (participantUserId: string) => {
-    if (!isCreator) return;
+    if (!isCreatorOrAdmin) return;
     if (!confirm('Keluarkan anggota ini dari daftar peserta Open Ride?')) return;
 
     try {
@@ -404,10 +417,10 @@ export default function OpenRideDetailModal({
                   <span>Daftar Peserta Terdaftar ({participants.length}/{ride.kuota_maks})</span>
                 </h3>
 
-                {isCreator && (
+                {isCreatorOrAdmin && (
                   <span className="text-[11px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full flex items-center space-x-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Anda Host (Kelola Kehadiran)</span>
+                    <span>Anda {isAdmin ? 'Admin' : 'Host'} (Kelola Kehadiran)</span>
                   </span>
                 )}
               </div>
@@ -461,7 +474,7 @@ export default function OpenRideDetailModal({
                       </div>
 
                       {/* Host Actions for this Participant */}
-                      {isCreator ? (
+                      {isCreatorOrAdmin ? (
                         <div className="flex items-center space-x-1 shrink-0">
                           <button
                             type="button"
@@ -529,7 +542,7 @@ export default function OpenRideDetailModal({
               <span>Bagikan</span>
             </button>
 
-            {isCreator && onEditRequested && (
+            {isCreatorOrAdmin && onEditRequested && (
               <button
                 onClick={() => {
                   onClose();

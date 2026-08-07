@@ -36,6 +36,8 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'info' | 'map' | 'reviews' | 'forum'>('info');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [verifying, setVerifying] = useState<boolean>(false);
 
   // Forum post creation state
   const [showCreateForum, setShowCreateForum] = useState<boolean>(false);
@@ -63,6 +65,21 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         }
       } catch (err) {
         console.error('Error fetching DB reviews:', err);
+      }
+
+      if (currentUser) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', currentUser.id)
+            .single();
+          if (profile?.role === 'admin') {
+            setIsAdmin(true);
+          }
+        } catch (e) {
+          console.error('Error fetching admin role:', e);
+        }
       }
 
       // Clean legacy mock entries from browser localStorage if present
@@ -158,6 +175,30 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
   }, [route, isOpen]);
 
   if (!isOpen || !route) return null;
+
+  const handleToggleVerification = async () => {
+    if (!isAdmin) return;
+    setVerifying(true);
+    try {
+      const newStatus = route.status_verifikasi === 'terverifikasi' ? 'belum_diverifikasi' : 'terverifikasi';
+      const { error } = await supabase
+        .from('routes')
+        .update({ status_verifikasi: newStatus })
+        .eq('id', route.id);
+      
+      if (!error) {
+        route.status_verifikasi = newStatus;
+        alert(`Status rute berhasil diperbarui menjadi ${newStatus}.`);
+      } else {
+        throw error;
+      }
+    } catch (err) {
+      console.error('Error updating verification status:', err);
+      alert('Gagal memperbarui status rute.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   const handleDownloadGpx = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -968,6 +1009,21 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
             </div>
 
             <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+              {isAdmin && (
+                <button
+                  onClick={handleToggleVerification}
+                  disabled={verifying}
+                  className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 ${
+                    route.status_verifikasi === 'terverifikasi'
+                      ? 'border-red-500/50 text-red-400 hover:bg-red-500/10'
+                      : 'border-green-500/50 text-green-400 hover:bg-green-500/10'
+                  }`}
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>{verifying ? 'Memproses...' : route.status_verifikasi === 'terverifikasi' ? 'Batalkan Verifikasi' : 'Verifikasi Rute'}</span>
+                </button>
+              )}
+
               <button
                 onClick={onClose}
                 className="px-4 py-2.5 rounded-xl border border-[#333333] text-gray-300 text-xs font-semibold hover:bg-[#262626] transition"

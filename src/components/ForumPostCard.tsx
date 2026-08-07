@@ -38,7 +38,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
     ((post.user_id && currentUser.id === post.user_id) ||
       (post.author_id && currentUser.id === post.author_id));
 
-  const isAdmin = currentUser?.user_metadata?.role === 'admin';
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -49,6 +49,16 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
         .match({ post_id: post.id, user_id: currentUser.id })
         .then(({ data }) => {
           if (data && data.length > 0) setLiked(true);
+        });
+        
+      // Fetch admin role
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.role === 'admin') setIsAdmin(true);
         });
     }
   }, [currentUser, post.id]);
