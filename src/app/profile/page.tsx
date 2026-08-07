@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({ savedRoutes: 0, ridesJoined: 0, forumPosts: 0 });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +41,8 @@ export default function ProfilePage() {
           if (profile) {
             if (profile.bio) setBio(profile.bio);
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
+            if (profile.role === 'admin') setIsAdmin(true);
+            
             if (profile.foto_profil_url) {
               liveAvatar = profile.foto_profil_url;
               if (liveAvatar.startsWith('http') && typeof window !== 'undefined') {
@@ -210,6 +213,26 @@ export default function ProfilePage() {
     window.location.href = '/';
   };
 
+  const handleToggleAdmin = async () => {
+    if (!user) return;
+    const newRole = isAdmin ? 'member' : 'admin';
+    if (!confirm(`Ubah role Anda menjadi ${newRole.toUpperCase()}? (Ini adalah fitur khusus demo)`)) return;
+    
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', user.id);
+      if (error) throw error;
+      
+      setIsAdmin(newRole === 'admin');
+      alert(`Berhasil! Silakan refresh halaman atau coba fitur ${newRole}.`);
+    } catch (err: any) {
+      console.error('Error updating role:', err);
+      alert('Gagal mengubah role: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[50vh]">
@@ -322,7 +345,7 @@ export default function ProfilePage() {
               <div className="pt-2 flex justify-center">
                 <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold px-3.5 py-1 rounded-full flex items-center space-x-1.5">
                   <Shield className="w-4 h-4" />
-                  <span>Anggota Terverifikasi</span>
+                  <span>{isAdmin ? 'Admin / Pengurus' : 'Anggota Terverifikasi'}</span>
                 </span>
               </div>
             </div>
@@ -382,7 +405,22 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-300 leading-relaxed italic">"{bio}"</p>
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-300 leading-relaxed italic">"{bio}"</p>
+                  
+                  {/* Demo Role Toggle Button */}
+                  <button
+                    onClick={handleToggleAdmin}
+                    className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border flex items-center space-x-1 transition ${
+                      isAdmin 
+                        ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' 
+                        : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
+                    }`}
+                  >
+                    <Shield className="w-3 h-3" />
+                    <span>Demo: Jadikan Saya {isAdmin ? 'Member Biasa' : 'Admin'}</span>
+                  </button>
+                </div>
               )}
 
               {savedSuccess && (
