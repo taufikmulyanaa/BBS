@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { ForumPost, supabase } from '@/lib/supabase';
-import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle } from 'lucide-react';
+import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3 } from 'lucide-react';
 
 type Props = {
   post: ForumPost;
   onLike?: (postId: string) => void;
+  onEdit?: (post: ForumPost) => void;
   currentUser?: any;
 };
 
@@ -18,7 +19,7 @@ type CommentItem = {
   created_at: string;
 };
 
-export default function ForumPostCard({ post, onLike, currentUser }: Props) {
+export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Props) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.like_count || 0);
   const [showComments, setShowComments] = useState(false);
@@ -26,6 +27,11 @@ export default function ForumPostCard({ post, onLike, currentUser }: Props) {
   const [newComment, setNewComment] = useState('');
   const [commentsCount, setCommentsCount] = useState(post.comment_count || 0);
   const [submittingComment, setSubmittingComment] = useState(false);
+
+  const isAuthor =
+    currentUser &&
+    ((post.user_id && currentUser.id === post.user_id) ||
+      (post.author_id && currentUser.id === post.author_id));
 
   useEffect(() => {
     if (currentUser) {
@@ -174,21 +180,34 @@ export default function ForumPostCard({ post, onLike, currentUser }: Props) {
           </div>
         </div>
 
-        {/* Post Type Badge */}
-        {post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi' ? (
-          <span className="bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
-            <AlertTriangle className="w-3 h-3" />
-            <span>Laporan Jalan</span>
-          </span>
-        ) : post.tipe === 'rekomendasi_warkop' ? (
-          <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-            ☕ Rekomendasi Warkop
-          </span>
-        ) : (
-          <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-            Diskusi Rute
-          </span>
-        )}
+        {/* Post Type Badge & Edit Button */}
+        <div className="flex items-center space-x-2">
+          {(isAuthor || onEdit) && (
+            <button
+              type="button"
+              onClick={() => onEdit && onEdit(post)}
+              className="p-1.5 rounded-lg bg-[#1A1A1A] hover:bg-amber-500 hover:text-black text-amber-400 border border-[#333333] transition"
+              title="Edit / Hapus Post"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {post.tipe === 'laporan_jalan' || post.tipe === 'laporan_kondisi' ? (
+            <span className="bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
+              <AlertTriangle className="w-3 h-3" />
+              <span>Laporan Jalan</span>
+            </span>
+          ) : post.tipe === 'rekomendasi_warkop' ? (
+            <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+              ☕ Rekomendasi Warkop
+            </span>
+          ) : (
+            <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+              Diskusi Rute
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Linked Location/Route info if present */}

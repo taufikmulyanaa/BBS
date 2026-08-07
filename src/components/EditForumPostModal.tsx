@@ -1,32 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, MessageSquare, MapPin, Tag, Send, Info, Layers } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { X, Edit3, Trash2, MapPin, Tag, Send, Info } from 'lucide-react';
+import { supabase, ForumPost } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  post: ForumPost | null;
   currentUser: any;
 };
 
-export default function CreateForumPostModal({ isOpen, onClose, onSuccess, currentUser }: Props) {
+export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, currentUser }: Props) {
   const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
   const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('laporan_jalan');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showMapPicker, setShowMapPicker] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (post) {
+      setJudul(post.judul || '');
+      setIsi(post.isi || '');
+      setLokasiPatokan(post.lokasi_patokan || '');
+
+      if (post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan') {
+        setTipe('laporan_jalan');
+      } else if (post.tipe === 'rekomendasi_warkop' || post.judul.includes('[WARKOP]')) {
+        setTipe('rekomendasi_warkop');
+      } else {
+        setTipe('diskusi');
+      }
+    }
+  }, [post]);
+
+  if (!isOpen || !post) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      setErrorMsg('Silakan masuk terlebih dahulu untuk membuat postingan forum.');
+      setErrorMsg('Silakan masuk terlebih dahulu untuk mengedit postingan.');
       return;
     }
 
@@ -39,35 +57,57 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       
       const fullContent = isWarkop && !isi.includes(warkopTag)
         ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${isi}`
-        : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
+        : lokasiPatokan && !isi.includes('📍 Lokasi:') ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
       const finalJudul = isWarkop && !judul.includes(warkopTag) 
         ? `☕ ${warkopTag} ${judul}` 
         : judul;
 
-      const { error } = await supabase.from('forum_posts').insert([
-        {
+      const { error } = await supabase
+        .from('forum_posts')
+        .update({
           judul: finalJudul,
           isi: fullContent,
           tipe: dbType,
-          user_id: currentUser.id,
-        },
-      ]);
+          lokasi_patokan: lokasiPatokan || null,
+        })
+        .eq('id', post.id);
 
       if (error) throw error;
 
       onSuccess();
       onClose();
-      // Reset form
-      setJudul('');
-      setIsi('');
-      setLokasiPatokan('');
     } catch (err: any) {
-      console.error('Error creating forum post:', err);
-      setErrorMsg(err.message || 'Gagal mengirim postingan forum.');
+      console.error('Error updating forum post:', err);
+      setErrorMsg(err.message || 'Gagal mengedit postingan forum.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus postingan "${post.judul}"?`)) return;
+
+    setDeleting(true);
+    setErrorMsg(null);
+
+    try {
+      // First delete likes & comments
+      await supabase.from('forum_likes').delete().eq('post_id', post.id);
+      await supabase.from('forum_comments').delete().eq('post_id', post.id);
+
+      // Then delete post
+      const { error } = await supabase.from('forum_posts').delete().eq('id', post.id);
+      if (error) throw error;
+
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      console.error('Error deleting forum post:', err);
+      setErrorMsg(err.message || 'Gagal menghapus postingan forum.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -79,11 +119,11 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#333333] bg-[#1E1E1E] shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500 text-black flex items-center justify-center font-extrabold shadow-lg shadow-amber-500/20">
-              <MessageSquare className="w-5 h-5 stroke-[2.5]" />
+              <Edit3 className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="font-heading font-bold text-lg text-white">Post Diskusi / Laporan Baru</h3>
-              <p className="text-xs text-gray-400">Bagikan info kondisi jalan, rekomendasi warkop, atau gear gowes</p>
+              <h3 className="font-heading font-bold text-lg text-white">Edit Post Forum</h3>
+              <p className="text-xs text-gray-400">Perbarui isi postingan atau hapus postingan forum Anda</p>
             </div>
           </div>
           <button
@@ -102,7 +142,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
             </div>
           )}
 
-          <form id="create-forum-post-form" onSubmit={handleSubmit} className="space-y-6">
+          <form id="edit-forum-post-form" onSubmit={handleSubmit} className="space-y-6">
             
             {/* SECTION 1: Judul & Kategori */}
             <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
@@ -207,29 +247,41 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 bg-[#1E1E1E] border-t border-[#333333] flex items-center justify-end space-x-3 shrink-0">
+        <div className="p-4 sm:p-5 bg-[#1E1E1E] border-t border-[#333333] flex items-center justify-between shrink-0">
           <button
             type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-lg border border-[#333333] text-gray-300 text-sm font-semibold hover:bg-[#333333] transition"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="px-4 py-2.5 rounded-lg border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500 hover:text-white transition flex items-center space-x-1.5 disabled:opacity-50"
           >
-            Batal
+            <Trash2 className="w-4 h-4" />
+            <span>{deleting ? 'Hapus...' : 'Hapus Post'}</span>
           </button>
-          <button
-            type="submit"
-            form="create-forum-post-form"
-            disabled={loading}
-            className="px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition shadow-lg shadow-amber-500/20 flex items-center space-x-2 disabled:opacity-50 active:scale-95 cursor-pointer"
-          >
-            {loading ? (
-              <span>Mengirim...</span>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span>Kirim Postingan</span>
-              </>
-            )}
-          </button>
+
+          <div className="flex space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-lg border border-[#333333] text-gray-300 text-sm font-semibold hover:bg-[#333333] transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form="edit-forum-post-form"
+              disabled={loading}
+              className="px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition shadow-lg shadow-amber-500/20 flex items-center space-x-2 disabled:opacity-50 active:scale-95 cursor-pointer"
+            >
+              {loading ? (
+                <span>Menyimpan...</span>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Simpan Perubahan</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -244,4 +296,3 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
     </div>
   );
 }
-

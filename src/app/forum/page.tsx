@@ -5,11 +5,13 @@ import { MessageSquare, Plus, AlertTriangle, Coffee } from 'lucide-react';
 import { supabase, ForumPost } from '@/lib/supabase';
 import ForumPostCard from '@/components/ForumPostCard';
 import CreateForumPostModal from '@/components/CreateForumPostModal';
+import EditForumPostModal from '@/components/EditForumPostModal';
 
 export default function ForumPage() {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'diskusi' | 'laporan_jalan' | 'rekomendasi_warkop'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<ForumPost | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +61,7 @@ export default function ForumPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-3">
@@ -70,7 +72,7 @@ export default function ForumPage() {
           <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-white">
             Ruang Diskusi & Laporan Jalan
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 max-w-2xl">
             Tanya jawab seputar jalur gowes, rekomendasi warung kopi, dan update perbaikan jalan real-time.
           </p>
         </div>
@@ -85,7 +87,7 @@ export default function ForumPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#333333] space-x-6 text-sm font-bold overflow-x-auto">
+      <div className="flex border-b border-[#333333] space-x-6 text-sm font-bold overflow-x-auto pb-1">
         <button
           onClick={() => setActiveTab('all')}
           className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
@@ -130,7 +132,7 @@ export default function ForumPage() {
         </button>
       </div>
 
-      {/* Posts List */}
+      {/* Posts Grid */}
       {loading ? (
         <div className="text-center py-12 text-gray-400 text-sm">Memuat diskusi forum...</div>
       ) : filteredPosts.length === 0 ? (
@@ -149,9 +151,14 @@ export default function ForumPage() {
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPosts.map((post) => (
-            <ForumPostCard key={post.id} post={post} currentUser={currentUser} />
+            <ForumPostCard
+              key={post.id}
+              post={post}
+              onEdit={(p) => setEditingPost(p)}
+              currentUser={currentUser}
+            />
           ))}
         </div>
       )}
@@ -163,6 +170,16 @@ export default function ForumPage() {
         onSuccess={fetchPosts}
         currentUser={currentUser}
       />
+
+      {/* Edit & Delete Modal */}
+      <EditForumPostModal
+        isOpen={editingPost !== null}
+        onClose={() => setEditingPost(null)}
+        onSuccess={fetchPosts}
+        post={editingPost}
+        currentUser={currentUser}
+      />
     </div>
   );
 }
+
