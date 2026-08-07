@@ -39,7 +39,20 @@ export default function Navbar() {
       }
     };
 
-    loadUserAndProfile();
+    const handleOAuthRedirect = async () => {
+      if (typeof window === 'undefined') return;
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (!code) return;
+
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) {
+        console.error('Error exchanging OAuth code for session:', error);
+      }
+      // Strip ?code=... from the address bar without a full page reload.
+      window.history.replaceState({}, '', window.location.pathname);
+    };
+
+    handleOAuthRedirect().then(loadUserAndProfile);
 
     const handleAvatarUpdate = () => {
       loadUserAndProfile();
