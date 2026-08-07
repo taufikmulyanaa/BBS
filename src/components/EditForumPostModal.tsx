@@ -31,8 +31,19 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
   useEffect(() => {
     if (post) {
       setJudul(post.judul || '');
-      setIsi(post.isi || '');
-      setLokasiPatokan(post.lokasi_patokan || '');
+      
+      let initialIsi = post.isi || '';
+      let extractedLokasi = '';
+
+      const locationRegex = /📍 Lokasi: (.*?)\n\n/;
+      const match = initialIsi.match(locationRegex);
+      if (match) {
+        extractedLokasi = match[1];
+        initialIsi = initialIsi.replace(locationRegex, '');
+      }
+
+      setIsi(initialIsi.trim());
+      setLokasiPatokan(extractedLokasi);
 
       if (post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan') {
         setTipe('laporan_jalan');
@@ -59,9 +70,10 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
       const isWarkop = tipe === 'rekomendasi_warkop';
       const warkopTag = '[WARKOP]';
       
-      const fullContent = isWarkop && !isi.includes(warkopTag)
-        ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${isi}`
-        : lokasiPatokan && !isi.includes('📍 Lokasi:') ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
+      const cleanIsi = isi.trim();
+      const fullContent = isWarkop && !cleanIsi.includes(warkopTag)
+        ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${cleanIsi}`
+        : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${cleanIsi}` : cleanIsi;
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
       const finalJudul = isWarkop && !judul.includes(warkopTag) 
@@ -74,7 +86,6 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
           judul: finalJudul,
           isi: fullContent,
           tipe: dbType,
-          lokasi_patokan: lokasiPatokan || null,
         })
         .eq('id', post.id);
 
