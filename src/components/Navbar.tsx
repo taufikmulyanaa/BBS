@@ -44,12 +44,20 @@ export default function Navbar() {
       const code = new URLSearchParams(window.location.search).get('code');
       if (!code) return;
 
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) {
-        console.error('Error exchanging OAuth code for session:', error);
+      try {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error('Error exchanging OAuth code for session:', error);
+        }
+      } catch (err) {
+        // Can throw (rather than return {error}) e.g. when the code has
+        // already been exchanged/expired — happens if this effect re-runs
+        // (Fast Refresh, a manual reload) before the URL is cleaned up.
+        console.error('Error exchanging OAuth code for session:', err);
+      } finally {
+        // Strip ?code=... from the address bar without a full page reload.
+        window.history.replaceState({}, '', window.location.pathname);
       }
-      // Strip ?code=... from the address bar without a full page reload.
-      window.history.replaceState({}, '', window.location.pathname);
     };
 
     handleOAuthRedirect().then(loadUserAndProfile);
