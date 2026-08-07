@@ -38,10 +38,10 @@ export default function OpenRidesPage() {
         // Fetch joined rides for current user
         const { data: participants } = await supabase
           .from('ride_participants')
-          .select('ride_id')
+          .select('open_ride_id')
           .eq('user_id', user.id);
         if (participants) {
-          setJoinedRideIds(participants.map((p) => p.ride_id));
+          setJoinedRideIds(participants.map((p) => p.open_ride_id));
         }
       }
     });

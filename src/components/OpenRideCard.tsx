@@ -29,7 +29,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
       const { count } = await supabase
         .from('ride_participants')
         .select('*', { count: 'exact', head: true })
-        .eq('ride_id', ride.id);
+        .eq('open_ride_id', ride.id);
 
       if (count !== null) {
         setParticipantsCount(count);
@@ -41,7 +41,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
         const { data } = await supabase
           .from('ride_participants')
           .select('id')
-          .eq('ride_id', ride.id)
+          .eq('open_ride_id', ride.id)
           .eq('user_id', currentUser.id)
           .single();
 
@@ -76,7 +76,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
         await supabase
           .from('ride_participants')
           .delete()
-          .match({ ride_id: ride.id, user_id: currentUser.id });
+          .match({ open_ride_id: ride.id, user_id: currentUser.id });
 
         setJoined(false);
         setParticipantsCount((prev) => Math.max(0, prev - 1));
@@ -86,7 +86,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
         // Join ride
         await supabase
           .from('ride_participants')
-          .insert([{ ride_id: ride.id, user_id: currentUser.id, status: 'terkonfirmasi' }]);
+          .insert([{ open_ride_id: ride.id, user_id: currentUser.id }]);
 
         setJoined(true);
         setParticipantsCount((prev) => prev + 1);

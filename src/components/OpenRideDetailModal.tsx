@@ -22,9 +22,9 @@ import LoginRequiredModal from './LoginRequiredModal';
 
 type Participant = {
   id: string;
-  ride_id: string;
+  open_ride_id: string;
   user_id: string;
-  status: 'terkonfirmasi' | 'hadir' | 'tidak_hadir';
+  status: 'terdaftar' | 'hadir' | 'tidak_hadir';
   created_at?: string;
   user_name?: string;
   user_avatar?: string;
@@ -108,14 +108,14 @@ export default function OpenRideDetailModal({
       const { data, error } = await supabase
         .from('ride_participants')
         .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
-        .eq('ride_id', ride.id);
+        .eq('open_ride_id', ride.id);
 
       if (!error && data) {
         const formatted: Participant[] = data.map((p: any) => ({
           id: p.id,
-          ride_id: p.ride_id,
+          open_ride_id: p.open_ride_id,
           user_id: p.user_id,
-          status: p.status || 'terkonfirmasi',
+          status: p.status_konfirmasi || 'terdaftar',
           created_at: p.created_at,
           user_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
           user_avatar: p.profiles?.foto_profil_url || '',
@@ -181,7 +181,7 @@ export default function OpenRideDetailModal({
         await supabase
           .from('ride_participants')
           .delete()
-          .match({ ride_id: ride.id, user_id: currentUser.id });
+          .match({ open_ride_id: ride.id, user_id: currentUser.id });
 
         setParticipants((prev) => prev.filter((p) => p.user_id !== currentUser.id));
         setIsJoined(false);
@@ -202,9 +202,9 @@ export default function OpenRideDetailModal({
           .from('ride_participants')
           .insert([
             {
-              ride_id: ride.id,
+              open_ride_id: ride.id,
               user_id: currentUser.id,
-              status: 'terkonfirmasi',
+              status_konfirmasi: 'terdaftar',
             },
           ])
           .select();
@@ -212,9 +212,9 @@ export default function OpenRideDetailModal({
         if (!error && data) {
           const newPart: Participant = {
             id: data[0].id,
-            ride_id: ride.id,
+            open_ride_id: ride.id,
             user_id: currentUser.id,
-            status: 'terkonfirmasi',
+            status: 'terdaftar',
             user_name: userName,
             user_avatar: userAvatar,
           };
@@ -231,14 +231,14 @@ export default function OpenRideDetailModal({
     }
   };
 
-  const handleUpdateStatus = async (participantUserId: string, newStatus: 'hadir' | 'tidak_hadir' | 'terkonfirmasi') => {
+  const handleUpdateStatus = async (participantUserId: string, newStatus: 'hadir' | 'tidak_hadir' | 'terdaftar') => {
     if (!isCreatorOrAdmin) return;
 
     try {
       await supabase
         .from('ride_participants')
-        .update({ status: newStatus })
-        .match({ ride_id: ride.id, user_id: participantUserId });
+        .update({ status_konfirmasi: newStatus })
+        .match({ open_ride_id: ride.id, user_id: participantUserId });
 
       setParticipants((prev) =>
         prev.map((p) => (p.user_id === participantUserId ? { ...p, status: newStatus } : p))
@@ -274,7 +274,7 @@ export default function OpenRideDetailModal({
       await supabase
         .from('ride_participants')
         .delete()
-        .match({ ride_id: ride.id, user_id: participantUserId });
+        .match({ open_ride_id: ride.id, user_id: participantUserId });
 
       setParticipants((prev) => prev.filter((p) => p.user_id !== participantUserId));
       if (participantUserId === currentUser?.id) {

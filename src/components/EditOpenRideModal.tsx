@@ -101,7 +101,7 @@ export default function EditOpenRideModal({ isOpen, onClose, onSuccess, ride, cu
 
     try {
       // First delete participants
-      await supabase.from('ride_participants').delete().eq('ride_id', ride.id);
+      await supabase.from('ride_participants').delete().eq('open_ride_id', ride.id);
 
       // Then delete open ride
       const { error } = await supabase.from('open_rides').delete().eq('id', ride.id);

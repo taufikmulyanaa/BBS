@@ -58,9 +58,9 @@ export default function CreateOpenRideModal({ isOpen, onClose, onSuccess, curren
       if (data && data[0]) {
         await supabase.from('ride_participants').insert([
           {
-            ride_id: data[0].id,
+            open_ride_id: data[0].id,
             user_id: currentUser.id,
-            status: 'terkonfirmasi',
+            status_konfirmasi: 'terdaftar',
           },
         ]);
       }
