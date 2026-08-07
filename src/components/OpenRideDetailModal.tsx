@@ -455,7 +455,7 @@ export default function OpenRideDetailModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {participants.map((p) => (
                     <div
-                      key={p.id}
+                      key={p.user_id}
                       className="bg-[#262626] border border-[#333333] p-3 rounded-xl flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-2.5 overflow-hidden pr-2">

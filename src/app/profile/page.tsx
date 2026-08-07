@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [namaLengkap, setNamaLengkap] = useState('');
   const [bio, setBio] = useState('Anggota Komunitas Guyub Gowes Bapak-Bapak Sepedahan. Hobi gowes pagi penikmat pisang goreng.');
+  const [kotaBasecamp, setKotaBasecamp] = useState('');
   const [fotoProfilUrl, setFotoProfilUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -48,6 +49,7 @@ export default function ProfilePage() {
           if (profile) {
             if (profile.bio) setBio(profile.bio);
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
+            if (profile.kota_basecamp) setKotaBasecamp(profile.kota_basecamp);
             
             if (profile.role === 'admin') {
               setIsAdmin(true);
@@ -232,6 +234,7 @@ export default function ProfilePage() {
           id: user.id,
           nama_lengkap: namaLengkap,
           bio,
+          kota_basecamp: kotaBasecamp,
           foto_profil_url: fotoProfilUrl,
           updated_at: new Date().toISOString(),
         });
@@ -453,6 +456,12 @@ export default function ProfilePage() {
                 <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span>{user?.email || 'anggota@guyubgowes.com'}</span>
               </p>
+              {kotaBasecamp && (
+                <p className="text-xs text-gray-400 flex items-center justify-center space-x-1.5 mt-1">
+                  <Navigation className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span>{kotaBasecamp}</span>
+                </p>
+              )}
 
               <div className="pt-2 flex justify-center">
                 <span className="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold px-3.5 py-1 rounded-full flex items-center space-x-1.5">
@@ -496,6 +505,17 @@ export default function ProfilePage() {
                       onChange={(e) => setBio(e.target.value)}
                       rows={3}
                       className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-500 resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 mb-1">Kota / Kecamatan Basecamp (Cth: Bandung Selatan)</label>
+                    <input
+                      type="text"
+                      value={kotaBasecamp}
+                      onChange={(e) => setKotaBasecamp(e.target.value)}
+                      placeholder="Masukkan kota domisili gowes..."
+                      className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
 
