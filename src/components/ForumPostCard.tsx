@@ -160,14 +160,19 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
     }
   };
 
+  const localAvatar = currentUser && typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${currentUser.id}`) : null;
+  const authorAvatar = isAuthor
+    ? (localAvatar || post.author_avatar || currentUser?.user_metadata?.custom_avatar)
+    : post.author_avatar;
+
   return (
     <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-3 transition-all shadow-md">
       {/* Author Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center border border-amber-500/40">
-            {post.author_avatar ? (
-              <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold overflow-hidden flex items-center justify-center border border-amber-500/40 shrink-0">
+            {authorAvatar ? (
+              <img src={authorAvatar} alt={post.author_name} className="w-full h-full object-cover" />
             ) : (
               <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
             )}

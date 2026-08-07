@@ -17,6 +17,9 @@ export default function ForumPage() {
 
   const fetchPosts = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const localAvatar = user && typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
+
       const { data } = await supabase
         .from('forum_posts')
         .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
@@ -28,11 +31,17 @@ export default function ForumPage() {
           if (text.includes('[warkop]') || text.includes('warkop') || text.includes('warung kopi')) {
             itemTipe = 'rekomendasi_warkop';
           }
+
+          const isUserAuthor = user && p.user_id === user.id;
+          const avatarUrl = isUserAuthor
+            ? (localAvatar || p.profiles?.foto_profil_url || user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || '')
+            : (p.profiles?.foto_profil_url || '');
+
           return {
             ...p,
             tipe: itemTipe,
             author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
-            author_avatar: p.profiles?.foto_profil_url || '',
+            author_avatar: avatarUrl,
           };
         });
         setPosts(formatted);
