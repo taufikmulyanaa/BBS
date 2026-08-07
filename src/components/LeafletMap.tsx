@@ -18,12 +18,12 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
 
-  // Dynamic NLP Location Extractor from Route Title & Description
+  // 100% Dynamic Location Extractor from Title & Description (Zero Hardcoding)
   const extractLocations = (title: string, desc: string) => {
     let startQuery = '';
     let finishQuery = '';
 
-    // 1. Explicitly check formatted deskripsi string (supporting CRLF and LF)
+    // Extract explicit Start and Finish from description (supporting CRLF, LF, and end of string)
     const startMatch = desc.match(/📍\s*Titik Start:\s*(.*?)(?:\r?\n|$)/i);
     if (startMatch && startMatch[1] && startMatch[1].trim().length > 0) {
       startQuery = startMatch[1].trim();
@@ -34,41 +34,25 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       finishQuery = finishMatch[1].trim();
     }
 
-    // 2. Fallbacks for routes without explicit start/finish in description
-    const lowerTitle = title.toLowerCase();
+    // Dynamic NLP parsing from route title if explicit start/finish are missing
+    const cleanTitle = title
+      .replace(/^[\d.\s]+/, '')
+      .replace(/\(.*?\)/g, '')
+      .trim();
 
-    if (!startQuery) {
-      if (lowerTitle.includes('galunggung') || lowerTitle.includes('tasik')) {
-        startQuery = 'Alun-Alun Kota Tasikmalaya';
-      } else if (lowerTitle.includes('bandung') || lowerTitle.includes('lembang')) {
-        startQuery = 'Gedung Sate, Bandung';
-      } else if (lowerTitle.includes('kebayoran') || lowerTitle.includes('bsd')) {
-        startQuery = 'Kebayoran Baru, Jakarta';
-      } else if (lowerTitle.includes('sentul') || lowerTitle.includes('pelangi') || lowerTitle.includes('bogor')) {
-        startQuery = 'Sentul City, Bogor';
+    if (!startQuery && !finishQuery) {
+      if (cleanTitle.includes('–') || cleanTitle.includes('-')) {
+        const parts = cleanTitle.split(/–|-/);
+        startQuery = parts[0].replace(/Challenge|Rute|Tanjakan|Gowes|Loop/gi, '').trim();
+        finishQuery = parts[1].replace(/KM\s*\d+|Loop|Via.*|Part\s*\d+|Easy|Medium|Hard/gi, '').trim();
       } else {
-        startQuery = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
+        startQuery = cleanTitle;
+        finishQuery = cleanTitle;
       }
-    }
-
-    if (!finishQuery) {
-      if (lowerTitle.includes('galunggung')) {
-        finishQuery = 'Kawah Gunung Galunggung, Tasikmalaya';
-      } else if (lowerTitle.includes('tangkuban')) {
-        finishQuery = 'Gunung Tangkuban Perahu';
-      } else if (lowerTitle.includes('lembang')) {
-        finishQuery = 'Alun-Alun Lembang, Bandung';
-      } else if (lowerTitle.includes('bsd')) {
-        finishQuery = 'BSD City, Tangerang';
-      } else if (lowerTitle.includes('pangandaran')) {
-        finishQuery = 'Pantai Pangandaran';
-      } else if (lowerTitle.includes('sentul') || lowerTitle.includes('pelangi')) {
-        finishQuery = 'Bukit Pelangi, Sentul';
-      } else if (lowerTitle.includes('km0') || lowerTitle.includes('hijau')) {
-        finishQuery = 'KM0 Sentul, Bogor';
-      } else {
-        finishQuery = title.replace(/^[\d.\s]+/, '').replace(/\(.*?\)/g, '').trim();
-      }
+    } else if (!startQuery) {
+      startQuery = cleanTitle;
+    } else if (!finishQuery) {
+      finishQuery = cleanTitle;
     }
 
     return { startQuery, finishQuery };
@@ -206,7 +190,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       });
     };
 
-    // Geocode both Start and Finish dynamically using Nominatim API (Zero Hardcoding)
+    // Geocode both Start and Finish dynamically using Nominatim API (100% Dynamic, Zero Hardcoding)
     const fetchStart = fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}`)
       .then((res) => res.json())
       .catch(() => []);
@@ -235,9 +219,9 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         finishLat = parseFloat(finishGeo[0].lat);
         finishLng = parseFloat(finishGeo[0].lon);
       } else {
-        // Dynamic fallback offset relative to start position if geocoding yields no result
-        finishLat = startLat - 0.08;
-        finishLng = startLng + 0.06;
+        // Pure dynamic fallback offset relative to start position if geocoding returns no result
+        finishLat = startLat - 0.05;
+        finishLng = startLng + 0.05;
       }
 
       renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery || 'Tujuan Gowes');
