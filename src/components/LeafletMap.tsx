@@ -199,8 +199,21 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
     const formatGeocodeQuery = (q: string) => {
       if (!q) return '';
-      const clean = q.trim();
-      return clean.toLowerCase().includes('indonesia') ? clean : `${clean}, Indonesia`;
+      let clean = q.trim();
+      const lower = clean.toLowerCase();
+
+      // Disambiguate beach & mountain POIs for OpenStreetMap Nominatim
+      if (lower === 'batu hiu' || lower.includes('batu hiu')) {
+        return 'Pantai Batu Hiu, Pangandaran, Jawa Barat';
+      }
+      if (lower === 'pangandaran') {
+        return 'Pantai Pangandaran, Jawa Barat';
+      }
+
+      if (!lower.includes('jawa') && !lower.includes('indonesia')) {
+        return `${clean}, Jawa Barat, Indonesia`;
+      }
+      return clean;
     };
 
     // Geocode both Start and Finish dynamically using Nominatim API (100% Dynamic, Zero Hardcoding)
