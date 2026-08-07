@@ -52,7 +52,7 @@ export type ForumPost = {
   route_id?: string;
   user_id?: string;
   author_id?: string;
-  tipe: 'diskusi' | 'laporan_kondisi' | 'laporan_jalan' | 'rekomendasi_warkop';
+  tipe: 'diskusi' | 'laporan_kondisi' | 'laporan_jalan' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel';
   judul: string;
   isi: string;
   lokasi_patokan?: string;

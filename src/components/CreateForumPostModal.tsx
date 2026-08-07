@@ -15,7 +15,7 @@ type Props = {
 
 export default function CreateForumPostModal({ isOpen, onClose, onSuccess, currentUser }: Props) {
   const [isi, setIsi] = useState('');
-  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('diskusi');
+  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel'>('diskusi');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);

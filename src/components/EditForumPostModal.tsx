@@ -17,7 +17,7 @@ type Props = {
 export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, currentUser }: Props) {
   const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
-  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('diskusi');
+  const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel'>('diskusi');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
   
   const [loading, setLoading] = useState(false);
