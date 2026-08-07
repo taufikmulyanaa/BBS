@@ -5,12 +5,14 @@ import { Calendar, Plus, Search, Filter } from 'lucide-react';
 import { supabase, OpenRide } from '@/lib/supabase';
 import OpenRideCard from '@/components/OpenRideCard';
 import CreateOpenRideModal from '@/components/CreateOpenRideModal';
+import EditOpenRideModal from '@/components/EditOpenRideModal';
 
 export default function OpenRidesPage() {
   const [rides, setRides] = useState<OpenRide[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingRide, setEditingRide] = useState<OpenRide | null>(null);
   const [joinedRideIds, setJoinedRideIds] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -146,6 +148,7 @@ export default function OpenRidesPage() {
               key={ride.id}
               ride={ride}
               onJoin={handleJoinRide}
+              onEdit={(r) => setEditingRide(r)}
               isJoined={joinedRideIds.includes(ride.id)}
               currentUser={currentUser}
             />
@@ -160,6 +163,16 @@ export default function OpenRidesPage() {
         onSuccess={fetchRides}
         currentUser={currentUser}
       />
+
+      {/* Modal Edit & Delete */}
+      <EditOpenRideModal
+        isOpen={editingRide !== null}
+        onClose={() => setEditingRide(null)}
+        onSuccess={fetchRides}
+        ride={editingRide}
+        currentUser={currentUser}
+      />
     </div>
   );
 }
+

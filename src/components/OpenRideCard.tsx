@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { OpenRide, supabase } from '@/lib/supabase';
-import { Calendar, Clock, MapPin, Users, CheckCircle2, UserPlus, Info } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, CheckCircle2, UserPlus, Info, Edit3 } from 'lucide-react';
 
 type Props = {
   ride: OpenRide;
   onJoin?: (rideId: string) => void;
+  onEdit?: (ride: OpenRide) => void;
   isJoined?: boolean;
   currentUser?: any;
 };
 
-export default function OpenRideCard({ ride, onJoin, isJoined = false, currentUser }: Props) {
+export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, currentUser }: Props) {
   const [joined, setJoined] = useState(isJoined);
   const [participantsCount, setParticipantsCount] = useState(ride.participant_count || 5);
   const [loading, setLoading] = useState(false);
+
+  const isCreator =
+    currentUser &&
+    ((ride.creator_id && currentUser.id === ride.creator_id) ||
+      (ride.dibuat_oleh && currentUser.id === ride.dibuat_oleh));
 
   const handleJoinClick = async () => {
     if (!currentUser) {
@@ -81,26 +87,39 @@ export default function OpenRideCard({ ride, onJoin, isJoined = false, currentUs
   };
 
   return (
-    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-lg flex flex-col justify-between">
+    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-4 transition-all shadow-lg flex flex-col justify-between group">
       <div className="space-y-3">
-        {/* Date & Badge */}
+        {/* Date & Badge & Edit Button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-[#EA9B28] font-semibold bg-[#EA9B28]/10 border border-[#EA9B28]/20 px-3 py-1 rounded-full">
             <Calendar className="w-3.5 h-3.5" />
             <span suppressHydrationWarning>{formatDate(ride.tanggal_waktu)}</span>
           </div>
 
-          <span
-            className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
-              ride.level === 'easy'
-                ? 'bg-[#5DBB63]/20 border-[#5DBB63]/40 text-[#8ee594]'
-                : ride.level === 'medium'
-                ? 'bg-[#EA9B28]/20 border-[#EA9B28]/40 text-[#F7C56A]'
-                : 'bg-[#D9534F]/20 border-[#D9534F]/40 text-[#ff9996]'
-            }`}
-          >
-            {ride.level}
-          </span>
+          <div className="flex items-center space-x-2">
+            {(isCreator || onEdit) && (
+              <button
+                type="button"
+                onClick={() => onEdit && onEdit(ride)}
+                className="p-1.5 rounded-lg bg-[#1A1A1A] hover:bg-amber-500 hover:text-black text-amber-400 border border-[#333333] transition"
+                title="Edit / Hapus Open Ride"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            <span
+              className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                ride.level === 'easy'
+                  ? 'bg-[#5DBB63]/20 border-[#5DBB63]/40 text-[#8ee594]'
+                  : ride.level === 'medium'
+                  ? 'bg-[#EA9B28]/20 border-[#EA9B28]/40 text-[#F7C56A]'
+                  : 'bg-[#D9534F]/20 border-[#D9534F]/40 text-[#ff9996]'
+              }`}
+            >
+              {ride.level}
+            </span>
+          </div>
         </div>
 
         {/* Title */}

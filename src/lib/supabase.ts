@@ -41,6 +41,7 @@ export type OpenRide = {
   kuota_maks: number;
   catatan?: string;
   status: 'akan_datang' | 'selesai' | 'dibatalkan';
+  creator_id?: string;
   dibuat_oleh?: string;
   created_at: string;
   participant_count?: number;
