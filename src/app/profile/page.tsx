@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Bookmark, Calendar, MessageSquare, Shield, Edit3, Bike, Check, Camera, LogOut, Upload, Mail, Award, Navigation, ChevronRight, LogIn, Lock } from 'lucide-react';
+import { User, Bookmark, Calendar, MessageSquare, Shield, Edit3, Bike, Check, Camera, LogOut, Upload, Mail, Award, Navigation, ChevronRight, LogIn, Lock, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -18,6 +18,8 @@ export default function ProfilePage() {
   const [stats, setStats] = useState({ savedRoutes: 0, ridesJoined: 0, forumPosts: 0 });
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -270,19 +272,24 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRemoveUser = async (targetUserId: string, userName: string) => {
-    if (!confirm(`PERINGATAN: Apakah Anda yakin ingin menghapus akun pengguna "${userName}" secara permanen? Semua data terkait (rute, postingan) juga akan terhapus.`)) return;
+  const handleRemoveUserClick = (targetUserId: string, userName: string) => {
+    setUserToDelete({ id: targetUserId, name: userName });
+  };
 
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsDeletingUser(true);
     try {
-      const { error } = await supabase.rpc('admin_delete_user', { target_user_id: targetUserId });
+      const { error } = await supabase.rpc('admin_delete_user', { target_user_id: userToDelete.id });
       if (error) throw error;
 
-      // Update local state by removing the user
-      setAllProfiles((prev) => prev.filter(p => p.id !== targetUserId));
-      alert(`Berhasil menghapus pengguna ${userName}.`);
+      setAllProfiles((prev) => prev.filter(p => p.id !== userToDelete.id));
+      setUserToDelete(null);
     } catch (err: any) {
       console.error('Error deleting user:', err);
       alert(`Gagal menghapus pengguna: ${err.message}`);
+    } finally {
+      setIsDeletingUser(false);
     }
   };
 
@@ -632,11 +639,11 @@ export default function ProfilePage() {
                           </button>
                           
                           <button
-                            onClick={() => handleRemoveUser(p.id, p.nama_lengkap)}
-                            className="text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition"
+                            onClick={() => handleRemoveUserClick(p.id, p.nama_lengkap)}
+                            className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition flex items-center justify-center"
                             title="Hapus Pengguna Secara Permanen"
                           >
-                            Hapus
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -649,6 +656,47 @@ export default function ProfilePage() {
 
         </div>
       </div>
+
+      {/* Delete User Modal */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setUserToDelete(null)} />
+          <div className="relative bg-[#1A1A1A] border border-[#333333] rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+            <div className="flex items-center space-x-3 text-red-400 border-b border-[#333333] pb-3">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="font-bold text-lg">Konfirmasi Hapus</h3>
+            </div>
+            <p className="text-sm text-gray-300 leading-relaxed">
+              Apakah Anda yakin ingin menghapus akun <span className="font-bold text-white">{userToDelete.name}</span> secara permanen?
+            </p>
+            <p className="text-xs text-red-400/80 italic">
+              Semua data terkait pengguna ini akan hilang dan tidak dapat dipulihkan.
+            </p>
+            <div className="flex space-x-3 pt-2">
+              <button
+                onClick={() => setUserToDelete(null)}
+                className="flex-1 bg-[#262626] hover:bg-[#333333] border border-[#42403B] text-gray-300 font-semibold text-sm py-2.5 rounded-xl transition"
+                disabled={isDeletingUser}
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                className="flex-1 bg-red-500 hover:bg-red-400 text-white font-bold text-sm py-2.5 rounded-xl transition flex items-center justify-center space-x-2"
+                disabled={isDeletingUser}
+              >
+                {isDeletingUser ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                <span>{isDeletingUser ? 'Menghapus...' : 'Ya, Hapus'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
