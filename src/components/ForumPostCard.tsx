@@ -376,7 +376,9 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
               if (!isDetailView) router.push(`/forum/${post.id}`);
             }}
           >
-            {post.judul && post.judul !== cleanIsiText.slice(0, post.judul.length) && (
+            {post.judul && 
+             !cleanIsiText.toLowerCase().includes(post.judul.replace(/\[.*?\]|☕|\.+$/g, '').trim().toLowerCase()) && 
+             !post.judul.toLowerCase().includes(cleanIsiText.slice(0, 20).toLowerCase().trim()) && (
                <h3 className="font-bold text-[15px] text-white leading-snug mb-1">
                  {post.judul}
                </h3>
