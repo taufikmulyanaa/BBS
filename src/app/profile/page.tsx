@@ -270,6 +270,22 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemoveUser = async (targetUserId: string, userName: string) => {
+    if (!confirm(`PERINGATAN: Apakah Anda yakin ingin menghapus akun pengguna "${userName}" secara permanen? Semua data terkait (rute, postingan) juga akan terhapus.`)) return;
+
+    try {
+      const { error } = await supabase.rpc('admin_delete_user', { target_user_id: targetUserId });
+      if (error) throw error;
+
+      // Update local state by removing the user
+      setAllProfiles((prev) => prev.filter(p => p.id !== targetUserId));
+      alert(`Berhasil menghapus pengguna ${userName}.`);
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      alert(`Gagal menghapus pengguna: ${err.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[50vh]">
@@ -603,16 +619,26 @@ export default function ProfilePage() {
                       </div>
                       
                       {p.id !== user.id && (
-                        <button
-                          onClick={() => handleDelegateRole(p.id, p.role)}
-                          className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition ${
-                            p.role === 'admin'
-                              ? 'border-red-500/30 text-red-400 hover:bg-red-500/10'
-                              : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
-                          }`}
-                        >
-                          {p.role === 'admin' ? 'Cabut Admin' : 'Jadikan Admin'}
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleDelegateRole(p.id, p.role)}
+                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition ${
+                              p.role === 'admin'
+                                ? 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
+                                : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
+                            }`}
+                          >
+                            {p.role === 'admin' ? 'Cabut Admin' : 'Jadikan Admin'}
+                          </button>
+                          
+                          <button
+                            onClick={() => handleRemoveUser(p.id, p.nama_lengkap)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition"
+                            title="Hapus Pengguna Secara Permanen"
+                          >
+                            Hapus
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}
