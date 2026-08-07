@@ -132,10 +132,10 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
-                        ? 'text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20'
-                        : 'text-gray-400 hover:text-white hover:bg-[#262626]'
+                        ? 'text-amber-400 font-bold'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : ''}`} />
@@ -210,10 +210,10 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-base font-medium ${
+                  className={`flex items-center space-x-3 px-3 py-2.5 text-base font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#EA9B28]/20 text-[#EA9B28] font-bold'
-                      : 'text-[#B9BEC3] hover:text-[#F5F5F5] hover:bg-[#232322]'
+                      ? 'text-amber-400 font-bold'
+                      : 'text-[#B9BEC3] hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
