@@ -42,9 +42,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-[#222222] text-sm text-center text-gray-600 flex items-center justify-center space-x-1">
-        <span>© 2026 Bapak-Bapak Sepedahan Club. Gowes Bareng, Guyub Rukun, Sehat & Bahagia. Dibuat dengan</span>
-        <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline mx-1" />
-        <span>untuk Komunitas Gowes Indonesia.</span>
+        <span>© 2026 Bapak-Bapak Sepedahan Club. Gowes Bareng, Guyub Rukun, Sehat & Bahagia.</span>
       </div>
     </footer>
   );
