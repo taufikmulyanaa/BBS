@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Bookmark, Calendar, MessageSquare, Shield, Edit3, Bike, Check, Camera, LogOut, Upload, Mail, Award, Navigation, ChevronRight } from 'lucide-react';
+import { User, Bookmark, Calendar, MessageSquare, Shield, Edit3, Bike, Check, Camera, LogOut, Upload, Mail, Award, Navigation, ChevronRight, LogIn, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [namaLengkap, setNamaLengkap] = useState('');
   const [bio, setBio] = useState('Anggota Komunitas Guyub Gowes Bapak-Bapak Sepedahan. Hobi gowes pagi penikmat pisang goreng.');
   const [fotoProfilUrl, setFotoProfilUrl] = useState('');
@@ -18,8 +19,11 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    const loadProfile = async () => {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
       if (user) {
         setNamaLengkap(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anggota Gowes');
         
@@ -38,7 +42,6 @@ export default function ProfilePage() {
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
             if (profile.foto_profil_url) {
               liveAvatar = profile.foto_profil_url;
-              // Update local cache with DB truth if it's an HTTP URL
               if (liveAvatar.startsWith('http') && typeof window !== 'undefined') {
                 localStorage.setItem(`bbs_avatar_${user.id}`, liveAvatar);
                 setFotoProfilUrl(liveAvatar);
@@ -64,18 +67,22 @@ export default function ProfilePage() {
           ridesJoined: ridesCount || 0,
           forumPosts: postsCount || 0,
         });
-      } else {
-        // Fallback count from public tables
-        const { count: routesCount } = await supabase.from('routes').select('*', { count: 'exact', head: true });
-        const { count: ridesCount } = await supabase.from('open_rides').select('*', { count: 'exact', head: true });
-        const { count: postsCount } = await supabase.from('forum_posts').select('*', { count: 'exact', head: true });
-        setStats({
-          savedRoutes: routesCount || 0,
-          ridesJoined: ridesCount || 0,
-          forumPosts: postsCount || 0,
-        });
+      }
+      setLoading(false);
+    };
+
+    loadProfile();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        loadProfile();
       }
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,6 +209,48 @@ export default function ProfilePage() {
     await supabase.auth.signOut();
     window.location.href = '/';
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-gray-400 text-sm">Memuat profil...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+        <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center text-amber-400 shadow-xl">
+          <Lock className="w-10 h-10" />
+        </div>
+        <div className="max-w-md space-y-2">
+          <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-white">
+            Akses Dibatasi
+          </h1>
+          <p className="text-sm text-gray-400 leading-relaxed">
+            Halaman profil hanya dapat diakses oleh anggota yang sudah masuk ke akun. Silakan masuk atau daftar akun terlebih dahulu.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open_auth_modal'))}
+            className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm px-6 py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
+          >
+            <LogIn className="w-4 h-4 stroke-[2.5]" />
+            <span>Masuk / Daftar Sekarang</span>
+          </button>
+          <Link
+            href="/"
+            className="w-full sm:w-auto bg-[#262626] hover:bg-[#333333] border border-[#42403B] text-gray-300 font-semibold text-sm px-6 py-3 rounded-xl transition"
+          >
+            Kembali ke Beranda
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
