@@ -23,16 +23,25 @@ export default function ProfilePage() {
       if (user) {
         setNamaLengkap(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anggota Gowes');
         
-        // Priority 1: localStorage custom avatar
-        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
-
-        // Priority 2: Google OAuth / Metadata avatar
-        const googleAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-        
-        if (localAvatar) {
-          setFotoProfilUrl(localAvatar);
-        } else if (googleAvatar) {
-          setFotoProfilUrl(googleAvatar);
+        // Priority 1: Supabase DB profile
+        try {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+          if (profile) {
+            if (profile.bio) setBio(profile.bio);
+            if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
+            if (profile.foto_profil_url) {
+              setFotoProfilUrl(profile.foto_profil_url);
+            } else {
+              const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+              setFotoProfilUrl(fallbackAvatar);
+            }
+          } else {
+            const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+            setFotoProfilUrl(fallbackAvatar);
+          }
+        } catch (e) {
+          const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+          setFotoProfilUrl(fallbackAvatar);
         }
 
         // Fetch real stats from Supabase
@@ -45,18 +54,6 @@ export default function ProfilePage() {
           ridesJoined: ridesCount || 0,
           forumPosts: postsCount || 0,
         });
-
-        // Try fetching profile from Supabase with maybeSingle() to avoid PGRST116 throw
-        try {
-          const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-          if (profile) {
-            if (profile.bio) setBio(profile.bio);
-            if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
-            if (profile.foto_profil_url && !localAvatar) setFotoProfilUrl(profile.foto_profil_url);
-          }
-        } catch {
-          // ignore
-        }
       } else {
         // Fallback count from public tables
         const { count: routesCount } = await supabase.from('routes').select('*', { count: 'exact', head: true });
@@ -80,8 +77,8 @@ export default function ProfilePage() {
       const img = new Image();
       img.onload = async () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 300;
-        const MAX_HEIGHT = 300;
+        const MAX_WIDTH = 180;
+        const MAX_HEIGHT = 180;
         let width = img.width;
         let height = img.height;
 
@@ -102,7 +99,7 @@ export default function ProfilePage() {
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
         setFotoProfilUrl(compressedDataUrl);
 
         // Immediate persistence in localStorage
@@ -111,21 +108,23 @@ export default function ProfilePage() {
           window.dispatchEvent(new Event('bbs_avatar_updated'));
         }
 
-        // Save to Supabase
+        // Save to Supabase DB & Auth User Metadata for cross-device sync
         if (user) {
           setSaving(true);
           try {
-            await supabase.from('profiles').upsert({
+            const { error: dbError } = await supabase.from('profiles').upsert({
               id: user.id,
               nama_lengkap: namaLengkap || user.user_metadata?.full_name || 'Anggota Gowes',
               bio,
               foto_profil_url: compressedDataUrl,
               updated_at: new Date().toISOString(),
             });
+            if (dbError) console.error('Supabase profile upsert error:', dbError);
 
-            await supabase.auth.updateUser({
+            const { error: authError } = await supabase.auth.updateUser({
               data: { custom_avatar: compressedDataUrl, avatar_url: compressedDataUrl, picture: compressedDataUrl }
             });
+            if (authError) console.error('Supabase auth updateUser error:', authError);
 
             setSavedSuccess(true);
             setTimeout(() => setSavedSuccess(false), 4000);
