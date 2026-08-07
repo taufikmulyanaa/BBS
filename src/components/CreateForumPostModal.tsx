@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, MessageSquare, MapPin, Tag, Send, Info, Layers } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { X, MessageSquare, MapPin, Tag, Send, Info, Camera, Image as ImageIcon, Navigation } from 'lucide-react';
+import { supabase, Route } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
 type Props = {
@@ -17,11 +17,45 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
   const [isi, setIsi] = useState('');
   const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('laporan_jalan');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
+  const [selectedRouteId, setSelectedRouteId] = useState<string>('');
+  const [photoUrls, setPhotoUrls] = useState<string[]>(['']);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showMapPicker, setShowMapPicker] = useState(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Fetch routes for dropdown selection
+    supabase
+      .from('routes')
+      .select('id, nama')
+      .order('nama', { ascending: true })
+      .then(({ data }) => {
+        if (data) setRoutes(data as Route[]);
+      });
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleAddPhotoField = () => {
+    if (photoUrls.length < 5) {
+      setPhotoUrls((prev) => [...prev, '']);
+    }
+  };
+
+  const handleRemovePhotoField = (index: number) => {
+    setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePhotoUrlChange = (index: number, value: string) => {
+    setPhotoUrls((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,23 +71,33 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       const isWarkop = tipe === 'rekomendasi_warkop';
       const warkopTag = '[WARKOP]';
       
-      const fullContent = isWarkop && !isi.includes(warkopTag)
+      let fullContent = isWarkop && !isi.includes(warkopTag)
         ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${isi}`
         : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
+
+      // Filter valid photo URLs
+      const validPhotos = photoUrls.map((url) => url.trim()).filter((url) => url.length > 0);
+      if (validPhotos.length > 0) {
+        fullContent += `\n\n📷 Foto Lampiran:\n${validPhotos.join('\n')}`;
+      }
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
       const finalJudul = isWarkop && !judul.includes(warkopTag) 
         ? `☕ ${warkopTag} ${judul}` 
         : judul;
 
-      const { error } = await supabase.from('forum_posts').insert([
-        {
-          judul: finalJudul,
-          isi: fullContent,
-          tipe: dbType,
-          user_id: currentUser.id,
-        },
-      ]);
+      const payload: any = {
+        judul: finalJudul,
+        isi: fullContent,
+        tipe: dbType,
+        user_id: currentUser.id,
+      };
+
+      if (selectedRouteId) {
+        payload.route_id = selectedRouteId;
+      }
+
+      const { error } = await supabase.from('forum_posts').insert([payload]);
 
       if (error) throw error;
 
@@ -63,6 +107,8 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       setJudul('');
       setIsi('');
       setLokasiPatokan('');
+      setSelectedRouteId('');
+      setPhotoUrls(['']);
     } catch (err: any) {
       console.error('Error creating forum post:', err);
       setErrorMsg(err.message || 'Gagal mengirim postingan forum.');
@@ -104,12 +150,12 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
 
           <form id="create-forum-post-form" onSubmit={handleSubmit} className="space-y-6">
             
-            {/* SECTION 1: Judul & Kategori */}
+            {/* SECTION 1: Judul, Kategori & Tautan Rute */}
             <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
               <div className="flex items-center space-x-2 text-amber-400 border-b border-[#2A2A2A] pb-2.5">
                 <Tag className="w-4 h-4" />
                 <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-amber-400">
-                  1. Judul & Kategori Forum
+                  1. Judul, Kategori & Tautan Rute
                 </h4>
               </div>
 
@@ -127,19 +173,39 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                  Kategori Post *
-                </label>
-                <select
-                  value={tipe}
-                  onChange={(e: any) => setTipe(e.target.value)}
-                  className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition cursor-pointer"
-                >
-                  <option value="laporan_jalan">🚨 Laporan Kondisi Jalan</option>
-                  <option value="diskusi">💬 Diskusi Komunitas / Gear</option>
-                  <option value="rekomendasi_warkop">☕ Rekomendasi Warkop Gowes</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                    Kategori Post *
+                  </label>
+                  <select
+                    value={tipe}
+                    onChange={(e: any) => setTipe(e.target.value)}
+                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition cursor-pointer"
+                  >
+                    <option value="laporan_jalan">🚨 Laporan Kondisi Jalan</option>
+                    <option value="diskusi">💬 Diskusi Komunitas / Gear</option>
+                    <option value="rekomendasi_warkop">☕ Rekomendasi Warkop Gowes</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                    Tautkan ke Rute (Opsional)
+                  </label>
+                  <select
+                    value={selectedRouteId}
+                    onChange={(e) => setSelectedRouteId(e.target.value)}
+                    className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition cursor-pointer"
+                  >
+                    <option value="">-- Tanpa Tautan Rute --</option>
+                    {routes.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        🚴 {r.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -179,12 +245,12 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
               </div>
             </div>
 
-            {/* SECTION 3: Isi Pesan */}
+            {/* SECTION 3: Isi Pesan & Foto Lampiran */}
             <div className="space-y-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-xl p-4 sm:p-5">
               <div className="flex items-center space-x-2 text-amber-400 border-b border-[#2A2A2A] pb-2.5">
                 <Info className="w-4 h-4" />
                 <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-amber-400">
-                  3. Detail Informasi & Pesan
+                  3. Detail Pesan & Lampiran Foto (Maks 5 Foto)
                 </h4>
               </div>
 
@@ -200,6 +266,50 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                   onChange={(e) => setIsi(e.target.value)}
                   className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500 resize-none"
                 />
+              </div>
+
+              {/* Photo Attachments URL Input Fields */}
+              <div className="space-y-2 pt-2 border-t border-[#2A2A2A]">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+                    <Camera className="w-3.5 h-3.5 text-amber-400" />
+                    <span>URL Foto Lampiran ({photoUrls.length}/5)</span>
+                  </label>
+                  {photoUrls.length < 5 && (
+                    <button
+                      type="button"
+                      onClick={handleAddPhotoField}
+                      className="text-xs text-amber-400 hover:underline font-bold"
+                    >
+                      + Tambah Foto
+                    </button>
+                  )}
+                </div>
+
+                {photoUrls.map((url, idx) => (
+                  <div key={idx} className="flex items-center space-x-2">
+                    <div className="relative flex-1">
+                      <ImageIcon className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
+                      <input
+                        type="url"
+                        placeholder={`https://... (URL Gambar ${idx + 1})`}
+                        value={url}
+                        onChange={(e) => handlePhotoUrlChange(idx, e.target.value)}
+                        className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
+                      />
+                    </div>
+                    {photoUrls.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhotoField(idx)}
+                        className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg text-xs"
+                        title="Hapus"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -244,4 +354,3 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
     </div>
   );
 }
-
