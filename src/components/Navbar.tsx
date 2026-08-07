@@ -94,7 +94,6 @@ export default function Navbar() {
     { href: '/routes', label: 'Rute', icon: Navigation },
     { href: '/open-rides', label: 'Open Ride', icon: Calendar },
     { href: '/forum', label: 'Forum', icon: MessageSquare },
-    ...(user ? [{ href: '/profile', label: 'Profil', icon: User }] : []),
   ];
 
   return (
@@ -151,9 +150,10 @@ export default function Navbar() {
                 <div className="flex items-center space-x-3">
                   <Link
                     href="/profile"
-                    className="flex items-center space-x-2 bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] px-3 py-1.5 rounded-lg text-sm text-[#F5F5F5] transition-colors"
+                    className="flex items-center bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] px-1 py-1 rounded-full text-sm text-[#F5F5F5] transition-colors"
+                    title="Profil"
                   >
-                    <div className="w-7 h-7 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-amber-500/40">
+                    <div className="w-8 h-8 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-amber-500/40">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -164,7 +164,6 @@ export default function Navbar() {
                         <span>{user.email?.charAt(0).toUpperCase() || 'U'}</span>
                       )}
                     </div>
-                    <span className="truncate max-w-[120px]">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
                   </Link>
 
                   <button

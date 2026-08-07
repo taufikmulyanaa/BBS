@@ -7,8 +7,8 @@ import 'leaflet/dist/leaflet.css';
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (lat: number, lng: number) => void;
-  defaultLocation?: { lat: number; lng: number };
+  onSelect: (lat: number, lng: number, placeName?: string) => void;
+  defaultLocation?: { lat: number; lng: number } | null;
   title?: string;
 };
 
@@ -389,7 +389,7 @@ export default function MapLocationPickerModal({ isOpen, onClose, onSelect, defa
               disabled={!selectedCoords}
               onClick={() => {
                 if (selectedCoords) {
-                  onSelect(selectedCoords.lat, selectedCoords.lng);
+                  onSelect(selectedCoords.lat, selectedCoords.lng, selectedLocationName || undefined);
                   onClose();
                 }
               }}

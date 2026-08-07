@@ -19,6 +19,8 @@ const LocationBadge = ({ lokasi }: { lokasi: string }) => {
   const [placeName, setPlaceName] = useState<string | null>(null);
   
   const match = lokasi.match(/Lat:\s*([-.\d]+),\s*Lng:\s*([-.\d]+)/i);
+  const fallbackNameMatch = lokasi.match(/-\s*(.+)$/);
+  const fallbackName = fallbackNameMatch ? fallbackNameMatch[1] : 'Memuat peta...';
   
   useEffect(() => {
     if (match) {
@@ -48,7 +50,7 @@ const LocationBadge = ({ lokasi }: { lokasi: string }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <MapPin className="w-3 h-3 shrink-0" />
-        <span className="truncate max-w-[250px]">{placeName || 'Memuat peta...'}</span>
+        <span className="truncate max-w-[250px]">{placeName || fallbackName}</span>
       </a>
     );
   }

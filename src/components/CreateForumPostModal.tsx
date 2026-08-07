@@ -362,8 +362,12 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         isOpen={showMapPicker}
         onClose={() => setShowMapPicker(false)}
         title="Pilih Lokasi"
-        onSelect={(lat, lng) => {
-          setLokasiPatokan(`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+        onSelect={(lat, lng, placeName) => {
+          let locString = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
+          if (placeName) {
+            locString += ` - ${placeName.split(',')[0]}`;
+          }
+          setLokasiPatokan(locString);
         }}
       />
     </div>
