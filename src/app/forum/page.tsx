@@ -61,6 +61,18 @@ export default function ForumPage() {
     fetchPosts();
   }, []);
 
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus postingan ini secara permanen?')) return;
+    try {
+      const { error } = await supabase.from('forum_posts').delete().eq('id', postId);
+      if (error) throw error;
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      alert('Gagal menghapus postingan.');
+    }
+  };
+
   const filteredPosts = posts.filter((post) => {
     if (activeTab === 'all') return true;
     if (activeTab === 'laporan_jalan') {
@@ -166,6 +178,7 @@ export default function ForumPage() {
               key={post.id}
               post={post}
               onEdit={(p) => setEditingPost(p)}
+              onDelete={handleDeletePost}
               currentUser={currentUser}
             />
           ))}

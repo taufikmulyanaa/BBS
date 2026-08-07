@@ -248,6 +248,24 @@ export default function OpenRideDetailModal({
     }
   };
 
+  const handleCancelRide = async () => {
+    if (!isAdmin) return;
+    if (!confirm('Peringatan Admin: Apakah Anda yakin ingin MEMBATALKAN Open Ride ini? Tindakan ini tidak dapat diurungkan.')) return;
+
+    try {
+      await supabase
+        .from('open_rides')
+        .update({ status: 'dibatalkan' })
+        .eq('id', ride?.id);
+
+      if (onRideUpdated) onRideUpdated();
+      onClose();
+    } catch (err) {
+      console.error('Error cancelling ride:', err);
+      alert('Gagal membatalkan ride.');
+    }
+  };
+
   const handleRemoveParticipant = async (participantUserId: string) => {
     if (!isCreatorOrAdmin) return;
     if (!confirm('Keluarkan anggota ini dari daftar peserta Open Ride?')) return;
@@ -551,7 +569,18 @@ export default function OpenRideDetailModal({
                 className="px-3.5 py-2.5 rounded-xl bg-[#262626] hover:bg-amber-500 hover:text-black border border-[#333333] text-xs font-bold text-amber-400 transition flex items-center space-x-1.5 shrink-0"
               >
                 <Edit3 className="w-4 h-4" />
-                <span>Edit / Hapus Ride</span>
+                <span className="hidden sm:inline">Edit / Hapus</span>
+              </button>
+            )}
+
+            {isAdmin && ride.status !== 'dibatalkan' && (
+              <button
+                onClick={handleCancelRide}
+                className="px-3.5 py-2.5 rounded-xl bg-[#262626] hover:bg-red-500 hover:text-white border border-[#333333] text-xs font-bold text-red-400 transition flex items-center space-x-1.5 shrink-0"
+                title="Batalkan Ride Paksa (Admin)"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Batal (Admin)</span>
               </button>
             )}
 

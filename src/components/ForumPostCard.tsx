@@ -170,11 +170,13 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm('Hapus komentar ini?')) return;
     try {
-      await supabase.from('forum_comments').delete().eq('id', commentId);
+      const { error } = await supabase.from('forum_comments').delete().eq('id', commentId);
+      if (error) throw error;
       setComments((prev) => prev.filter((c) => c.id !== commentId));
       setCommentsCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error('Error deleting comment:', err);
+      alert('Gagal menghapus komentar.');
     }
   };
 
@@ -248,6 +250,16 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
                     title="Edit Post"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete && onDelete(post.id)}
+                    className="p-1.5 rounded-lg bg-[#1A1A1A] hover:bg-red-500 hover:text-white text-red-400 border border-[#333333] transition"
+                    title="Hapus Post"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
