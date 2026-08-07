@@ -18,6 +18,13 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
 
+  const sanitizeLocationQuery = (str: string) => {
+    return str
+      .replace(/Coastal Ride|Challenge|Rute|Tanjakan|Gowes|Loop|Santai|Ekstrem|Segmen|Endurance|Trail|\d+\./gi, '')
+      .replace(/KM\s*\d+|Loop|Via.*|Part\s*\d+|Easy|Medium|Hard|\(.*?\)/gi, '')
+      .trim();
+  };
+
   // 100% Dynamic Location Extractor from Title & Description (Zero Hardcoding)
   const extractLocations = (title: string, desc: string) => {
     let startQuery = '';
@@ -43,16 +50,16 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
     if (!startQuery && !finishQuery) {
       if (cleanTitle.includes('–') || cleanTitle.includes('-')) {
         const parts = cleanTitle.split(/–|-/);
-        startQuery = parts[0].replace(/Challenge|Rute|Tanjakan|Gowes|Loop/gi, '').trim();
-        finishQuery = parts[1].replace(/KM\s*\d+|Loop|Via.*|Part\s*\d+|Easy|Medium|Hard/gi, '').trim();
+        startQuery = sanitizeLocationQuery(parts[0]);
+        finishQuery = sanitizeLocationQuery(parts[1]);
       } else {
-        startQuery = cleanTitle;
-        finishQuery = cleanTitle;
+        startQuery = sanitizeLocationQuery(cleanTitle);
+        finishQuery = sanitizeLocationQuery(cleanTitle);
       }
     } else if (!startQuery) {
-      startQuery = cleanTitle;
+      startQuery = sanitizeLocationQuery(cleanTitle);
     } else if (!finishQuery) {
-      finishQuery = cleanTitle;
+      finishQuery = sanitizeLocationQuery(cleanTitle);
     }
 
     return { startQuery, finishQuery };
@@ -220,8 +227,8 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
         finishLng = parseFloat(finishGeo[0].lon);
       } else {
         // Pure dynamic fallback offset relative to start position if geocoding returns no result
-        finishLat = startLat - 0.05;
-        finishLng = startLng + 0.05;
+        finishLat = startLat - 0.08;
+        finishLng = startLng + 0.08;
       }
 
       renderMapWithCoords(startLat, startLng, startQuery, finishLat, finishLng, finishQuery || 'Tujuan Gowes');
