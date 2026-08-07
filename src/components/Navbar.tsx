@@ -94,7 +94,7 @@ export default function Navbar() {
     { href: '/routes', label: 'Direktori Rute', icon: Navigation },
     { href: '/open-rides', label: 'Open Ride', icon: Calendar },
     { href: '/forum', label: 'Forum', icon: MessageSquare },
-    { href: '/profile', label: 'Profil', icon: User },
+    ...(user ? [{ href: '/profile', label: 'Profil', icon: User }] : []),
   ];
 
   return (

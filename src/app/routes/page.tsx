@@ -44,10 +44,7 @@ export default function RoutesPage() {
   }, []);
 
   const handleSaveRoute = async (routeId: string) => {
-    if (!currentUser) {
-      alert('Silakan masuk terlebih dahulu untuk menyimpan rute favorit.');
-      return;
-    }
+    if (!currentUser) return;
 
     const isSaved = savedRouteIds.includes(routeId);
 

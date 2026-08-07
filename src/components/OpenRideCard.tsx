@@ -99,7 +99,7 @@ export default function OpenRideCard({ ride, onJoin, onEdit, isJoined = false, c
           </div>
 
           <div className="flex items-center space-x-2">
-            {(isCreator || onEdit) && (
+            {(isCreator && onEdit) && (
               <button
                 type="button"
                 onClick={() => onEdit && onEdit(ride)}

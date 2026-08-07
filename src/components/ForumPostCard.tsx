@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ForumPost, supabase } from '@/lib/supabase';
 import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3 } from 'lucide-react';
+import LoginRequiredModal from './LoginRequiredModal';
 
 type Props = {
   post: ForumPost;
@@ -27,6 +28,17 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
   const [newComment, setNewComment] = useState('');
   const [commentsCount, setCommentsCount] = useState(post.comment_count || 0);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
+
+  const handleProtectedAction = (message: string, action: () => void) => {
+    if (!currentUser) {
+      setLoginMessage(message);
+      setShowLoginModal(true);
+    } else {
+      action();
+    }
+  };
 
   const isAuthor =
     currentUser &&
@@ -48,7 +60,8 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
 
   const handleLike = async () => {
     if (!currentUser) {
-      alert('Silakan masuk terlebih dahulu untuk menyukai postingan.');
+      setLoginMessage('Silakan masuk terlebih dahulu untuk menyukai postingan.');
+      setShowLoginModal(true);
       return;
     }
 
@@ -106,7 +119,8 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
     e.preventDefault();
     if (!newComment.trim()) return;
     if (!currentUser) {
-      alert('Silakan masuk terlebih dahulu untuk menulis komentar.');
+      setLoginMessage('Silakan masuk terlebih dahulu untuk menulis komentar.');
+      setShowLoginModal(true);
       return;
     }
 
@@ -187,7 +201,7 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
 
         {/* Post Type Badge & Edit Button */}
         <div className="flex items-center space-x-2">
-          {(isAuthor || onEdit) && (
+          {(isAuthor && onEdit) && (
             <button
               type="button"
               onClick={() => onEdit && onEdit(post)}
@@ -314,6 +328,13 @@ export default function ForumPostCard({ post, onLike, onEdit, currentUser }: Pro
           </form>
         </div>
       )}
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        message={loginMessage}
+      />
     </div>
   );
 }
