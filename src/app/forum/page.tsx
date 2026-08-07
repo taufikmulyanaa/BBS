@@ -172,7 +172,7 @@ export default function ForumPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="max-w-3xl mx-auto space-y-6">
           {filteredPosts.map((post) => (
             <ForumPostCard
               key={post.id}

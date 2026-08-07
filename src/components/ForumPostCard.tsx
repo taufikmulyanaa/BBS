@@ -218,8 +218,8 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
     : post.author_avatar;
 
   return (
-    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 space-y-3 transition-all shadow-md flex flex-col justify-between">
-      <div className="space-y-3">
+    <div className="bg-[#262626] border border-[#333333] hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 space-y-4 transition-all shadow-md">
+      <div className="space-y-4">
         {/* Author Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -291,11 +291,11 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
         )}
 
         {/* Content */}
-        <div className="space-y-1.5">
-          <h3 className="font-heading font-extrabold text-base text-white leading-snug">
+        <div className="space-y-2">
+          <h3 className="font-heading font-extrabold text-lg text-white leading-tight">
             {post.judul}
           </h3>
-          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
             {cleanIsiText}
           </p>
 
