@@ -16,6 +16,8 @@ export default function ProfilePage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({ savedRoutes: 0, ridesJoined: 0, forumPosts: 0 });
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +43,11 @@ export default function ProfilePage() {
           if (profile) {
             if (profile.bio) setBio(profile.bio);
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
-            if (profile.role === 'admin') setIsAdmin(true);
+            
+            if (profile.role === 'admin') {
+              setIsAdmin(true);
+              fetchAdminProfiles();
+            }
             
             if (profile.foto_profil_url) {
               liveAvatar = profile.foto_profil_url;
@@ -87,6 +93,18 @@ export default function ProfilePage() {
       subscription.unsubscribe();
     };
   }, []);
+
+  const fetchAdminProfiles = async () => {
+    setLoadingProfiles(true);
+    try {
+      const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+      if (data) setAllProfiles(data);
+    } catch (err) {
+      console.error('Error fetching all profiles:', err);
+    } finally {
+      setLoadingProfiles(false);
+    }
+  };
 
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -214,9 +232,10 @@ export default function ProfilePage() {
   };
 
   const handleToggleAdmin = async () => {
+    // This is the old demo function, keeping it just in case, but no longer exposed in the UI.
     if (!user) return;
     const newRole = isAdmin ? 'member' : 'admin';
-    if (!confirm(`Ubah role Anda menjadi ${newRole.toUpperCase()}? (Ini adalah fitur khusus demo)`)) return;
+    if (!confirm(`Ubah role Anda menjadi ${newRole.toUpperCase()}?`)) return;
     
     setSaving(true);
     try {
@@ -230,6 +249,24 @@ export default function ProfilePage() {
       alert('Gagal mengubah role: ' + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelegateRole = async (targetUserId: string, currentRole: string) => {
+    const newRole = currentRole === 'admin' ? 'member' : 'admin';
+    if (!confirm(`Ubah role pengguna ini menjadi ${newRole.toUpperCase()}?`)) return;
+
+    try {
+      const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', targetUserId);
+      if (error) throw error;
+
+      // Update local state
+      setAllProfiles((prev) => 
+        prev.map(p => p.id === targetUserId ? { ...p, role: newRole } : p)
+      );
+    } catch (err: any) {
+      console.error('Error delegating role:', err);
+      alert('Gagal mengubah role pengguna.');
     }
   };
 
@@ -407,19 +444,6 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-3">
                   <p className="text-xs text-gray-300 leading-relaxed italic">"{bio}"</p>
-                  
-                  {/* Demo Role Toggle Button */}
-                  <button
-                    onClick={handleToggleAdmin}
-                    className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border flex items-center space-x-1 transition ${
-                      isAdmin 
-                        ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' 
-                        : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
-                    }`}
-                  >
-                    <Shield className="w-3 h-3" />
-                    <span>Demo: Jadikan Saya {isAdmin ? 'Member Biasa' : 'Admin'}</span>
-                  </button>
                 </div>
               )}
 
@@ -545,6 +569,57 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Admin Management Section */}
+          {isAdmin && (
+            <div className="bg-[#262626] border border-amber-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-[#333333] pb-3">
+                <h3 className="font-heading font-bold text-base text-amber-400 flex items-center space-x-2">
+                  <Shield className="w-4 h-4" />
+                  <span>Admin Tools: Kelola Anggota</span>
+                </h3>
+              </div>
+
+              {loadingProfiles ? (
+                <p className="text-xs text-gray-400 italic">Memuat daftar anggota...</p>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                  {allProfiles.map((p) => (
+                    <div key={p.id} className="bg-[#1A1A1A] border border-[#333333] p-3 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+                          {p.foto_profil_url ? (
+                            <img src={p.foto_profil_url} alt={p.nama_lengkap} className="w-full h-full object-cover" />
+                          ) : (
+                            p.nama_lengkap?.charAt(0).toUpperCase() || 'U'
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm text-white">{p.nama_lengkap}</h4>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${p.role === 'admin' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' : 'bg-[#333333] text-gray-400'}`}>
+                            {p.role === 'admin' ? 'Admin' : 'Member'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {p.id !== user.id && (
+                        <button
+                          onClick={() => handleDelegateRole(p.id, p.role)}
+                          className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition ${
+                            p.role === 'admin'
+                              ? 'border-red-500/30 text-red-400 hover:bg-red-500/10'
+                              : 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10'
+                          }`}
+                        >
+                          {p.role === 'admin' ? 'Cabut Admin' : 'Jadikan Admin'}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </div>
