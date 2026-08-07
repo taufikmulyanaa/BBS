@@ -89,8 +89,16 @@ export default function Navbar() {
                     href="/profile"
                     className="flex items-center space-x-2 bg-[#232322] hover:bg-[#2A2A2A] border border-[#42403B] px-3 py-1.5 rounded-lg text-sm text-[#F5F5F5] transition-colors"
                   >
-                    <div className="w-6 h-6 rounded-full bg-[#EA9B28] text-[#141415] font-bold text-xs flex items-center justify-center">
-                      {user.email?.charAt(0).toUpperCase() || 'U'}
+                    <div className="w-7 h-7 rounded-full bg-amber-500 text-black font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-amber-500/40">
+                      {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
+                        <img
+                          src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{user.email?.charAt(0).toUpperCase() || 'U'}</span>
+                      )}
                     </div>
                     <span className="truncate max-w-[120px]">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
                   </Link>
