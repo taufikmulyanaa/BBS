@@ -21,6 +21,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
   const [elevasiM, setElevasiM] = useState('350');
   const [level, setLevel] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [jenisSepeda, setJenisSepeda] = useState('Semua Sepeda (All Bike)');
+  const [permukaan, setPermukaan] = useState('');
   const [tagsInput, setTagsInput] = useState('Tanjakan, Pemandangan, Kopi');
   const [gpxUrl, setGpxUrl] = useState('');
   const [gpxFileName, setGpxFileName] = useState('');
@@ -81,20 +82,19 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
         coverUrl ||
         'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80';
 
-      const startText = titikStart ? `📍 Titik Start: ${titikStart}\n` : '';
-      const finishText = titikFinish ? `🏁 Titik Finish: ${titikFinish}\n` : '';
-      const fullDeskripsi = `${startText}${finishText}🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
-
       const { error } = await supabase.from('routes').insert([
         {
           nama,
-          deskripsi: fullDeskripsi,
+          deskripsi,
           jarak_km: parseFloat(jarakKm),
           elevasi_m: parseInt(elevasiM),
           level,
           tags: tagsArray,
           gpx_file_url: gpxUrl || undefined,
           cover_image_url: defaultCover,
+          titik_awal: titikStart || undefined,
+          titik_akhir: titikFinish || undefined,
+          permukaan: permukaan || undefined,
           status_verifikasi: 'belum_diverifikasi',
           rating_avg: 0,
           rating_count: 0,
@@ -110,6 +110,7 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
       setNama('');
       setTitikStart('');
       setTitikFinish('');
+      setPermukaan('');
       setDeskripsi('');
       setGpxUrl('');
       setGpxFileName('');
@@ -278,6 +279,19 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                     <option value="hard">HARD (Tanjakan Ekstrem & Endurance)</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Kondisi Permukaan Jalan (Opsional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: 95% Aspal, 5% Beton"
+                  value={permukaan}
+                  onChange={(e) => setPermukaan(e.target.value)}
+                  className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

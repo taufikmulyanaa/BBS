@@ -22,6 +22,7 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
   const [elevasiM, setElevasiM] = useState('350');
   const [level, setLevel] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [jenisSepeda, setJenisSepeda] = useState('Semua Sepeda (All Bike)');
+  const [permukaan, setPermukaan] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [gpxUrl, setGpxUrl] = useState('');
   const [gpxFileName, setGpxFileName] = useState('');
@@ -35,26 +36,33 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
   useEffect(() => {
     if (route) {
       setNama(route.nama || '');
-      
+
+      // titik_awal/titik_akhir/permukaan are real columns now. Older routes
+      // created before those columns existed had this info crammed into
+      // `deskripsi` instead — fall back to parsing it out of there so editing
+      // an old route doesn't show these fields empty.
       let cleanDesc = route.deskripsi || '';
-      let startMatch = cleanDesc.match(/📍 Titik Start: (.*?)\n/);
+      let fallbackStart = '';
+      let fallbackFinish = '';
+      const startMatch = cleanDesc.match(/📍 Titik Start: (.*?)\n/);
       if (startMatch && startMatch[1]) {
-        setTitikStart(startMatch[1]);
+        fallbackStart = startMatch[1];
         cleanDesc = cleanDesc.replace(/📍 Titik Start: .*?\n/, '');
       }
-
-      let finishMatch = cleanDesc.match(/🏁 Titik Finish: (.*?)\n/);
+      const finishMatch = cleanDesc.match(/🏁 Titik Finish: (.*?)\n/);
       if (finishMatch && finishMatch[1]) {
-        setTitikFinish(finishMatch[1]);
+        fallbackFinish = finishMatch[1];
         cleanDesc = cleanDesc.replace(/🏁 Titik Finish: .*?\n/, '');
       }
-
-      let bikeMatch = cleanDesc.match(/🚴 Jenis Sepeda: (.*?)\n\n/);
+      const bikeMatch = cleanDesc.match(/🚴 Jenis Sepeda: (.*?)\n\n/);
       if (bikeMatch && bikeMatch[1]) {
         setJenisSepeda(bikeMatch[1]);
         cleanDesc = cleanDesc.replace(/🚴 Jenis Sepeda: .*?\n\n/, '');
       }
 
+      setTitikStart(route.titik_awal || fallbackStart);
+      setTitikFinish(route.titik_akhir || fallbackFinish);
+      setPermukaan(route.permukaan || '');
       setDeskripsi(cleanDesc.trim());
       setJarakKm(route.jarak_km?.toString() || '30');
       setElevasiM(route.elevasi_m?.toString() || '350');
@@ -112,21 +120,20 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
 
       const tagsArray = [...new Set([...baseTags, jenisSepeda])];
 
-      const startText = titikStart ? `📍 Titik Start: ${titikStart}\n` : '';
-      const finishText = titikFinish ? `🏁 Titik Finish: ${titikFinish}\n` : '';
-      const fullDeskripsi = `${startText}${finishText}🚴 Jenis Sepeda: ${jenisSepeda}\n\n${deskripsi}`;
-
       const { error } = await supabase
         .from('routes')
         .update({
           nama,
-          deskripsi: fullDeskripsi,
+          deskripsi,
           jarak_km: parseFloat(jarakKm),
           elevasi_m: parseInt(elevasiM),
           level,
           tags: tagsArray,
           gpx_file_url: gpxUrl || route.gpx_file_url,
           cover_image_url: coverUrl || route.cover_image_url,
+          titik_awal: titikStart || undefined,
+          titik_akhir: titikFinish || undefined,
+          permukaan: permukaan || undefined,
         })
         .eq('id', route.id);
 
@@ -315,6 +322,19 @@ export default function EditRouteModal({ isOpen, onClose, onSuccess, route, curr
                     <option value="hard">HARD (Tanjakan Ekstrem & Endurance)</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                  Kondisi Permukaan Jalan (Opsional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: 95% Aspal, 5% Beton"
+                  value={permukaan}
+                  onChange={(e) => setPermukaan(e.target.value)}
+                  className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition placeholder:text-gray-500"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

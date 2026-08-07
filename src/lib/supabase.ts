@@ -36,6 +36,9 @@ export type Route = {
   rating_count: number;
   dibuat_oleh?: string;
   created_at: string;
+  titik_awal?: string;
+  titik_akhir?: string;
+  permukaan?: string;
 };
 
 export type OpenRide = {
