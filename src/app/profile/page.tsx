@@ -28,7 +28,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      setLoading(true);
+      // Avoid setting loading to true here to prevent screen flashing on subsequent loads
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       
@@ -88,9 +88,10 @@ export default function ProfilePage() {
 
     loadProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
+      // Only reload profile on explicit SIGNED_IN or USER_UPDATED to prevent auto-refresh loops
+      if (session?.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
         loadProfile();
       }
     });
