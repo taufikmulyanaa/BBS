@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bike, Navigation, Calendar, MessageSquare, User, LogIn, LogOut, Menu, X, Plus, Users } from 'lucide-react';
+import { Bike, Navigation, Calendar, MessageSquare, User, LogIn, LogOut, Menu, X, Plus, Users, Flag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AuthModal from '@/components/AuthModal';
 
@@ -95,6 +95,7 @@ export default function Navbar() {
     { href: '/open-rides', label: 'Open Ride', icon: Calendar },
     { href: '/forum', label: 'Forum', icon: MessageSquare },
     { href: '/chapter', label: 'Chapter', icon: Users },
+    { href: '/events', label: 'Event', icon: Flag },
   ];
 
   return (

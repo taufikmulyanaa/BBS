@@ -51,6 +51,7 @@ export type ForumPost = {
   id: string;
   route_id?: string;
   chapter_id?: string;
+  event_id?: string;
   user_id?: string;
   author_id?: string;
   tipe: 'diskusi' | 'laporan_kondisi' | 'laporan_jalan' | 'rekomendasi_warkop' | 'jual_beli' | 'event' | 'tips' | 'bengkel';
@@ -106,5 +107,47 @@ export type ChapterEventParticipant = {
   event_id: string;
   user_id: string;
   status_konfirmasi: 'terdaftar' | 'hadir' | 'tidak_hadir';
+  joined_at: string;
+};
+
+export type BikeEvent = {
+  id: string;
+  judul: string;
+  deskripsi?: string;
+  penyelenggara?: string;
+  lokasi?: string;
+  tanggal_mulai: string;
+  tanggal_selesai?: string;
+  poster_url?: string;
+  link_pendaftaran?: string;
+  status: 'akan_datang' | 'selesai' | 'dibatalkan';
+  dibuat_oleh?: string;
+  created_at: string;
+  interest_count?: number;
+};
+
+export type BikeEventInterest = {
+  event_id: string;
+  user_id: string;
+  created_at: string;
+};
+
+export type TravelBuddyListing = {
+  id: string;
+  event_id: string;
+  user_id: string;
+  titik_berangkat: string;
+  tanggal_berangkat?: string;
+  moda?: string;
+  kuota_maks?: number;
+  catatan?: string;
+  created_at: string;
+  author_name?: string;
+  author_avatar?: string;
+};
+
+export type TravelBuddyParticipant = {
+  listing_id: string;
+  user_id: string;
   joined_at: string;
 };
