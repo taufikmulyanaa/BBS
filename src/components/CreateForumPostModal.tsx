@@ -186,12 +186,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
             Postingan Baru
           </h3>
           <div className="flex items-center space-x-4">
-             <button className="text-gray-400 hover:text-white transition hidden sm:block">
-               <FileText className="w-5 h-5" />
-             </button>
-             <button className="text-gray-400 hover:text-white transition">
-               <MoreHorizontal className="w-5 h-5" />
-             </button>
+             {/* Removed extra icons */}
           </div>
         </div>
 
@@ -204,21 +199,13 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
           )}
 
           <div className="flex">
-            {/* Left Column (Avatar + Line) */}
+            {/* Left Column (Avatar) */}
             <div className="flex flex-col items-center shrink-0 mr-3">
               <div className="w-10 h-10 rounded-full bg-[#262626] border border-[#333333] flex items-center justify-center overflow-hidden shrink-0">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="You" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-sm text-gray-400 font-bold">{username.charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <div className="w-[2px] bg-[#333333] grow my-2 min-h-[40px]"></div>
-              <div className="w-4 h-4 rounded-full bg-[#262626] border border-[#333333] flex items-center justify-center overflow-hidden shrink-0 mt-1 opacity-50">
-                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="You" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-[8px] text-gray-400 font-bold">{username.charAt(0).toUpperCase()}</span>
                 )}
               </div>
             </div>
@@ -344,18 +331,16 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                 </div>
               </div>
               
+              
               <div className="mt-4 pb-2">
-                 <span className="text-[15px] text-gray-600">Tambahkan ke diskusi</span>
+                 {/* Removed 'Tambahkan ke diskusi' */}
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 flex items-center justify-between shrink-0">
-          <button className="text-[15px] text-gray-500 hover:text-gray-300 transition flex items-center space-x-2">
-             <span>Anyone can reply</span>
-          </button>
+        <div className="p-4 flex items-center justify-end shrink-0">
           
           <button
             onClick={handleSubmit}
