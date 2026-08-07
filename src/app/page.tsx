@@ -38,32 +38,42 @@ export default function Home() {
   return (
     <div className="space-y-20 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 md:py-28 border-b border-[#42403B]/60">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#EA9B28]/15 via-[#141415] to-[#141415] pointer-events-none" />
+      <section className="relative overflow-hidden pt-16 pb-24 md:py-32 border-b border-[#42403B]/60 flex flex-col justify-center min-h-[85vh]">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/hero-bg.png" 
+            alt="Cyclists Background" 
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Overlays for depth and text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#111111] via-[#111111]/80 to-[#111111]/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#141415] via-transparent to-[#141415]/40 pointer-events-none" />
+        </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center space-x-2 bg-[#EA9B28]/10 border border-[#EA9B28]/30 px-3.5 py-1.5 rounded-full text-xs text-[#F7C56A] font-medium">
+              <div className="inline-flex items-center space-x-2 bg-[#EA9B28]/10 border border-[#EA9B28]/30 px-3.5 py-1.5 rounded-full text-xs text-[#F7C56A] font-medium backdrop-blur-sm">
                 <Sparkles className="w-4 h-4 text-[#EA9B28]" />
                 <span>Komunitas Gowes Bapak-Bapak Indonesia</span>
               </div>
 
-              <h1 className="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-[#F5F5F5] tracking-tight leading-[1.15]">
+              <h1 className="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-[#F5F5F5] tracking-tight leading-[1.15] drop-shadow-lg">
                 Gowes Lebih Seru, <br className="hidden sm:inline" />
                 <span className="amber-gradient-text">Guyub Bareng Komunitas.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-[#B9BEC3] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-base sm:text-lg text-[#D1D5DB] max-w-2xl mx-auto lg:mx-0 leading-relaxed drop-shadow-md font-medium">
                 Temukan rute sepeda pilihan dengan GPX gratis, bikin ajakan gowes bareng (Open Ride) tanpa riuh di WhatsApp, dan dapatkan laporan kondisi jalan terbaru.
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
                 <Link
                   href="/routes"
-                  className="w-full sm:w-auto bg-amber-500 text-black font-extrabold text-base px-7 py-3.5 rounded-lg transition-all hover:bg-amber-400 flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
+                  className="w-full sm:w-auto bg-amber-500 text-black font-extrabold text-base px-7 py-3.5 rounded-lg transition-all hover:bg-amber-400 flex items-center justify-center space-x-2 shadow-xl shadow-amber-500/20"
                 >
                   <Navigation className="w-5 h-5 stroke-[2.5]" />
                   <span>Jelajahi Rute</span>
@@ -71,7 +81,7 @@ export default function Home() {
 
                 <Link
                   href="/open-rides"
-                  className="w-full sm:w-auto border border-white/50 text-white font-medium text-base px-6 py-3.5 rounded-lg transition-all hover:border-amber-400 hover:text-amber-400 flex items-center justify-center space-x-2"
+                  className="w-full sm:w-auto bg-black/40 backdrop-blur-md border border-white/30 text-white font-medium text-base px-6 py-3.5 rounded-lg transition-all hover:border-amber-400 hover:text-amber-400 flex items-center justify-center space-x-2"
                 >
                   <Calendar className="w-5 h-5 text-amber-400" />
                   <span>Buat Open Ride</span>
@@ -79,36 +89,36 @@ export default function Home() {
               </div>
 
               {/* Social Proof Stats */}
-              <div className="pt-8 border-t border-[#333333] grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0">
+              <div className="pt-10 mt-6 border-t border-white/10 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0">
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400">12,458</span>
-                  <span className="text-xs text-gray-500 mt-1">Anggota Aktif</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">12,458</span>
+                  <span className="text-xs text-gray-300 mt-1 font-medium">Anggota Aktif</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400">1,236</span>
-                  <span className="text-xs text-gray-500 mt-1">Rute Terverifikasi</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">1,236</span>
+                  <span className="text-xs text-gray-300 mt-1 font-medium">Rute Terverifikasi</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400">842</span>
-                  <span className="text-xs text-gray-500 mt-1">Open Ride</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">842</span>
+                  <span className="text-xs text-gray-300 mt-1 font-medium">Open Ride</span>
                 </div>
               </div>
             </div>
 
             {/* Right Card / Visual */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden bg-[#262626] p-6 space-y-5 border border-[#333333] hover:border-amber-500/50 transition shadow-2xl">
-                <div className="flex items-center justify-between pb-3 border-b border-[#333333]">
+            <div className="lg:col-span-5 relative hidden md:block">
+              <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden bg-[#262626]/80 backdrop-blur-xl p-6 space-y-5 border border-white/10 hover:border-amber-500/50 transition shadow-2xl">
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-extrabold flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-extrabold flex items-center justify-center shadow-lg shadow-amber-500/20">
                       <Bike className="w-6 h-6 stroke-[2.5]" />
                     </div>
                     <div>
                       <h4 className="font-heading font-bold text-sm text-white">Open Ride Terdekat</h4>
-                      <span className="text-[11px] text-gray-400">Minggu Ini</span>
+                      <span className="text-[11px] text-gray-300">Minggu Ini</span>
                     </div>
                   </div>
-                  <span className="bg-green-600/20 text-green-400 border border-green-500/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                  <span className="bg-green-500/20 text-green-300 border border-green-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
                     Sisa 4 Kuota
                   </span>
                 </div>
@@ -136,7 +146,7 @@ export default function Home() {
                 <div className="pt-2">
                   <Link
                     href="/open-rides"
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all"
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all shadow-md"
                   >
                     <span>Lihat Detail & Daftar</span>
                     <ArrowRight className="w-4 h-4" />
