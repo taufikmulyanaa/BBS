@@ -21,15 +21,7 @@ export default function Navbar() {
       setUser(user);
 
       if (user) {
-        // Priority 1: localStorage custom avatar
-        const localAvatar = typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${user.id}`) : null;
-        if (localAvatar) {
-          setAvatarUrl(localAvatar);
-          return;
-        }
-
-        // Priority 2: Custom avatar from metadata or profiles table
-        let currentAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        let currentAvatar = '';
         try {
           const { data: profile } = await supabase.from('profiles').select('foto_profil_url').eq('id', user.id).maybeSingle();
           if (profile?.foto_profil_url) {
@@ -37,6 +29,10 @@ export default function Navbar() {
           }
         } catch {
           // ignore
+        }
+
+        if (!currentAvatar) {
+          currentAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
         }
 
         setAvatarUrl(currentAvatar);

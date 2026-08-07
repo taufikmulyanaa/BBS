@@ -24,25 +24,25 @@ export default function ProfilePage() {
         setNamaLengkap(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anggota Gowes');
         
         // Priority 1: Supabase DB profile
+        let liveAvatar = '';
         try {
           const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
           if (profile) {
             if (profile.bio) setBio(profile.bio);
             if (profile.nama_lengkap) setNamaLengkap(profile.nama_lengkap);
             if (profile.foto_profil_url) {
-              setFotoProfilUrl(profile.foto_profil_url);
-            } else {
-              const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-              setFotoProfilUrl(fallbackAvatar);
+              liveAvatar = profile.foto_profil_url;
             }
-          } else {
-            const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-            setFotoProfilUrl(fallbackAvatar);
           }
         } catch (e) {
-          const fallbackAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-          setFotoProfilUrl(fallbackAvatar);
+          console.error('Error fetching profile:', e);
         }
+
+        if (!liveAvatar) {
+          liveAvatar = user.user_metadata?.custom_avatar || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        }
+
+        setFotoProfilUrl(liveAvatar);
 
         // Fetch real stats from Supabase
         const { count: savedCount } = await supabase.from('saved_routes').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
