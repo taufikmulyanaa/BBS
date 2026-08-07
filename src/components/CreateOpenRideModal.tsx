@@ -123,8 +123,26 @@ export default function CreateOpenRideModal({ isOpen, onClose, onSuccess, curren
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Titik Kumpul (Meeting Point)
+              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>Titik Kumpul (Meeting Point)</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setTitikKumpul(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
+                      );
+                    }
+                  }}
+                  className="text-[10px] text-amber-400 hover:underline flex items-center space-x-0.5"
+                  title="Deteksi Lokasi GPS Saat Ini"
+                >
+                  <MapPin className="w-3 h-3" />
+                  <span>Pin GPS</span>
+                </button>
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />

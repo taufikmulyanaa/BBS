@@ -164,8 +164,26 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-                Titik Kumpul / Start
+              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>Titik Kumpul / Start</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setTitikStart(`Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        () => alert('Gagal mengambil lokasi GPS. Silakan ketik nama lokasi secara manual.')
+                      );
+                    }
+                  }}
+                  className="text-[10px] text-amber-400 hover:underline flex items-center space-x-0.5"
+                  title="Deteksi Lokasi GPS Saat Ini"
+                >
+                  <MapPin className="w-3 h-3" />
+                  <span>Pin GPS</span>
+                </button>
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-amber-400 absolute left-3 top-3" />
@@ -190,11 +208,11 @@ export default function CreateRouteModal({ isOpen, onClose, onSuccess, currentUs
                   onChange={(e) => setJenisSepeda(e.target.value)}
                   className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"
                 >
-                  <option value="Semua Sepeda (All Bike)">🚴 Semua Sepeda (All Bike)</option>
-                  <option value="Road Bike / RB">🚴‍♂️ Road Bike (Aspal Mulus)</option>
-                  <option value="Gravel Bike">🚵 Gravel / Makadam</option>
-                  <option value="MTB / Offroad">🚵‍♂️ MTB / Offroad / Tanah</option>
-                  <option value="Sepeda Lipat / Seli">🚲 Sepeda Lipat / City</option>
+                  <option value="Semua Sepeda (All Bike)">Semua Sepeda (All Bike)</option>
+                  <option value="Road Bike / RB">Road Bike (Aspal Mulus)</option>
+                  <option value="Gravel Bike">Gravel / Makadam</option>
+                  <option value="MTB / Offroad">MTB / Offroad / Tanah</option>
+                  <option value="Sepeda Lipat / Seli">Sepeda Lipat / City</option>
                 </select>
               </div>
             </div>
