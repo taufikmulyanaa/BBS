@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Smile, MoreHorizontal, FileText } from 'lucide-react';
+import { MapPin, Smile, ImageIcon } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { supabase, ForumPost } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
@@ -244,6 +244,12 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
               {/* Toolbar */}
               <div className="flex items-center space-x-4 mt-3 text-gray-500">
                 <button 
+                  className="hover:text-white transition cursor-not-allowed opacity-50" 
+                  title="Edit image belum didukung"
+                >
+                  <ImageIcon className="w-[18px] h-[18px]" />
+                </button>
+                <button 
                   onClick={() => setShowMapPicker(true)}
                   className="hover:text-white transition" 
                   title="Add Location"
@@ -285,17 +291,14 @@ export default function EditForumPostModal({ isOpen, onClose, onSuccess, post, c
               </div>
               
               <div className="mt-4 pb-2">
-                 <span className="text-[15px] text-gray-600">Simpan perubahan ke diskusi</span>
+                 {/* Removed 'Simpan perubahan ke diskusi' */}
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 flex items-center justify-between shrink-0">
-          <button className="text-[15px] text-gray-500 hover:text-gray-300 transition flex items-center space-x-2">
-             <span>Anyone can reply</span>
-          </button>
+        <div className="p-4 flex items-center justify-end shrink-0">
           
           <button
             onClick={handleSubmit}
