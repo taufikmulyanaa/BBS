@@ -5,8 +5,12 @@ import { supabase, ForumPost } from '@/lib/supabase';
 import ForumPostCard from '@/components/ForumPostCard';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { use } from 'react';
 
-export default function ForumPostDetailPage({ params }: { params: { id: string } }) {
+export default function ForumPostDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
+  const postId = unwrappedParams.id;
+
   const [post, setPost] = useState<ForumPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -24,7 +28,7 @@ export default function ForumPostDetailPage({ params }: { params: { id: string }
         const { data, error } = await supabase
           .from('forum_posts')
           .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
-          .eq('id', params.id)
+          .eq('id', postId)
           .single();
 
         if (error) throw error;
@@ -55,7 +59,7 @@ export default function ForumPostDetailPage({ params }: { params: { id: string }
     };
 
     fetchPost();
-  }, [params.id]);
+  }, [postId]);
 
   if (loading) {
     return (
