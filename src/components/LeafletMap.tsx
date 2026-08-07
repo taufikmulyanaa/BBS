@@ -40,6 +40,13 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       }
     }
 
+    // Extract custom start location name if present
+    let startLocationLabel = 'Gedung Sate (Jl. Diponegoro, Bandung)';
+    const startMatch = deskripsi.match(/📍 Titik Start: (.*?)\n/);
+    if (startMatch && startMatch[1]) {
+      startLocationLabel = startMatch[1];
+    }
+
     // 1. Gedung Sate / Diponegoro / Bandung / Lembang / Tangkuban Perahu
     if (
       lower.includes('gedung sate') ||
@@ -51,11 +58,11 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       return {
         center: [-6.8300, 107.6150] as [number, number],
         zoom: 12,
-        start: [-6.9003, 107.6186] as [number, number], // Gedung Sate, Jl. Diponegoro
+        start: [-6.9024, 107.6187] as [number, number], // Gedung Sate Main Building (Jl. Diponegoro)
         finish: [-6.7600, 107.6100] as [number, number], // Tangkuban Perahu Peak
-        startName: 'Gedung Sate (Jl. Diponegoro, Bandung)',
+        startName: startLocationLabel,
         path: [
-          [-6.9003, 107.6186], // Gedung Sate (Start)
+          [-6.9024, 107.6187], // Gedung Sate (Start)
           [-6.8650, 107.6150], // Setiabudi / Ledeng
           [-6.8150, 107.6170], // Alun-Alun Lembang
           [-6.7600, 107.6100], // Tangkuban Perahu (Finish)
