@@ -17,8 +17,61 @@ export default function RoutesPage() {
 
   const fetchRoutes = async () => {
     try {
-      const { data } = await supabase.from('routes').select('*').order('created_at', { ascending: false });
-      if (data) setRoutes(data);
+      const { data: dbRoutes } = await supabase
+        .from('routes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (dbRoutes) {
+        let allDbReviews: any[] = [];
+        try {
+          const { data: revs } = await supabase.from('route_reviews').select('route_id, rating');
+          if (revs) allDbReviews = revs;
+        } catch (e) {
+          console.error('Error fetching DB route_reviews:', e);
+        }
+
+        const formattedRoutes = dbRoutes.map((route) => {
+          let routeRatings: number[] = allDbReviews
+            .filter((r) => r.route_id === route.id)
+            .map((r) => Number(r.rating));
+
+          // Merge local user-submitted reviews if any
+          if (typeof window !== 'undefined') {
+            try {
+              const localData = localStorage.getItem(`bbs_reviews_${route.id}`);
+              if (localData) {
+                const parsed = JSON.parse(localData);
+                parsed.forEach((item: any) => {
+                  if (
+                    item.id !== 'rev-1' &&
+                    item.id !== 'rev-2' &&
+                    item.user_name !== 'Kang Asep Gowes' &&
+                    item.user_name !== 'Bapak Yudi MTB'
+                  ) {
+                    routeRatings.push(Number(item.rating));
+                  }
+                });
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          const realCount = routeRatings.length;
+          const realAvg = realCount > 0
+            ? Number((routeRatings.reduce((a, b) => a + b, 0) / realCount).toFixed(1))
+            : 0;
+
+          return {
+            ...route,
+            rating_avg: realAvg,
+            rating_count: realCount,
+          };
+        });
+
+        setRoutes(formattedRoutes);
+      }
     } catch (err) {
       console.error('Error fetching routes:', err);
     } finally {
