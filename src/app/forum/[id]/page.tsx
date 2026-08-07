@@ -27,7 +27,7 @@ export default function ForumPostDetailPage({ params }: { params: Promise<{ id: 
 
         const { data, error } = await supabase
           .from('forum_posts')
-          .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
+          .select('*, profiles:user_id(nama_lengkap, foto_profil_url), forum_comments(count)')
           .eq('id', postId)
           .single();
 
@@ -46,6 +46,7 @@ export default function ForumPostDetailPage({ params }: { params: Promise<{ id: 
 
           setPost({
             ...data,
+            comment_count: data.forum_comments?.[0]?.count || 0,
             tipe: itemTipe,
             author_name: data.profiles?.nama_lengkap || 'Anggota Gowes',
             author_avatar: avatarUrl,
@@ -91,7 +92,7 @@ export default function ForumPostDetailPage({ params }: { params: Promise<{ id: 
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <h1 className="font-heading font-extrabold text-xl text-white">
-          Thread Diskusi
+          Detail Diskusi
         </h1>
       </div>
 

@@ -22,7 +22,7 @@ export default function ForumPage() {
 
       const { data } = await supabase
         .from('forum_posts')
-        .select('*, profiles:user_id(nama_lengkap, foto_profil_url)')
+        .select('*, profiles:user_id(nama_lengkap, foto_profil_url), forum_comments(count)')
         .order('created_at', { ascending: false });
       if (data) {
         const formatted = data.map((p: any) => {
@@ -39,6 +39,7 @@ export default function ForumPage() {
 
           return {
             ...p,
+            comment_count: p.forum_comments?.[0]?.count || 0,
             tipe: itemTipe,
             author_name: p.profiles?.nama_lengkap || 'Anggota Gowes',
             author_avatar: avatarUrl,
