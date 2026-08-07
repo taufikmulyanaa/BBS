@@ -16,7 +16,7 @@ VALUES
   4.9,
   210,
   'https://lfwguyfgyyemdkpdobij.supabase.co/storage/v1/object/public/routes-gpx/amber-peak.gpx',
-  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80'
+  'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80'
 ),
 (
   'a1010000-0000-0000-0000-000000000002',

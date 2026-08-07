@@ -55,7 +55,7 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
         {/* Card Header Cover */}
         <div className="relative h-48 w-full overflow-hidden bg-[#111111]">
           <img
-            src={route.cover_image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80'}
+            src={route.cover_image_url && !route.cover_image_url.includes('1544197150-b99a580bb7a8') ? route.cover_image_url : 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80'}
             alt={route.nama}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
           />
