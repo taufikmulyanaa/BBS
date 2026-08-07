@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ForumPost, supabase } from '@/lib/supabase';
-import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3, Trash2, Camera, ExternalLink } from 'lucide-react';
+import { Heart, MessageSquare, AlertTriangle, Share2, MapPin, Send, MessageCircle, Edit3, Trash2, Camera, ExternalLink, X } from 'lucide-react';
 import LoginRequiredModal from './LoginRequiredModal';
 
 type Props = {
@@ -20,6 +20,7 @@ type CommentItem = {
   author_avatar?: string;
   isi: string;
   created_at: string;
+  parent_comment_id?: string | null;
 };
 
 export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentUser }: Props) {
@@ -28,6 +29,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [commentsCount, setCommentsCount] = useState(post.comment_count || 0);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -109,6 +111,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
         author_avatar: c.profiles?.foto_profil_url || '',
         isi: c.isi,
         created_at: c.created_at,
+        parent_comment_id: c.parent_comment_id,
       }));
       setComments(formatted);
     }
@@ -141,6 +144,7 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
           post_id: post.id,
           user_id: currentUser.id,
           isi: newComment.trim(),
+          parent_comment_id: replyingTo,
         },
       ]).select();
 
@@ -155,11 +159,13 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
             author_name: authorName,
             isi: data[0].isi,
             created_at: data[0].created_at,
+            parent_comment_id: data[0].parent_comment_id,
           },
         ]);
         setCommentsCount((prev) => prev + 1);
       }
       setNewComment('');
+      setReplyingTo(null);
     } catch (err) {
       console.error('Error sending comment:', err);
     } finally {
@@ -373,33 +379,78 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
             {comments.length === 0 ? (
               <p className="text-xs text-gray-500 italic">Belum ada komentar. Jadilah yang pertama berkomentar!</p>
             ) : (
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="p-2.5 bg-[#1A1A1A] rounded-xl border border-[#333333] text-xs space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-amber-400">{comment.author_name}</span>
-                      <div className="flex items-center space-x-2">
-                        <span suppressHydrationWarning className="text-[10px] text-gray-500">
-                          {getTimeAgo(comment.created_at)}
-                        </span>
-                        {(comment.user_id === currentUser?.id || isAdmin) && (
-                          <button
-                            onClick={() => handleDeleteComment(comment.id)}
-                            className="text-gray-500 hover:text-red-400 transition"
-                            title="Hapus Komentar"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        )}
+              <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
+                {comments.filter(c => !c.parent_comment_id).map((comment) => (
+                  <div key={comment.id} className="space-y-2">
+                    {/* Parent Comment */}
+                    <div className="p-2.5 bg-[#1A1A1A] rounded-xl border border-[#333333] text-xs space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-400">{comment.author_name}</span>
+                        <div className="flex items-center space-x-2">
+                          <span suppressHydrationWarning className="text-[10px] text-gray-500">
+                            {getTimeAgo(comment.created_at)}
+                          </span>
+                          {(comment.user_id === currentUser?.id || isAdmin) && (
+                            <button
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="text-gray-500 hover:text-red-400 transition"
+                              title="Hapus Komentar"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
+                      <p className="text-gray-300 leading-snug">{comment.isi}</p>
+                      <button 
+                        onClick={() => setReplyingTo(comment.id)} 
+                        className="text-[10px] text-gray-400 hover:text-amber-400 transition font-bold mt-1 inline-block"
+                      >
+                        Balas
+                      </button>
                     </div>
-                    <p className="text-gray-300 leading-snug">{comment.isi}</p>
+
+                    {/* Replies */}
+                    <div className="pl-4 space-y-2 border-l-2 border-[#333333] ml-2">
+                      {comments.filter(r => r.parent_comment_id === comment.id).map(reply => (
+                        <div key={reply.id} className="p-2 bg-[#141415] rounded-xl border border-[#333333] text-xs space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-amber-400">{reply.author_name}</span>
+                            <div className="flex items-center space-x-2">
+                              <span suppressHydrationWarning className="text-[10px] text-gray-500">
+                                {getTimeAgo(reply.created_at)}
+                              </span>
+                              {(reply.user_id === currentUser?.id || isAdmin) && (
+                                <button
+                                  onClick={() => handleDeleteComment(reply.id)}
+                                  className="text-gray-500 hover:text-red-400 transition"
+                                  title="Hapus Balasan"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-gray-300 leading-snug">{reply.isi}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             {/* Add Comment Form */}
+            {replyingTo && (
+              <div className="flex items-center justify-between bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+                <span className="text-[10px] text-amber-400">
+                  Membalas komentar <span className="font-bold">{comments.find(c => c.id === replyingTo)?.author_name}</span>
+                </span>
+                <button onClick={() => setReplyingTo(null)} className="text-gray-400 hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
             <form onSubmit={handleSendComment} className="flex items-center space-x-2 pt-1">
               <input
                 type="text"

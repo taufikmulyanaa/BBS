@@ -84,7 +84,7 @@ export default function ForumPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#333333] pb-6">
         <div className="space-y-3">
           <div className="inline-flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
             <MessageSquare className="w-4 h-4" />
@@ -97,14 +97,6 @@ export default function ForumPage() {
             Tanya jawab seputar jalur gowes, rekomendasi warung kopi, dan update perbaikan jalan real-time.
           </p>
         </div>
-
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2 shrink-0"
-        >
-          <Plus className="w-5 h-5 stroke-[2.5]" />
-          <span>Tulis Post Forum</span>
-        </button>
       </div>
 
       {/* Tabs */}
@@ -172,16 +164,34 @@ export default function ForumPage() {
           </button>
         </div>
       ) : (
-        <div className="max-w-3xl mx-auto space-y-6">
-          {filteredPosts.map((post) => (
-            <ForumPostCard
-              key={post.id}
-              post={post}
-              onEdit={(p) => setEditingPost(p)}
-              onDelete={handleDeletePost}
-              currentUser={currentUser}
-            />
-          ))}
+        <div className="max-w-2xl mx-auto w-full">
+          {/* Inline Create Trigger */}
+          <div 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center space-x-4 p-4 border-b border-[#333333] cursor-text group"
+          >
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold shrink-0">
+              {currentUser?.user_metadata?.full_name?.charAt(0).toUpperCase() || 'P'}
+            </div>
+            <div className="text-gray-500 text-sm flex-1 group-hover:text-gray-400 transition-colors">
+              Mulai diskusi atau lapor kondisi jalan...
+            </div>
+            <button className="bg-[#262626] group-hover:bg-[#333333] text-white font-bold text-xs px-4 py-2 rounded-full transition-colors border border-[#444444]">
+              Posting
+            </button>
+          </div>
+
+          <div className="flex flex-col divide-y divide-[#333333]">
+            {filteredPosts.map((post) => (
+              <ForumPostCard
+                key={post.id}
+                post={post}
+                onEdit={(p) => setEditingPost(p)}
+                onDelete={handleDeletePost}
+                currentUser={currentUser}
+              />
+            ))}
+          </div>
         </div>
       )}
 

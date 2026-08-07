@@ -5,6 +5,7 @@ import { X, Navigation, Mountain, Download, MapPin, CheckCircle, Star, MessageSq
 import { supabase, Route, ForumPost } from '@/lib/supabase';
 import LeafletMap from './LeafletMap';
 import LoginRequiredModal from './LoginRequiredModal';
+import ForumPostCard from './ForumPostCard';
 import Link from 'next/link';
 
 export type RouteReview = {
@@ -920,80 +921,18 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
                       </p>
                     </div>
                   ) : (
-                    forumPosts.map((post) => (
-                      <div key={post.id} className="bg-[#262626] border border-[#333333] p-4 rounded-xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2.5">
-                            <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 overflow-hidden flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
-                              {post.author_avatar ? (
-                                <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
-                              ) : (
-                                <span>{post.author_name?.charAt(0).toUpperCase() || 'P'}</span>
-                              )}
-                            </div>
-                            <div>
-                              <span className="font-bold text-xs text-white block">{post.author_name}</span>
-                              <span className="text-[10px] text-gray-400">
-                                {new Date(post.created_at).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })}
-                              </span>
-                            </div>
-                          </div>
-
-                          <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
-                              post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan'
-                                ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                                : post.tipe === 'rekomendasi_warkop'
-                                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                                : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                            }`}
-                          >
-                            {post.tipe === 'laporan_kondisi' || post.tipe === 'laporan_jalan' ? (
-                              <>
-                                <AlertTriangle className="w-3 h-3" />
-                                <span>Laporan Jalan</span>
-                              </>
-                            ) : post.tipe === 'rekomendasi_warkop' ? (
-                              <>
-                                <Coffee className="w-3 h-3" />
-                                <span>Warkop Gowes</span>
-                              </>
-                            ) : (
-                              <>
-                                <MessageSquare className="w-3 h-3" />
-                                <span>Diskusi</span>
-                              </>
-                            )}
-                          </span>
-                        </div>
-
-                        <div>
-                          <h4 className="font-bold text-sm text-white mb-1">{post.judul}</h4>
-                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
-                            {post.isi}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs text-gray-400">
-                          <span className="flex items-center space-x-1">
-                            <ThumbsUp className="w-3.5 h-3.5 text-amber-400" />
-                            <span>{post.like_count || 0} Menyukai</span>
-                          </span>
-
-                          <Link
-                            href="/forum"
-                            className="text-amber-400 hover:underline flex items-center space-x-1 font-semibold text-[11px]"
-                          >
-                            <span>Buka di Forum Diskusi Utama</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    ))
+                    <div className="flex flex-col divide-y divide-[#333333]">
+                      {forumPosts.map((post) => (
+                        <ForumPostCard
+                          key={post.id}
+                          post={post}
+                          currentUser={currentUser}
+                          onDelete={(postId) => {
+                            setForumPosts((prev) => prev.filter((p) => p.id !== postId));
+                          }}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
 

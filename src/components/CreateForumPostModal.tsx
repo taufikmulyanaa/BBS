@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, MessageSquare, MapPin, Tag, Send, Info, Camera, Image as ImageIcon, Navigation } from 'lucide-react';
+import { X, MessageSquare, MapPin, Tag, Send, Info, Camera, Image as ImageIcon, Navigation, Plus } from 'lucide-react';
 import { supabase, Route } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
@@ -18,7 +18,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
   const [tipe, setTipe] = useState<'laporan_jalan' | 'diskusi' | 'rekomendasi_warkop'>('laporan_jalan');
   const [lokasiPatokan, setLokasiPatokan] = useState('');
   const [selectedRouteId, setSelectedRouteId] = useState<string>('');
-  const [photoUrls, setPhotoUrls] = useState<string[]>(['']);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -39,22 +39,19 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
 
   if (!isOpen) return null;
 
-  const handleAddPhotoField = () => {
-    if (photoUrls.length < 5) {
-      setPhotoUrls((prev) => [...prev, '']);
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selected = Array.from(e.target.files);
+      if (photos.length + selected.length > 5) {
+        alert('Maksimal 5 foto lampiran per postingan.');
+        return;
+      }
+      setPhotos((prev) => [...prev, ...selected].slice(0, 5));
     }
   };
 
-  const handleRemovePhotoField = (index: number) => {
-    setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handlePhotoUrlChange = (index: number, value: string) => {
-    setPhotoUrls((prev) => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
+  const handleRemovePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,10 +72,32 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
         ? `${warkopTag}\n\n${lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n` : ''}${isi}`
         : lokasiPatokan ? `📍 Lokasi: ${lokasiPatokan}\n\n${isi}` : isi;
 
-      // Filter valid photo URLs
-      const validPhotos = photoUrls.map((url) => url.trim()).filter((url) => url.length > 0);
-      if (validPhotos.length > 0) {
-        fullContent += `\n\n📷 Foto Lampiran:\n${validPhotos.join('\n')}`;
+      let uploadedUrls: string[] = [];
+      if (photos.length > 0) {
+        for (let i = 0; i < photos.length; i++) {
+          const file = photos[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${currentUser.id}/${fileName}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('forum-media')
+            .upload(filePath, file);
+            
+          if (uploadError) throw uploadError;
+          
+          const { data: publicUrlData } = supabase.storage
+            .from('forum-media')
+            .getPublicUrl(filePath);
+            
+          if (publicUrlData) {
+            uploadedUrls.push(publicUrlData.publicUrl);
+          }
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        fullContent += `\n\n📷 Foto Lampiran:\n${uploadedUrls.join('\n')}`;
       }
 
       const dbType = tipe === 'laporan_jalan' ? 'laporan_kondisi' : 'diskusi';
@@ -108,7 +127,7 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       setIsi('');
       setLokasiPatokan('');
       setSelectedRouteId('');
-      setPhotoUrls(['']);
+      setPhotos([]);
     } catch (err: any) {
       console.error('Error creating forum post:', err);
       setErrorMsg(err.message || 'Gagal mengirim postingan forum.');
@@ -268,48 +287,36 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                 />
               </div>
 
-              {/* Photo Attachments URL Input Fields */}
-              <div className="space-y-2 pt-2 border-t border-[#2A2A2A]">
+              {/* Photo Attachments File Input */}
+              <div className="space-y-3 pt-2 border-t border-[#2A2A2A]">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
                     <Camera className="w-3.5 h-3.5 text-amber-400" />
-                    <span>URL Foto Lampiran ({photoUrls.length}/5)</span>
+                    <span>Foto Lampiran ({photos.length}/5)</span>
                   </label>
-                  {photoUrls.length < 5 && (
-                    <button
-                      type="button"
-                      onClick={handleAddPhotoField}
-                      className="text-xs text-amber-400 hover:underline font-bold"
-                    >
-                      + Tambah Foto
-                    </button>
-                  )}
                 </div>
 
-                {photoUrls.map((url, idx) => (
-                  <div key={idx} className="flex items-center space-x-2">
-                    <div className="relative flex-1">
-                      <ImageIcon className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
-                      <input
-                        type="url"
-                        placeholder={`https://... (URL Gambar ${idx + 1})`}
-                        value={url}
-                        onChange={(e) => handlePhotoUrlChange(idx, e.target.value)}
-                        className="w-full bg-[#262626] border border-[#3A3A3A] rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
-                      />
-                    </div>
-                    {photoUrls.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((file, idx) => (
+                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#333333] group bg-black/50">
+                      <img src={URL.createObjectURL(file)} alt="preview" className="w-full h-full object-cover opacity-80" />
                       <button
                         type="button"
-                        onClick={() => handleRemovePhotoField(idx)}
-                        className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg text-xs"
-                        title="Hapus"
+                        onClick={() => handleRemovePhoto(idx)}
+                        className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3" />
                       </button>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ))}
+                  {photos.length < 5 && (
+                    <label className="w-20 h-20 rounded-lg border-2 border-dashed border-[#444444] hover:border-amber-500 flex flex-col items-center justify-center cursor-pointer transition text-gray-500 hover:text-amber-500 bg-[#1A1A1A]">
+                      <Plus className="w-5 h-5 mb-1" />
+                      <span className="text-[10px] font-bold">Upload</span>
+                      <input type="file" multiple accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
