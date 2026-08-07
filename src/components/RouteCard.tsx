@@ -5,6 +5,7 @@ import { Route } from '@/lib/supabase';
 import { MapPin, Navigation, Mountain, Star, Download, Bookmark, CheckCircle, Edit3 } from 'lucide-react';
 import RouteMapModal from './RouteMapModal';
 import EditRouteModal from './EditRouteModal';
+import LoginRequiredModal from './LoginRequiredModal';
 
 type Props = {
   route: Route;
@@ -17,6 +18,15 @@ type Props = {
 export default function RouteCard({ route, onSave, isSaved = false, onRefresh, currentUser }: Props) {
   const [showMapModal, setShowMapModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleProtectedAction = (action: () => void) => {
+    if (!currentUser) {
+      setShowLoginModal(true);
+    } else {
+      action();
+    }
+  };
 
   const getLevelBadge = (level: string) => {
     switch (level) {
@@ -144,14 +154,14 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
           {/* Action Buttons */}
           <div className="pt-2 flex items-center space-x-2">
             <button
-              onClick={() => setShowMapModal(true)}
+              onClick={() => handleProtectedAction(() => setShowMapModal(true))}
               className="flex-1 bg-[#1A1A1A] hover:bg-[#333333] text-white border border-[#333333] text-xs font-semibold py-2 rounded-lg flex items-center justify-center space-x-1.5 transition-colors"
             >
               <MapPin className="w-3.5 h-3.5 text-amber-400" />
               <span>Lihat Peta</span>
             </button>
             <button
-              onClick={handleDownloadGpx}
+              onClick={(e) => handleProtectedAction(() => handleDownloadGpx(e))}
               className="bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors"
               title="Unduh file GPX"
             >
@@ -176,6 +186,13 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
         onSuccess={() => onRefresh && onRefresh()}
         route={route}
         currentUser={currentUser}
+      />
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        message="Silakan masuk terlebih dahulu untuk melihat peta lengkap dan mengunduh rute GPX ini."
       />
     </>
   );
