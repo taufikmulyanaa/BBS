@@ -190,8 +190,8 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
       });
     };
 
-    // Step 1: Geocode Start Location
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}`)
+    // Step 1: Geocode Start Location (Global Indonesia Search)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startQuery)}&countrycodes=id`)
       .then((res) => res.json())
       .then((startGeo) => {
         if (!isMounted) return;
@@ -209,9 +209,8 @@ export default function LeafletMap({ routeName = 'Rute Gowes', routeDescription 
           return;
         }
 
-        // Step 2: Pure Dynamic Proximity Search for Finish Location (Centered around Start Location)
-        const viewbox = `${startLng - 1.0},${startLat - 1.0},${startLng + 1.0},${startLat + 1.0}`;
-        const finishUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}&viewbox=${viewbox}`;
+        // Step 2: Geocode Finish Location (Global Indonesia Search without viewbox constraints)
+        const finishUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finishQuery)}&countrycodes=id`;
 
         fetch(finishUrl)
           .then((res) => res.json())
