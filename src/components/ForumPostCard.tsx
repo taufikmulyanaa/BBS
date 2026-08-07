@@ -326,16 +326,20 @@ export default function ForumPostCard({ post, onLike, onEdit, onDelete, currentU
           {/* Photo Attachments Preview Grid */}
           {photoUrls.length > 0 && (
             <div className="mt-3">
-              <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-[#333333]">
+              <div className={`grid gap-1 rounded-xl overflow-hidden border border-[#333333] ${photoUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 {photoUrls.slice(0, 4).map((url, i) => (
                   <a
                     key={i}
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="relative aspect-video group/img bg-black/40 block"
+                    className={`relative group/img bg-[#181818] block overflow-hidden ${photoUrls.length === 1 ? 'max-h-[500px]' : 'aspect-video'}`}
                   >
-                    <img src={url} alt={`Lampiran ${i + 1}`} className="w-full h-full object-cover group-hover/img:scale-105 transition" />
+                    <img 
+                      src={url} 
+                      alt={`Lampiran ${i + 1}`} 
+                      className={`w-full group-hover/img:scale-105 transition ${photoUrls.length === 1 ? 'h-auto max-h-[500px] object-contain mx-auto' : 'h-full object-cover'}`} 
+                    />
                   </a>
                 ))}
               </div>
