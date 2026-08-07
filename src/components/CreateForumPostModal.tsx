@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Image as ImageIcon, MapPin, MoreHorizontal, FileText } from 'lucide-react';
+import { Image as ImageIcon, MapPin, MoreHorizontal, FileText, Smile } from 'lucide-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { supabase, Route } from '@/lib/supabase';
 import MapLocationPickerModal from './MapLocationPickerModal';
 
@@ -20,8 +21,10 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showMapPicker, setShowMapPicker] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -38,6 +41,18 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
       setLocalAvatar(localStorage.getItem(`bbs_avatar_${currentUser.id}`));
     }
   }, [isOpen, currentUser]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmojiPicker]);
 
   if (!isOpen) return null;
 
@@ -283,12 +298,27 @@ export default function CreateForumPostModal({ isOpen, onClose, onSuccess, curre
                   <MapPin className="w-[18px] h-[18px]" />
                 </button>
                 
-                {/* Dummy tools to match Threads aesthetic */}
-                <span className="text-gray-700 cursor-not-allowed">GIF</span>
-                <span className="text-gray-700 cursor-not-allowed text-lg leading-none">☺</span>
-                <span className="text-gray-700 cursor-not-allowed">
-                   <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                </span>
+                <div className="relative" ref={emojiPickerRef}>
+                  <button 
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={`hover:text-white transition ${showEmojiPicker ? 'text-amber-400' : ''}`}
+                    title="Add Emoji"
+                  >
+                    <Smile className="w-[18px] h-[18px]" />
+                  </button>
+                  
+                  {showEmojiPicker && (
+                    <div className="absolute top-8 left-0 z-50">
+                      <EmojiPicker 
+                        theme={Theme.DARK}
+                        onEmojiClick={(emojiData) => {
+                          setIsi((prev) => prev + emojiData.emoji);
+                          setShowEmojiPicker(false);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="mt-4 pb-2">
