@@ -82,16 +82,19 @@ export default function ForumPage() {
     return post.tipe === activeTab;
   });
 
+  const localAvatar = currentUser && typeof window !== 'undefined' ? localStorage.getItem(`bbs_avatar_${currentUser.id}`) : null;
+  const avatarUrl = localAvatar || currentUser?.user_metadata?.custom_avatar || currentUser?.user_metadata?.avatar_url;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* Header */}
-      <div className="pb-4 mb-2">
-        <h1 className="font-bold text-2xl text-white">
-          Forum Diskusi
-        </h1>
+      {/* Header aligned with content */}
+      <div className="max-w-2xl mx-auto w-full">
+        <div className="pb-4 mb-2">
+          <h1 className="font-bold text-2xl text-white">
+            Forum Diskusi
+          </h1>
+        </div>
       </div>
-
-
       {/* Posts Grid */}
       {loading ? (
         <div className="text-center py-12 text-gray-400 text-sm">Memuat diskusi forum...</div>
@@ -117,8 +120,12 @@ export default function ForumPage() {
             onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center space-x-4 p-4 border-b border-[#333333] cursor-text group"
           >
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold shrink-0">
-              {currentUser?.user_metadata?.full_name?.charAt(0).toUpperCase() || 'P'}
+            <div className="w-10 h-10 rounded-full bg-[#262626] border border-[#333333] flex items-center justify-center font-bold shrink-0 overflow-hidden text-amber-500">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="You" className="w-full h-full object-cover" />
+              ) : (
+                <span>{currentUser?.user_metadata?.full_name?.charAt(0).toUpperCase() || 'P'}</span>
+              )}
             </div>
             <div className="text-gray-500 text-sm flex-1 group-hover:text-gray-400 transition-colors">
               Mulai diskusi atau lapor kondisi jalan...
