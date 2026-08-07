@@ -12,6 +12,7 @@ export default function Home() {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [openRides, setOpenRides] = useState<OpenRide[]>([]);
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([]);
+  const [stats, setStats] = useState({ members: 0, routes: 0, openRides: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +26,17 @@ export default function Home() {
 
         const { data: dbPosts } = await supabase.from('forum_posts').select('*').limit(2);
         if (dbPosts) setForumPosts(dbPosts);
+
+        // Fetch counts for stats
+        const { count: memberCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+        const { count: routeCount } = await supabase.from('routes').select('*', { count: 'exact', head: true });
+        const { count: rideCount } = await supabase.from('open_rides').select('*', { count: 'exact', head: true });
+        
+        setStats({
+          members: memberCount || 0,
+          routes: routeCount || 0,
+          openRides: rideCount || 0,
+        });
       } catch (err) {
         console.error('Error fetching database data:', err);
       } finally {
@@ -91,15 +103,15 @@ export default function Home() {
               {/* Social Proof Stats */}
               <div className="pt-10 mt-6 border-t border-white/10 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0">
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">12,458</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">{stats.members.toLocaleString()}</span>
                   <span className="text-xs text-gray-300 mt-1 font-medium">Anggota Aktif</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">1,236</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">{stats.routes.toLocaleString()}</span>
                   <span className="text-xs text-gray-300 mt-1 font-medium">Rute Terverifikasi</span>
                 </div>
                 <div>
-                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">842</span>
+                  <span className="block font-heading font-black text-2xl text-amber-400 drop-shadow-md">{stats.openRides.toLocaleString()}</span>
                   <span className="text-xs text-gray-300 mt-1 font-medium">Open Ride</span>
                 </div>
               </div>
