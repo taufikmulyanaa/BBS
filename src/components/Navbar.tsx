@@ -100,8 +100,8 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black shadow-lg group-hover:bg-amber-400 transition-colors">
-                <Bike className="w-6 h-6 stroke-[2.5]" />
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-amber-500/50 shadow-lg group-hover:border-amber-400 transition-colors flex items-center justify-center bg-black/50">
+                <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <span className="font-heading font-bold text-sm text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">

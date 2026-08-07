@@ -8,8 +8,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black">
-              <Bike className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-amber-500/50 flex items-center justify-center bg-black/50">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="font-bold text-white text-sm">Bapak-Bapak Sepedahan</span>
