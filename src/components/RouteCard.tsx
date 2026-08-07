@@ -127,11 +127,18 @@ export default function RouteCard({ route, onSave, isSaved = false, onRefresh, c
         <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-              <span className="flex items-center space-x-1 hover:text-amber-400 transition">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
-                <span className="text-white font-bold">{route.rating_avg}</span>
-                <span>({route.rating_count} ulasan)</span>
-              </span>
+              {route.rating_count && route.rating_count > 0 ? (
+                <span className="flex items-center space-x-1 hover:text-amber-400 transition">
+                  <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
+                  <span className="text-white font-bold">{route.rating_avg}</span>
+                  <span>({route.rating_count} ulasan)</span>
+                </span>
+              ) : (
+                <span className="flex items-center space-x-1 text-gray-500 text-[11px]">
+                  <Star className="w-3.5 h-3.5 text-gray-600" />
+                  <span>Belum ada ulasan</span>
+                </span>
+              )}
             </div>
 
             <h3 className="font-heading font-bold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-1">

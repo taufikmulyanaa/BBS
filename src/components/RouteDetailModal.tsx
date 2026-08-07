@@ -65,6 +65,22 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
         console.error('Error fetching DB reviews:', err);
       }
 
+      // Clean legacy mock entries from browser localStorage if present
+      if (typeof window !== 'undefined') {
+        try {
+          const localRev = localStorage.getItem(`bbs_reviews_${route.id}`);
+          if (localRev && (localRev.includes('Kang Asep Gowes') || localRev.includes('Bapak Yudi MTB'))) {
+            localStorage.removeItem(`bbs_reviews_${route.id}`);
+          }
+          const localForum = localStorage.getItem(`bbs_route_forum_${route.id}`);
+          if (localForum && (localForum.includes('Pak Bambang Tanjakan') || localForum.includes('Om Hendra Roadbike'))) {
+            localStorage.removeItem(`bbs_route_forum_${route.id}`);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
       // Merge local user-submitted reviews
       if (typeof window !== 'undefined') {
         try {
@@ -73,7 +89,13 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
             const parsed: RouteReview[] = JSON.parse(localData);
             const existingIds = new Set(loadedReviews.map((r) => r.id));
             parsed.forEach((item) => {
-              if (!existingIds.has(item.id)) {
+              if (
+                !existingIds.has(item.id) &&
+                item.id !== 'rev-1' &&
+                item.id !== 'rev-2' &&
+                item.user_name !== 'Kang Asep Gowes' &&
+                item.user_name !== 'Bapak Yudi MTB'
+              ) {
                 loadedReviews.unshift(item);
               }
             });
@@ -113,7 +135,13 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
             const parsedForum: ForumPost[] = JSON.parse(localForum);
             const existingIds = new Set(loadedForum.map((f) => f.id));
             parsedForum.forEach((item) => {
-              if (!existingIds.has(item.id)) {
+              if (
+                !existingIds.has(item.id) &&
+                item.id !== 'fp-r1' &&
+                item.id !== 'fp-r2' &&
+                item.author_name !== 'Pak Bambang Tanjakan' &&
+                item.author_name !== 'Om Hendra Roadbike'
+              ) {
                 loadedForum.unshift(item);
               }
             });
@@ -346,9 +374,10 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
     setSubmittingForum(false);
   };
 
-  const avgRating = reviews.length
+  const hasReviews = reviews.length > 0;
+  const avgRating = hasReviews
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-    : route.rating_avg;
+    : (route.rating_count && route.rating_count > 0 ? route.rating_avg?.toFixed(1) : null);
 
   return (
     <>
@@ -479,11 +508,15 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
 
                   <div className="bg-[#262626] border border-[#333333] p-3.5 rounded-xl space-y-1">
                     <span className="text-[11px] text-gray-400 font-semibold block">Rating Komunitas</span>
-                    <div className="flex items-center space-x-1 font-heading font-extrabold text-xl text-amber-400">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span>{avgRating}</span>
-                      <span className="text-xs font-normal text-gray-400">({reviews.length})</span>
-                    </div>
+                    {avgRating ? (
+                      <div className="flex items-center space-x-1 font-heading font-extrabold text-xl text-amber-400">
+                        <Star className="w-4 h-4 fill-current" />
+                        <span>{avgRating}</span>
+                        <span className="text-xs font-normal text-gray-400">({reviews.length})</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-semibold text-gray-500 block pt-1">Belum ada ulasan</span>
+                    )}
                   </div>
 
                   <div className="bg-[#262626] border border-[#333333] p-3.5 rounded-xl space-y-1">
@@ -550,18 +583,24 @@ export default function RouteDetailModal({ isOpen, onClose, route, currentUser, 
                 <div className="bg-[#262626] border border-[#333333] p-5 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-6">
                   <div className="flex items-center space-x-4 text-center sm:text-left">
                     <div className="text-center">
-                      <span className="font-heading font-black text-5xl text-amber-400 block">{avgRating}</span>
+                      <span className="font-heading font-black text-5xl text-amber-400 block">
+                        {avgRating || '-'}
+                      </span>
                       <div className="flex items-center justify-center space-x-1 mt-1 text-amber-400">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             className={`w-4 h-4 ${
-                              star <= Math.round(Number(avgRating)) ? 'fill-amber-400 text-amber-400' : 'text-gray-600'
+                              avgRating && star <= Math.round(Number(avgRating))
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-gray-600'
                             }`}
                           />
                         ))}
                       </div>
-                      <span className="text-[11px] text-gray-400 block mt-1">Berdasarkan {reviews.length} ulasan</span>
+                      <span className="text-[11px] text-gray-400 block mt-1">
+                        {reviews.length > 0 ? `Berdasarkan ${reviews.length} ulasan` : 'Belum ada ulasan'}
+                      </span>
                     </div>
 
                     <div className="hidden sm:block border-l border-[#333333] pl-6 space-y-1">
