@@ -23,10 +23,11 @@ Belum sempat dites di device/emulator fisik atau `flutter build apk` (Android SD
 
 ## Konfigurasi lanjutan (opsional)
 
-- **Google Sign-In**: tombolnya sudah ada di layar Auth, tapi belum akan berfungsi sampai kamu:
-  1. Bikin OAuth client di Google Cloud Console (package name `com.guyubgowes.bapak_bapak_sepedahan` + SHA-1 certificate untuk Android, bundle id untuk iOS).
-  2. Set provider Google + Redirect URL (`io.supabase.guyubgowes://login-callback`, lihat `lib/data/repositories/auth_repository.dart`) di dashboard Supabase Auth project ini.
-  3. Daftarkan deep link scheme `io.supabase.guyubgowes` di `android/app/src/main/AndroidManifest.xml` (intent-filter) dan `ios/Runner/Info.plist` (`CFBundleURLTypes`).
+- **Google Sign-In**: tombolnya sudah ada di layar Auth, dan `android/app/src/main/AndroidManifest.xml` sudah didaftarkan intent-filter buat nangkep deep link `io.supabase.guyubgowes://login-callback`. Yang masih perlu kamu lakukan sendiri (butuh akses dashboard yang saya nggak punya):
+  1. Tambahkan `io.supabase.guyubgowes://login-callback` ke **Redirect URLs** di Supabase Dashboard → Authentication → URL Configuration (sejajar dengan `http://localhost:3000/**` yang sudah ada buat web).
+  2. Bikin OAuth client Android di Google Cloud Console: package name `com.guyubgowes.bapak_bapak_sepedahan` + SHA-1 certificate dari keystore debug/release kamu (`cd android && ./gradlew signingReport` buat lihat SHA-1 debug).
+  3. Untuk iOS: daftarkan URL scheme `io.supabase.guyubgowes` di `ios/Runner/Info.plist` (`CFBundleURLTypes`) — belum ada dari sekarang, karena environment ini nggak bisa build/verifikasi iOS.
+  4. **Penting**: `flutter run -d chrome`/`-d edge` (mode web) TIDAK akan pakai deep link ini — itu jalan lewat redirect browser biasa (makanya kalau login lewat web-mode Flutter, larinya ke redirect URL web `localhost:3000`, bukan ke aplikasi). Deep link `io.supabase.guyubgowes://` cuma berlaku waktu jalan sebagai APK/app asli di Android/iOS.
 - **Migration `08_add_route_reviews.sql`** perlu dijalankan di Supabase SQL editor (independen dari Flutter) — tabel `route_reviews` dipakai fitur rating/ulasan rute.
 - `anonKey` di `lib/core/supabase_config.dart` sudah deprecated di `supabase_flutter` versi ini (info-level, bukan error) demi `publishableKey` — sengaja belum diganti karena butuh key baru dari dashboard Supabase yang beda format, dan web app juga masih pakai key lama ini.
 
