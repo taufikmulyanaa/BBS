@@ -123,13 +123,23 @@ export default function ProfilePage() {
         foto_profil_url: urlToSave,
         updated_at: new Date().toISOString(),
       });
-      if (dbErr) console.error('DB profiles upsert error:', dbErr);
+      
+      if (dbErr) {
+        console.error('DB profiles upsert error:', dbErr);
+        alert(`Gagal menyimpan ke database: ${dbErr.message}. Pastikan RLS di tabel profiles mengizinkan UPDATE.`);
+        // We shouldn't proceed if DB fails to avoid desync
+        setSaving(false);
+        return;
+      }
 
       // 5. Update auth user metadata
       const { error: authErr } = await supabase.auth.updateUser({
         data: { custom_avatar: urlToSave, foto_profil_url: urlToSave }
       });
-      if (authErr) console.error('Auth updateUser error:', authErr);
+      if (authErr) {
+        console.error('Auth updateUser error:', authErr);
+        alert(`Gagal menyimpan profil akun: ${authErr.message}`);
+      }
 
       // 6. Notify other components
       if (typeof window !== 'undefined') {
@@ -159,15 +169,23 @@ export default function ProfilePage() {
           window.dispatchEvent(new Event('bbs_avatar_updated'));
         }
 
-        await supabase.from('profiles').upsert({
+        const { error: dbErr } = await supabase.from('profiles').upsert({
           id: user.id,
           nama_lengkap: namaLengkap,
           bio,
           foto_profil_url: fotoProfilUrl,
           updated_at: new Date().toISOString(),
         });
+        
+        if (dbErr) {
+          console.error('DB profiles upsert error:', dbErr);
+          alert(`Gagal menyimpan ke database: ${dbErr.message}. Pastikan RLS di tabel profiles mengizinkan UPDATE.`);
+          setSaving(false);
+          return;
+        }
+
         await supabase.auth.updateUser({
-          data: { full_name: namaLengkap, custom_avatar: fotoProfilUrl, avatar_url: fotoProfilUrl }
+          data: { full_name: namaLengkap, custom_avatar: fotoProfilUrl, foto_profil_url: fotoProfilUrl }
         });
       }
       setIsEditing(false);
