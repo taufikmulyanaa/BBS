@@ -18,8 +18,37 @@ export default function LeafletMap({ routeName = 'Rute Gowes', className = 'w-fu
   const getRouteDetails = (nama: string) => {
     const lower = nama.toLowerCase();
 
-    // 1. Tasikmalaya - Ciamis - Banjar - Padaherang - Pangandaran
-    if (lower.includes('pangandaran') || lower.includes('tasik') || lower.includes('ciamis') || lower.includes('padaherang')) {
+    // 1. Kebayoran / BSD / Bintaro / Tangerang / Line Pipe / Jakarta
+    if (
+      lower.includes('bsd') ||
+      lower.includes('kebayoran') ||
+      lower.includes('bintaro') ||
+      lower.includes('line pipe') ||
+      lower.includes('tangerang') ||
+      lower.includes('jakarta')
+    ) {
+      return {
+        center: [-6.2750, 106.7200] as [number, number],
+        zoom: 12,
+        start: [-6.2443, 106.7844] as [number, number], // Kebayoran
+        finish: [-6.3015, 106.6534] as [number, number], // BSD Line Pipe
+        path: [
+          [-6.2443, 106.7844], // Kebayoran Baru
+          [-6.2700, 106.7400], // Bintaro Loop
+          [-6.2850, 106.7000], // Serpong Utama
+          [-6.3015, 106.6534], // BSD Pipe Line
+        ] as [number, number][],
+      };
+    }
+
+    // 2. Tasikmalaya - Ciamis - Banjar - Padaherang - Pangandaran
+    if (
+      lower.includes('pangandaran') ||
+      lower.includes('tasik') ||
+      lower.includes('ciamis') ||
+      lower.includes('padaherang') ||
+      lower.includes('banjar')
+    ) {
       return {
         center: [-7.4500, 108.5500] as [number, number],
         zoom: 10,
@@ -35,8 +64,13 @@ export default function LeafletMap({ routeName = 'Rute Gowes', className = 'w-fu
       };
     }
 
-    // 2. Bukit Pelangi / Sentul / Bogor
-    if (lower.includes('bukit pelangi') || lower.includes('bogor') || lower.includes('sentul')) {
+    // 3. Bukit Pelangi / Sentul / Bogor / Puncak
+    if (
+      lower.includes('bukit pelangi') ||
+      lower.includes('bogor') ||
+      lower.includes('sentul') ||
+      lower.includes('puncak')
+    ) {
       return {
         center: [-6.6100, 106.8650] as [number, number],
         zoom: 12,
@@ -51,7 +85,7 @@ export default function LeafletMap({ routeName = 'Rute Gowes', className = 'w-fu
       };
     }
 
-    // 3. KM0 Jalur Hijau
+    // 4. KM0 Jalur Hijau
     if (lower.includes('km0') || lower.includes('hijau')) {
       return {
         center: [-6.6250, 106.8900] as [number, number],
@@ -62,6 +96,36 @@ export default function LeafletMap({ routeName = 'Rute Gowes', className = 'w-fu
           [-6.6150, 106.8700],
           [-6.6250, 106.8900],
           [-6.6350, 106.9100],
+        ] as [number, number][],
+      };
+    }
+
+    // 5. Waduk Jatiluhur / Purwakarta
+    if (lower.includes('jatiluhur') || lower.includes('purwakarta')) {
+      return {
+        center: [-6.5350, 107.4100] as [number, number],
+        zoom: 12,
+        start: [-6.5500, 107.4400] as [number, number],
+        finish: [-6.5200, 107.3800] as [number, number],
+        path: [
+          [-6.5500, 107.4400],
+          [-6.5350, 107.4100],
+          [-6.5200, 107.3800],
+        ] as [number, number][],
+      };
+    }
+
+    // 6. Yogyakarta / Kaliurang / Merapi
+    if (lower.includes('jogja') || lower.includes('yogyakarta') || lower.includes('kaliurang')) {
+      return {
+        center: [-7.6800, 110.3950] as [number, number],
+        zoom: 12,
+        start: [-7.7828, 110.3670] as [number, number], // Tugu
+        finish: [-7.5950, 110.4250] as [number, number], // Kaliurang
+        path: [
+          [-7.7828, 110.3670],
+          [-7.6900, 110.3900],
+          [-7.5950, 110.4250],
         ] as [number, number][],
       };
     }
