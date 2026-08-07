@@ -22,6 +22,7 @@ export default function ProfilePage() {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [unverifiedRoutes, setUnverifiedRoutes] = useState<any[]>([]);
   const [loadingUnverified, setLoadingUnverified] = useState(false);
+  const [activeTab, setActiveTab] = useState<'statistik' | 'layanan' | 'admin' | 'verifikasi'>('statistik');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -549,40 +550,80 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Right Column: Statistics & Quick Access */}
+        {/* Right Column: Content Area */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* Member Activity Stats */}
-          <div className="bg-[#262626] border border-[#333333] rounded-2xl p-6 space-y-4 shadow-xl">
-            <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 border-b border-[#333333] pb-3">
-              <Award className="w-4 h-4 text-amber-400" />
-              <span>Statistik Aktivitas Komunitas</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
-                <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.savedRoutes}</span>
-                <span className="text-xs text-gray-400 font-medium">Rute Favorit</span>
-              </div>
-              <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
-                <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.ridesJoined}</span>
-                <span className="text-xs text-gray-400 font-medium">Open Ride Diikuti</span>
-              </div>
-              <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
-                <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.forumPosts}</span>
-                <span className="text-xs text-gray-400 font-medium">Diskusi Forum</span>
-              </div>
-            </div>
+          {/* Tabs Navigation */}
+          <div className="flex overflow-x-auto space-x-2 border-b border-[#333333] pb-2 custom-scrollbar">
+            <button
+              onClick={() => setActiveTab('statistik')}
+              className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${activeTab === 'statistik' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-amber-400 hover:bg-[#333333]'}`}
+            >
+              Statistik Aktivitas
+            </button>
+            <button
+              onClick={() => setActiveTab('layanan')}
+              className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${activeTab === 'layanan' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-amber-400 hover:bg-[#333333]'}`}
+            >
+              Akses Cepat Layanan
+            </button>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${activeTab === 'admin' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-amber-400 hover:bg-[#333333]'}`}
+                >
+                  Kelola Anggota
+                </button>
+                <button
+                  onClick={() => setActiveTab('verifikasi')}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors flex items-center space-x-2 ${activeTab === 'verifikasi' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-amber-400 hover:bg-[#333333]'}`}
+                >
+                  <span>Antrean Verifikasi</span>
+                  {unverifiedRoutes.length > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'verifikasi' ? 'bg-black text-amber-500' : 'bg-red-500 text-white'}`}>
+                      {unverifiedRoutes.length}
+                    </span>
+                  )}
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Quick Nav Options */}
-          <div className="bg-[#262626] border border-[#333333] rounded-2xl p-6 space-y-4 shadow-xl">
-            <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 border-b border-[#333333] pb-3">
-              <Bike className="w-4 h-4 text-amber-400" />
-              <span>Akses Cepat Layanan</span>
-            </h3>
+          {/* Member Activity Stats */}
+          {activeTab === 'statistik' && (
+            <div className="bg-[#262626] border border-[#333333] rounded-2xl p-6 space-y-4 shadow-xl animate-fade-in">
+              <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 border-b border-[#333333] pb-3">
+                <Award className="w-4 h-4 text-amber-400" />
+                <span>Statistik Aktivitas Komunitas</span>
+              </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
+                  <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.savedRoutes}</span>
+                  <span className="text-xs text-gray-400 font-medium">Rute Favorit</span>
+                </div>
+                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
+                  <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.ridesJoined}</span>
+                  <span className="text-xs text-gray-400 font-medium">Open Ride Diikuti</span>
+                </div>
+                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] space-y-1 text-center">
+                  <span className="block font-heading font-extrabold text-3xl text-amber-400">{stats.forumPosts}</span>
+                  <span className="text-xs text-gray-400 font-medium">Diskusi Forum</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Quick Nav Options */}
+          {activeTab === 'layanan' && (
+            <div className="bg-[#262626] border border-[#333333] rounded-2xl p-6 space-y-4 shadow-xl animate-fade-in">
+              <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 border-b border-[#333333] pb-3">
+                <Bike className="w-4 h-4 text-amber-400" />
+                <span>Akses Cepat Layanan</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Link
                 href="/routes"
                 className="bg-[#1A1A1A] hover:border-amber-500/50 p-4 rounded-xl border border-[#333333] flex items-center justify-between group transition"
@@ -640,12 +681,13 @@ export default function ProfilePage() {
                   <p className="text-xs text-green-400 font-semibold">Aktif & Terverifikasi</p>
                 </div>
               </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Admin Management Section */}
-          {isAdmin && (
-            <div className="bg-[#262626] border border-amber-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
+          {isAdmin && activeTab === 'admin' && (
+            <div className="bg-[#262626] border border-amber-500/30 rounded-2xl p-6 space-y-4 shadow-xl animate-fade-in">
               <div className="flex items-center justify-between border-b border-[#333333] pb-3">
                 <h3 className="font-heading font-bold text-base text-amber-400 flex items-center space-x-2">
                   <Shield className="w-4 h-4" />
@@ -705,8 +747,8 @@ export default function ProfilePage() {
           )}
 
           {/* Admin Verification Dashboard */}
-          {isAdmin && (
-            <div className="bg-[#262626] border border-green-500/30 rounded-2xl p-6 space-y-4 shadow-xl mt-6">
+          {isAdmin && activeTab === 'verifikasi' && (
+            <div className="bg-[#262626] border border-green-500/30 rounded-2xl p-6 space-y-4 shadow-xl animate-fade-in">
               <div className="flex items-center justify-between border-b border-[#333333] pb-3">
                 <h3 className="font-heading font-bold text-base text-green-400 flex items-center space-x-2">
                   <Check className="w-4 h-4" />
