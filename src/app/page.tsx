@@ -50,7 +50,7 @@ export default function Home() {
   return (
     <div className="space-y-20 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 md:py-32 border-b border-[#42403B]/60 flex flex-col justify-center min-h-[85vh]">
+      <section className="relative overflow-hidden pt-32 pb-24 md:py-40 -mt-16 border-b border-[#42403B]/60 flex flex-col justify-center min-h-[90vh]">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -68,7 +68,6 @@ export default function Home() {
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center space-x-2 bg-[#EA9B28]/10 border border-[#EA9B28]/30 px-3.5 py-1.5 rounded-full text-xs text-[#F7C56A] font-medium backdrop-blur-sm">
-                <Sparkles className="w-4 h-4 text-[#EA9B28]" />
                 <span>Komunitas Gowes Bapak-Bapak Indonesia</span>
               </div>
 

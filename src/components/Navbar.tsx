@@ -64,6 +64,15 @@ export default function Navbar() {
     };
   }, []);
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -80,7 +89,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#1A1A1A] border-b border-[#333333]">
+      <header 
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          !scrolled && pathname === '/' 
+            ? 'bg-transparent border-transparent' 
+            : 'bg-[#141415]/80 backdrop-blur-xl border-b border-white/10 shadow-lg'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
