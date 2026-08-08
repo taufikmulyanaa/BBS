@@ -6,7 +6,7 @@ Aplikasi mobile untuk komunitas "Bapak-Bapak Sepedahan", terhubung ke **Supabase
 
 Sudah dibangun: **Auth** (email/password + tombol Google), **Beranda**, **Rute** (list, detail, rating/ulasan, simpan rute), **Open Ride** (list, detail, join/leave, buat/edit/hapus), **Profil** minimal (avatar, nama, sign out).
 
-Belum dibangun (menyusul di iterasi berikutnya): Forum lengkap (sekarang cuma placeholder tab), Chapter, Event Sepeda, Create Route (upload GPX/cover — butuh storage bucket baru), edit profil lengkap.
+Belum dibangun (menyusul di iterasi berikutnya): Forum lengkap (sekarang cuma placeholder tab), Chapter, Event Sepeda, Create/Edit Route di mobile (masih lewat web app — `CreateRouteModal`/`EditRouteModal` di `src/components/`), edit profil lengkap.
 
 `flutter analyze` bersih (0 error/warning, 1 info deprecation non-blocking) dan `flutter build web --release` berhasil compile penuh. Folder platform (`android/`, `ios/`, `web/`) sudah di-generate dan ikut di-commit — tinggal `pub get` lalu jalankan.
 
@@ -19,7 +19,14 @@ flutter run                # pilih device Android/iOS yang terhubung, atau:
 flutter run -d chrome      # preview cepat di browser tanpa emulator
 ```
 
-Belum sempat dites di device/emulator fisik atau `flutter build apk` (Android SDK tidak tersedia di lingkungan tempat ini ditulis) — kalau nemu error runtime yang tidak ketangkap `flutter analyze`, tempel pesannya di sesi berikutnya biar diperbaiki.
+Sudah dites `flutter run` & `flutter build apk` ke device Android fisik — berhasil.
+
+**Windows only — kalau Gradle gagal dengan `Unable to establish loopback connection` / `Invalid argument: connect`:** ini bug AF_UNIX socket JDK yang muncul kalau `%TEMP%`/`%TMP%` mengarah ke folder yang difilter software tertentu (AV/OneDrive dkk) — biasanya `C:\Users\<user>\AppData\Local\Temp`. Bukan soal versi JDK atau kode project. Pakai `run-android.ps1` di folder ini (mengarahkan `TEMP`/`TMP` ke `.tools/gradletemp` lokal sebelum manggil `flutter`) alih-alih `flutter run` langsung:
+
+```powershell
+./run-android.ps1                # sama seperti flutter run
+./run-android.ps1 build apk       # atau subcommand flutter lain
+```
 
 ## Konfigurasi lanjutan (opsional)
 
